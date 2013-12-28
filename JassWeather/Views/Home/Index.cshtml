@@ -1,0 +1,19 @@
+﻿
+
+<table>
+            @{Newtonsoft.Json.JsonTextReader reader = new Newtonsoft.Json.JsonTextReader(new StringReader(ViewBag.response1));}
+            @while (reader.Read())
+            {
+                  if (reader.Value != null){                       
+                     <tr><td>@reader.TokenType</td><td>@reader.Value</td></tr>;
+                  }
+                else{
+                     <tr><td>@reader.TokenType</td><td></td></tr>;
+                }
+            }
+</table>
+
+
+
+
+
