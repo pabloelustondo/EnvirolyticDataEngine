@@ -24,14 +24,16 @@ namespace JassWeather.Controllers
         //
         // GET: /RequestSet/Details/5
 
-        public ActionResult Details(int id = 0)
+        public ActionResult EditCalls(int id = 0)
         {
             APIRequestSet apirequestset = db.APIRequestSets.Find(id);
             if (apirequestset == null)
             {
                 return HttpNotFound();
             }
-            return View(apirequestset);
+            Session["CurrentRequestSetId"] = apirequestset.Id;
+            Session["CurrentRequestSetName"] = apirequestset.name;
+            return RedirectToAction("Index", "Request");
         }
 
         //
@@ -55,7 +57,8 @@ namespace JassWeather.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-
+            Session["CurrentRequestSetId"] = apirequestset.Id;
+            Session["CurrentRequestSetName"] = apirequestset.name;
             return View(apirequestset);
         }
 
@@ -69,6 +72,8 @@ namespace JassWeather.Controllers
             {
                 return HttpNotFound();
             }
+            Session["CurrentRequestSetId"] = apirequestset.Id;
+            Session["CurrentRequestSetName"] = apirequestset.name;
             return View(apirequestset);
         }
 
@@ -85,6 +90,8 @@ namespace JassWeather.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
+            Session["CurrentRequestSetId"] = apirequestset.Id;
+            Session["CurrentRequestSetName"] = apirequestset.name;
             return View(apirequestset);
         }
 
@@ -109,6 +116,8 @@ namespace JassWeather.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             APIRequestSet apirequestset = db.APIRequestSets.Find(id);
+            Session["CurrentRequestSetId"] = null;
+            Session["CurrentRequestSetName"] = null;
             db.APIRequestSets.Remove(apirequestset);
             db.SaveChanges();
             return RedirectToAction("Index");
