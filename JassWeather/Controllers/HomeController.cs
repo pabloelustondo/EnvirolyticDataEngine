@@ -20,7 +20,6 @@ namespace JassWeather.Controllers
             APICaller apiCaller = new APICaller();
             string request1 = "http://api.wunderground.com/api/501a82781dc79a42/geolookup/conditions/q/IA/Cedar_Rapids.json";
             string response1 = apiCaller.callAPI(request1);
-            string formattedResponse = "";
 
             ViewBag.request1 = request1;
             ViewBag.response1 = response1;

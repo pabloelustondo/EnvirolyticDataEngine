@@ -7,24 +7,58 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JassWeather.Tests", "JassWe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JassWeatherAPI", "JassWeatherAPI\JassWeatherAPI.csproj", "{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JassCDF", "JassCDF\JassCDF.vcxproj", "{AEBEA2F2-518A-4E49-868B-C7141C382154}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|Win32 = Debug|Win32
 		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{91BDA27A-55AB-4B33-944C-1C56C230BB3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{91BDA27A-55AB-4B33-944C-1C56C230BB3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91BDA27A-55AB-4B33-944C-1C56C230BB3E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{91BDA27A-55AB-4B33-944C-1C56C230BB3E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{91BDA27A-55AB-4B33-944C-1C56C230BB3E}.Debug|Win32.ActiveCfg = Debug|Any CPU
 		{91BDA27A-55AB-4B33-944C-1C56C230BB3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91BDA27A-55AB-4B33-944C-1C56C230BB3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91BDA27A-55AB-4B33-944C-1C56C230BB3E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{91BDA27A-55AB-4B33-944C-1C56C230BB3E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{91BDA27A-55AB-4B33-944C-1C56C230BB3E}.Release|Win32.ActiveCfg = Release|Any CPU
 		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Debug|Win32.ActiveCfg = Debug|Any CPU
 		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Release|Win32.ActiveCfg = Release|Any CPU
 		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Debug|Win32.ActiveCfg = Debug|Any CPU
 		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Release|Win32.ActiveCfg = Release|Any CPU
+		{AEBEA2F2-518A-4E49-868B-C7141C382154}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{AEBEA2F2-518A-4E49-868B-C7141C382154}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{AEBEA2F2-518A-4E49-868B-C7141C382154}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{AEBEA2F2-518A-4E49-868B-C7141C382154}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AEBEA2F2-518A-4E49-868B-C7141C382154}.Debug|Win32.Build.0 = Debug|Win32
+		{AEBEA2F2-518A-4E49-868B-C7141C382154}.Release|Any CPU.ActiveCfg = Release|Win32
+		{AEBEA2F2-518A-4E49-868B-C7141C382154}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{AEBEA2F2-518A-4E49-868B-C7141C382154}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{AEBEA2F2-518A-4E49-868B-C7141C382154}.Release|Win32.ActiveCfg = Release|Win32
+		{AEBEA2F2-518A-4E49-868B-C7141C382154}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
