@@ -5,11 +5,12 @@
 
     This is just a very early stage prototype/proof concept to experiment with:
     <ul>
-        <li>getting real time information from Weather APIs (now)</li>
-        <li>using metadata to define which and how APIs are called and how information is retrieved and used (now partial)</li>
-        <li>storing this information into a fact table with a normalized schema (future)</li>
-        <li>get historical information in bulk and storing it using the same schema (future)</li>
-         <li>moving historical information to hadoop cluster (future)</li>
+        <li>getting real time information from a Weather API (Weather Underground for now)</li>
+        <li>getting historical information from NOAA (a small sample for now)</li>
+        <li>using metadata to define which and how APIs are called and how information is retrieved and used (just and idea)</li>
+        <li>storing this information into a fact table with a normalized schema (future.. ?.. DB?,mhh)</li>
+        <li>get historical information in bulk and storing it using the same schema (future..maybe using <a href="http://www.unidata.ucar.edu/software/thredds/current/netcdf-java/CDM/">Common Data Model</a>)</li>
+        <li>storing / processing historical information to hadoop cluster (long term future)</li>
     </ul>
     This home page in particular is just a 'sanity test' and will show errors in case something is wrong with the setup.
     
@@ -21,11 +22,57 @@
 
 <h1>What can i do for now?</h1> <br />
 
+<p>First of all you can see, directly in this page, how we call two weather info sources. One that we call using a real time web services that sends us JSON back and the other the we call using FTP and sends us netCDF back
+    You can see how we store the netCDF file in a folder and how we interpret the information inside using a Common Data Model API.
+</p>
+
+<p>Then, you can see a preview of the long term idea using metadata to connect to sources.
 For now you can go to the "Weather APIs" menu to see/add/modify the few currently defined APIs.
 An API is basically a set of calls and each call is normally defined, at least, by an URL.
 Future version will add more information to be able to process the response.
 For each defined API Request you can use the application to actually place the call and see what you get
-as response.
+as response.</p>
+
+
+
+<h1>Sample Request to NOAA </h1> <br />
+
+"http://www.narccap.ucar.edu/data/example/tas_WRFG_example.nc"
+
+<h1>Response from NOAA </h1>
+
+@ViewBag.Message
+
+<p>All variables in this file (reading the metadata):</p>
+
+@for(int i=1;i<9;i++){
+   <text>yc[0] =>  </text>@ViewBag.schema.Variables[i].Name <br />
+}
+
+<p> First 10 values of dimension "yc"</p>
+@for(int i=0;i<10;i++){
+   <text>yc[0] =>  </text>@ViewBag.yc[i] <br />
+}
+
+<p> First 10 values of dimension "xc"</p>
+@for(int i=0;i<10;i++){
+   <text>xc[0] =>  </text>@ViewBag.xc[i] <br />
+}
+
+<p> First 10 values of dimension "time" (in hours since initial time)</p>
+@for(int i=0;i<10;i++){
+   <text>time[0] =>  </text>@ViewBag.time[i] <br />
+}
+
+<p> First 4x4x4 values of tas (Surface Air Temperature)(Kelvin)</p>
+@for(int i=0;i<4;i++){
+    for(int j=0;j<4;j++){
+        for(int k=0;k<4;k++){
+   <text> time: @ViewBag.time[i] y: @ViewBag.yc[j] x: @ViewBag.xc[k] => </text>@ViewBag.tas[i,j,k]  <br />
+}
+}
+}
+
 
 
 <h1>Sample Request to Weather Underground</h1> <br />
@@ -46,6 +93,7 @@ as response.
                 }
             }
 </table>
+
 
 
 

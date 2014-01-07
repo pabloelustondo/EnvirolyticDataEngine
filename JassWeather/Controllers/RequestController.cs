@@ -6,7 +6,6 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using JassWeather.Models;
-using JassWeatherAPI;
 
 namespace JassWeather.Controllers
 {
