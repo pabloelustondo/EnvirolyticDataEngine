@@ -1,0 +1,45 @@
+﻿
+
+<h1>What is this?</h1> <br />
+<p>
+This page specifically test the use of the SDS library to read the data comming from the netCDF file.
+</p>
+
+<h1>Sample Request to NOAA </h1> <br />
+
+"http://www.narccap.ucar.edu/data/example/tas_WRFG_example.nc"
+
+<h1>Response from NOAA </h1>
+
+@ViewBag.Message
+
+<p>All variables in this file (reading the metadata):</p>
+
+@for(int i=1;i<9;i++){
+   <text>yc[0] =>  </text>@ViewBag.schema.Variables[i].Name <br />
+}
+
+<p> First 10 values of dimension "yc"</p>
+@for(int i=0;i<10;i++){
+   <text>yc[0] =>  </text>@ViewBag.yc[i] <br />
+}
+
+<p> First 10 values of dimension "xc"</p>
+@for(int i=0;i<10;i++){
+   <text>xc[0] =>  </text>@ViewBag.xc[i] <br />
+}
+
+<p> First 10 values of dimension "time" (in hours since initial time)</p>
+@for(int i=0;i<10;i++){
+   <text>time[0] =>  </text>@ViewBag.time[i] <br />
+}
+
+<p> First 4x4x4 values of tas (Surface Air Temperature)(Kelvin)</p>
+@for(int i=0;i<4;i++){
+    for(int j=0;j<4;j++){
+        for(int k=0;k<4;k++){
+   <text> time: @ViewBag.time[i] y: @ViewBag.yc[j] x: @ViewBag.xc[k] => </text>@ViewBag.tas[i,j,k]  <br />
+}
+}
+}
+
