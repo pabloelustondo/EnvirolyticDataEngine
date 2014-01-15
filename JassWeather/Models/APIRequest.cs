@@ -6,6 +6,7 @@ using System.Web;
 
 namespace JassWeather.Models
 {
+
     public class APIRequest
     {
         public int Id { get; set; }
@@ -15,6 +16,8 @@ namespace JassWeather.Models
         [DataType(DataType.MultilineText)]
         public string url { get; set; }
         public string name { get; set; }
+        public string type { get; set; }
+        public string schedule { get; set; }
 
         [DataType(DataType.MultilineText)]
         public string description { get; set; }

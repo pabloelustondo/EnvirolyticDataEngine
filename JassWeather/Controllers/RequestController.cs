@@ -41,16 +41,38 @@ namespace JassWeather.Controllers
         //
         // GET: /Request/Details/5
 
-        public ActionResult Details(int id = 0)
+        public ActionResult Call(int id = 0)
         {
-            APICaller apiCaller = new APICaller();
-            string request1 = "http://api.wunderground.com/api/501a82781dc79a42/geolookup/conditions/q/IA/Cedar_Rapids.json";
-            string response1 = apiCaller.callAPI(request1);
+            APIRequest apiRequest = db.APIRequests.Find(id); 
 
-            ViewBag.request1 = request1;
-            ViewBag.response1 = response1;
+            if (apiRequest.type == "json")
+            {
+                JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+                ViewBag.request = apiRequest.url;
+                ViewBag.response = apiCaller.ping_Json_DataSource(apiRequest.url);
+                return View("ShowJSON");
+            }
 
-            return View();
+            if (apiRequest.type == "netCDF")
+            {
+                string workingDirectorypath = HttpContext.Server.MapPath("~/App_Data");
+                JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+                ViewBag.request = apiRequest.url;
+                ViewBag.response = apiCaller.ping_small_NetCDF_file(apiRequest.url,workingDirectorypath);
+                return View("ShowNetCDF");
+            }
+
+            if (apiRequest.type == "netCDFFtp")
+            {
+                string workingDirectorypath = HttpContext.Server.MapPath("~/App_Data");
+                JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+                ViewBag.request = apiRequest.url;
+                ViewBag.response = apiCaller.get_big_NetCDF_by_ftp(apiRequest.url, workingDirectorypath);
+                return View("ShowNetCDF");
+            }
+
+            return View("ShowError");
+
         }
 
         //

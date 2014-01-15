@@ -15,9 +15,14 @@ namespace JassWeather.Models
             context.APIRequestSets.Add(apiRequestSet);
             context.SaveChanges();
 
-            var apiRequest = new APIRequest() { name = "Bob", APIRequestSetId = apiRequestSet.Id};
+            context.APIRequests.Add(new APIRequest() { 
+                name = "Bob", 
+                url = "http://api.wunderground.com/api/501a82781dc79a42/geolookup/conditions/q/IA/Cedar_Rapids.json",
+                type = "json",
+                APIRequestSetId = apiRequestSet.Id
+            });
 
-            context.APIRequests.Add(apiRequest);
+
             context.SaveChanges();
 
         }

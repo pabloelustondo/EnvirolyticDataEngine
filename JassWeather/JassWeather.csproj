@@ -90,6 +90,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.FtpClient">
+      <HintPath>..\packages\System.Net.FtpClient.1.0.5120.19022\lib\net40\System.Net.FtpClient.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -222,7 +225,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\APICaller.cs" />
+    <Compile Include="JassWeatherAPI\JassWeatherAPI.cs" />
     <Compile Include="App_Start\AuthConfig.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -247,6 +250,11 @@
     <Compile Include="Models\JassWeatherContext.cs" />
     <Compile Include="Models\JassWeatherContextInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="bin\Microsoft.Research.Science.Data.EsriGrid.xml">
@@ -379,11 +387,13 @@
     <Content Include="Views\RequestSet\Edit.cshtml" />
     <Content Include="Views\RequestSet\Delete.cshtml" />
     <Content Include="Views\Request\Index.cshtml" />
-    <Content Include="Views\Request\Details.cshtml" />
+    <Content Include="Views\Request\ShowJSON.cshtml" />
     <Content Include="Views\Request\Create.cshtml" />
     <Content Include="Views\Request\Edit.cshtml" />
     <Content Include="Views\Request\Delete.cshtml" />
     <Content Include="Views\Home\TestSDS.cshtml" />
+    <Content Include="Views\Request\ShowNetCDF.cshtml" />
+    <Content Include="Views\Request\ShowError.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -394,6 +404,10 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201312310213285_initial.resx">
       <DependentUpon>201312310213285_initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

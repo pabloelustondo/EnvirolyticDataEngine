@@ -23,9 +23,9 @@ namespace JassWeather.Controllers
 
             try{
 
-            APICaller apiCaller = new APICaller();
+            JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
             string request1 = "http://api.wunderground.com/api/501a82781dc79a42/geolookup/conditions/q/IA/Cedar_Rapids.json";
-            string response1 = apiCaller.callAPI(request1);
+            string response1 = apiCaller.ping_Json_DataSource(request1);
 
             ViewBag.request1 = request1;
             ViewBag.response1 = response1;

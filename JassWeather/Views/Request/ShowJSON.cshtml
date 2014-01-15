@@ -1,11 +1,11 @@
 ﻿<h1>Request </h1><br />
 
-@ViewBag.request1
+@ViewBag.request
 
 <br/><br/>
-<h1>Sample Response from Weather Underground </h1>
+<h1>Response</h1>
 <table>
-            @{Newtonsoft.Json.JsonTextReader reader = new Newtonsoft.Json.JsonTextReader(new StringReader(ViewBag.response1));}
+            @{Newtonsoft.Json.JsonTextReader reader = new Newtonsoft.Json.JsonTextReader(new StringReader(ViewBag.response));}
             @while (reader.Read())
             {
                   if (reader.Value != null){                       
