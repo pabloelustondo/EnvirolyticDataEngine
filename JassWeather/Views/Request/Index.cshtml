@@ -10,10 +10,10 @@
             Name
         </th>
         <th>
-            URL
+            Type
         </th>
         <th>
-            Description
+            URL
         </th>
         <th></th>
     </tr>
@@ -30,12 +30,9 @@
             @Html.DisplayFor(modelItem => item.url)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.description)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+            @Html.ActionLink("Edit/See", "Edit", new { id=item.Id }) |
             @Html.ActionLink("Call", "Call", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+            @Html.ActionLink("Del", "Delete", new { id=item.Id })
         </td>
     </tr>
 }

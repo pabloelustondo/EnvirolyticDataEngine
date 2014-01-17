@@ -43,13 +43,32 @@ namespace JassWeather.Controllers
 
         public ActionResult Call(int id = 0)
         {
-            APIRequest apiRequest = db.APIRequests.Find(id); 
+            APIRequest apiRequest = db.APIRequests.Find(id);
+
+            string maxFileSizeS = "1000000000000000";
+
+
+
+            int typeIndex = apiRequest.type.IndexOf("#");
+            if (typeIndex > 0)
+            {
+                maxFileSizeS = apiRequest.type.Substring(typeIndex + 1);
+                apiRequest.type = apiRequest.type.Substring(0, typeIndex);
+            }
+
+            double maxFileSize = Double.Parse(maxFileSizeS);
+
+            DateTime StartTime = DateTime.Now;
+            DateTime EndTime = DateTime.Now;
 
             if (apiRequest.type == "json")
             {
                 JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
                 ViewBag.request = apiRequest.url;
                 ViewBag.response = apiCaller.ping_Json_DataSource(apiRequest.url);
+                EndTime = DateTime.Now;
+                TimeSpan TotalTime = EndTime - StartTime;
+                ViewBag.TotalTime = "hs: " + TotalTime.TotalHours + "mins: " + TotalTime.TotalMinutes + "secs: " + TotalTime.TotalSeconds;
                 return View("ShowJSON");
             }
 
@@ -59,6 +78,8 @@ namespace JassWeather.Controllers
                 JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
                 ViewBag.request = apiRequest.url;
                 ViewBag.response = apiCaller.ping_small_NetCDF_file(apiRequest.url,workingDirectorypath);
+                TimeSpan TotalTime = EndTime - StartTime;
+                ViewBag.TotalTime = "hs: " + TotalTime.TotalHours + "mins: " + TotalTime.TotalMinutes + "secs: " + TotalTime.TotalSeconds;
                 return View("ShowNetCDF");
             }
 
@@ -68,8 +89,55 @@ namespace JassWeather.Controllers
                 JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
                 ViewBag.request = apiRequest.url;
                 ViewBag.response = apiCaller.get_big_NetCDF_by_ftp(apiRequest.url, workingDirectorypath);
+                TimeSpan TotalTime = EndTime - StartTime;
+                ViewBag.TotalTime = "hs: " + TotalTime.TotalHours + "mins: " + TotalTime.TotalMinutes + "secs: " + TotalTime.TotalSeconds;
                 return View("ShowNetCDF");
             }
+
+            if (apiRequest.type == "netCDFFtp2")
+            {
+                string workingDirectorypath = HttpContext.Server.MapPath("~/App_Data");
+                JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+                ViewBag.request = apiRequest.url;
+                ViewBag.response = apiCaller.get_big_NetCDF_by_ftp2(apiRequest.url, workingDirectorypath);
+                TimeSpan TotalTime = EndTime - StartTime;
+                ViewBag.TotalTime = "hs: " + TotalTime.TotalHours + "mins: " + TotalTime.TotalMinutes + "secs: " + TotalTime.TotalSeconds;
+                return View("ShowNetCDF");
+            }
+
+            if (apiRequest.type == "netCDFFtp3")
+            {
+                string workingDirectorypath = HttpContext.Server.MapPath("~/App_Data");
+                JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+                ViewBag.request = apiRequest.url;
+                ViewBag.response = apiCaller.get_big_NetCDF_by_ftp3(apiRequest.url, workingDirectorypath);
+                TimeSpan TotalTime = EndTime - StartTime;
+                ViewBag.TotalTime = "hs: " + TotalTime.TotalHours + "mins: " + TotalTime.TotalMinutes + "secs: " + TotalTime.TotalSeconds;
+                return View("ShowNetCDF");
+            }
+
+            if (apiRequest.type == "netCDFFtp4")
+            {
+                string workingDirectorypath = HttpContext.Server.MapPath("~/App_Data");
+                JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+                ViewBag.request = apiRequest.url;
+                ViewBag.response = apiCaller.get_big_NetCDF_by_ftp4(apiRequest.url, workingDirectorypath);
+                TimeSpan TotalTime = EndTime - StartTime;
+                ViewBag.TotalTime = "hs: " + TotalTime.TotalHours + "mins: " + TotalTime.TotalMinutes + "secs: " + TotalTime.TotalSeconds;
+                return View("ShowNetCDF");
+            }
+
+            if (apiRequest.type == "netCDFFtp5")
+            {
+                string workingDirectorypath = HttpContext.Server.MapPath("~/App_Data");
+                JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+                ViewBag.request = apiRequest.url;
+                ViewBag.response = apiCaller.get_big_NetCDF_by_ftp5(apiRequest.url, workingDirectorypath, maxFileSize);
+                TimeSpan TotalTime = EndTime - StartTime;
+                ViewBag.TotalTime = "hs: " + TotalTime.TotalHours + "mins: " + TotalTime.TotalMinutes + "secs: " + TotalTime.TotalSeconds;
+                return View("ShowNetCDF");
+            }
+
 
             return View("ShowError");
 

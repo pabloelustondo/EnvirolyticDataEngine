@@ -9,9 +9,17 @@ using System.Net.FtpClient;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Auth;
+using Microsoft.WindowsAzure.Storage.Blob;
+using System.Configuration;
 
 namespace JassWeather.Models
 {
+    public class JassBlob {
+        public string url { get; set; }
+        public int length { get; set; }   
+    }
     public class JassWeatherDataSourceAPI
     {
         public string ping_Json_DataSource(string url){
@@ -63,7 +71,8 @@ namespace JassWeather.Models
 
                 DateTime t = DateTime.Now;
                 string timeStamp = "_" + t.Year + "_" + t.Month + "_" + t.Day + "_" + t.Hour + "_" + t.Minute + "_" + t.Second + "_" + t.Millisecond;
-                string downloadedFilePath = workingDirectoryPath + "tas_WRFG_example" + timeStamp + ".nc";
+                string safeFileName = url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
+                string downloadedFilePath = workingDirectoryPath + "\\" + safeFileName;
 
                 using (Stream responseStream = response.GetResponseStream())
                 {
@@ -121,12 +130,11 @@ namespace JassWeather.Models
 
                 DateTime t = DateTime.Now;
                 string timeStamp = "_" + t.Year + "_" + t.Month + "_" + t.Day + "_" + t.Hour + "_" + t.Minute + "_" + t.Second + "_" + t.Millisecond;
-                string safeFileName = url.Replace('/', '_').Replace(':', '_');
-                string downloadedFilePath = workingDirectoryPath + "/" + safeFileName;
+                string safeFileName = url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
+                string downloadedFilePath = workingDirectoryPath + "\\" + safeFileName;
 
-                using (Stream responseStream = FtpClient.OpenRead(new Uri("ftp://ftp.cdc.noaa.gov/Datasets/NARR/pressure/air.197901.nc")))
+                using (Stream responseStream = FtpClient.OpenRead(new Uri(url)))
                     {
-                          double total = 0;
                           using (Stream fileStream = System.IO.File.OpenWrite(downloadedFilePath))
                             {
                                 byte[] buffer = new byte[8192];
@@ -134,8 +142,6 @@ namespace JassWeather.Models
                                 while (bytesRead > 0)
                                 {
                                     fileStream.Write(buffer, 0, bytesRead);
-                                    total += bytesRead;
-                                    Console.WriteLine(total);
                                     bytesRead = responseStream.Read(buffer, 0, 4096);
                                 }
                             }
@@ -150,5 +156,303 @@ namespace JassWeather.Models
             }
             return Message;
         }
+
+
+        public string get_big_NetCDF_by_ftp2(string url, string workingDirectoryPath)
+        {
+            //workingDirectorypath: HttpContext.Server.MapPath("~/App_Data")
+
+            string Message = "";
+
+            try
+            {
+
+                DateTime startTime = DateTime.UtcNow;
+
+                DateTime t = DateTime.Now;
+                string timeStamp = "_" + t.Year + "_" + t.Month + "_" + t.Day + "_" + t.Hour + "_" + t.Minute + "_" + t.Second + "_" + t.Millisecond;
+                string safeFileName = url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
+                string downloadedFilePath = workingDirectoryPath + "\\" + safeFileName;
+
+                 FtpWebRequest request = (FtpWebRequest)FtpWebRequest.Create(url);
+        request.Method = WebRequestMethods.Ftp.DownloadFile;
+        request.Credentials = new NetworkCredential("anonymous", "pasword");
+        FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+        Stream responseStream = response.GetResponseStream();
+        FileStream file = File.Create(downloadedFilePath);
+        byte[] buffer = new byte[32 * 1024];
+        int read;
+        //reader.Read(
+
+        while ((read = responseStream.Read(buffer, 0, buffer.Length)) > 0)
+        {
+            file.Write(buffer, 0, read);
+        }
+
+        file.Close();
+        responseStream.Close();
+        response.Close();
+
+
+                Message = "OK net CDF downloaded Variables in Schema: " + Message;
+
+            }
+            catch (Exception e)
+            {
+                Message = e.Message; ;
+            }
+            return Message;
+        }
+
+
+        public string get_big_NetCDF_by_ftp3(string url, string workingDirectoryPath)
+        {
+            //workingDirectorypath: HttpContext.Server.MapPath("~/App_Data")
+
+            string Message = "";
+
+            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            // Retrieve a reference to a container. 
+            CloudBlobContainer container = blobClient.GetContainerReference("envirolytic");
+
+   
+
+
+
+            try
+            {
+
+                DateTime startTime = DateTime.UtcNow;
+
+                WebRequest request = WebRequest.Create(url);
+                WebResponse response = request.GetResponse();
+
+                DateTime t = DateTime.Now;
+                string timeStamp = "_" + t.Year + "_" + t.Month + "_" + t.Day + "_" + t.Hour + "_" + t.Minute + "_" + t.Second + "_" + t.Millisecond;
+                string safeFileName = url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
+                string downloadedFilePath = workingDirectoryPath + "\\" + safeFileName;
+
+                CloudBlockBlob blockBlob = container.GetBlockBlobReference(safeFileName);
+
+                using (Stream responseStream = response.GetResponseStream())
+                {
+                    using (Stream fileStream = System.IO.File.OpenWrite(downloadedFilePath))
+                    {
+                        byte[] buffer = new byte[4096];
+                        int bytesRead = responseStream.Read(buffer, 0, 4096);
+                        while (bytesRead > 0)
+                        {
+                            fileStream.Write(buffer, 0, bytesRead);
+                            DateTime nowTime = DateTime.UtcNow;
+                            if ((nowTime - startTime).TotalMinutes > 5)
+                            {
+                                throw new ApplicationException(
+                                    "Download timed out");
+                            }
+                            bytesRead = responseStream.Read(buffer, 0, 4096);
+                        }
+                    }
+                }
+
+                response.Close();
+
+                using (var fileStream = System.IO.File.OpenRead(downloadedFilePath))
+                {
+                    blockBlob.UploadFromStream(fileStream);
+                }
+
+                Message = "OK net CDF downloaded Variables in Schema: " + Message;
+
+            }
+            catch (Exception e)
+            {
+                Message = e.Message; ;
+            }
+            return Message;
+        }
+
+        public string get_big_NetCDF_by_ftp4(string url, string workingDirectoryPath)
+        {
+            //workingDirectorypath: HttpContext.Server.MapPath("~/App_Data")
+
+            string Message = "";
+
+            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            // Retrieve a reference to a container. 
+            CloudBlobContainer container = blobClient.GetContainerReference("envirolytic");
+
+            try
+            {
+
+                DateTime startTime = DateTime.UtcNow;
+
+                WebRequest request = WebRequest.Create(url);
+                WebResponse response = request.GetResponse();
+
+                DateTime t = DateTime.Now;
+                string timeStamp = "_" + t.Year + "_" + t.Month + "_" + t.Day + "_" + t.Hour + "_" + t.Minute + "_" + t.Second + "_" + t.Millisecond;
+                string safeFileName = url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
+                string downloadedFilePath = workingDirectoryPath + "\\" + safeFileName;
+
+                CloudBlockBlob blockBlob = container.GetBlockBlobReference(safeFileName);
+
+
+                using (Stream responseStream = response.GetResponseStream())
+                {
+                    using (CloudBlobStream fileStream = blockBlob.OpenWrite())
+                    {
+                        byte[] buffer = new byte[4096];
+                        int bytesRead = responseStream.Read(buffer, 0, 4096);
+                        while (bytesRead > 0)
+                        {
+                            fileStream.Write(buffer, 0, bytesRead);
+                            DateTime nowTime = DateTime.UtcNow;
+                            if ((nowTime - startTime).TotalMinutes > 5)
+                            {
+                                throw new ApplicationException(
+                                    "Download timed out");
+                            }
+                            bytesRead = responseStream.Read(buffer, 0, 4096);
+                        }
+                    }
+                }
+
+                response.Close();
+
+                Message = "OK net CDF downloaded Variables in Schema: " + Message;
+
+            }
+            catch (Exception e)
+            {
+                Message = e.Message; ;
+            }
+            return Message;
+        }
+
+        public string get_big_NetCDF_by_ftp5(string url, string workingDirectoryPath, double maxFileSizeToDownload)
+        {
+            //workingDirectorypath: HttpContext.Server.MapPath("~/App_Data")
+
+            string Message = "";
+
+            try
+            {
+
+                DateTime startTime = DateTime.UtcNow;
+
+                DateTime t = DateTime.Now;
+                string timeStamp = "_" + t.Year + "_" + t.Month + "_" + t.Day + "_" + t.Hour + "_" + t.Minute + "_" + t.Second + "_" + t.Millisecond;
+                string safeFileName = url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
+                string downloadedFilePath = workingDirectoryPath + "\\" + safeFileName;
+
+
+                //workingDirectorypath: HttpContext.Server.MapPath("~/App_Data")
+
+                string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+
+                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                // Retrieve a reference to a container. 
+                CloudBlobContainer container = blobClient.GetContainerReference("envirolytic");
+
+                                CloudBlockBlob blockBlob = container.GetBlockBlobReference(safeFileName);
+
+                                CloudBlobStream fileStream = blockBlob.OpenWrite();
+
+                FtpWebRequest request = (FtpWebRequest)FtpWebRequest.Create(url);
+                request.Method = WebRequestMethods.Ftp.DownloadFile;
+                request.Credentials = new NetworkCredential("anonymous", "pasword");
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                Stream responseStream = response.GetResponseStream();
+          //      FileStream file = File.Create(downloadedFilePath);
+                byte[] buffer = new byte[32 * 1024];
+                int read;
+                //reader.Read(
+                double count = 0;
+                while ((read = responseStream.Read(buffer, 0, buffer.Length)) > 0 && count < maxFileSizeToDownload)
+                {
+                    fileStream.Write(buffer, 0, read);
+                    count += buffer.Length;
+                }
+
+                fileStream.Close();
+                responseStream.Close();
+                response.Close();
+
+
+                Message = "OK net CDF downloaded - file size in MB: " + (count/1000000).ToString();
+
+            }
+            catch (Exception e)
+            {
+                Message = e.Message; ;
+            }
+            return Message;
+        }
+
+        public List<CloudBlockBlob> listBlobs_in_envirolytics()
+        {
+
+
+            List<CloudBlockBlob> blobs = new List<CloudBlockBlob>();
+
+            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            // Retrieve a reference to a container. 
+            CloudBlobContainer container = blobClient.GetContainerReference("envirolytic");
+
+            foreach (IListBlobItem item in container.ListBlobs(null, false))
+            {
+                if (item.GetType() == typeof(CloudBlockBlob))
+                {
+                    CloudBlockBlob blob = (CloudBlockBlob)item;
+                    blobs.Add(blob);
+                }
+                else if (item.GetType() == typeof(CloudPageBlob))
+                {
+                    CloudPageBlob pageBlob = (CloudPageBlob)item;
+                }
+                else if (item.GetType() == typeof(CloudBlobDirectory))
+                {
+                    CloudBlobDirectory directory = (CloudBlobDirectory)item;
+                }
+            }
+
+            return blobs;
+ 
+        }
+
+        public string deleteBlob_in_envirolytics(string blobName)
+        {
+
+
+            List<CloudBlockBlob> blobs = new List<CloudBlockBlob>();
+
+            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            // Retrieve a reference to a container. 
+            CloudBlobContainer container = blobClient.GetContainerReference("envirolytic");
+
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
+
+            blockBlob.Delete();
+
+
+            return "Blob Deleted";
+
+        }
+
+
+
     }
 }

@@ -1,0 +1,42 @@
+﻿@using Microsoft.WindowsAzure.Storage.Blob;
+@model List<CloudBlockBlob>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Blobs in Azure Storage Container "Envirolytics" </h2>
+
+<table>
+    <tr>
+        <th>
+            Name
+        </th>
+        <th>
+            Length (MB)
+        </th>
+        <th>
+            Last Updated (UTC)
+        </th>
+
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+         <td>
+            @item.Name
+        </td>
+        <td>
+            @(item.Properties.Length / 1000000)
+        </td>
+         <td>
+            @item.Properties.LastModified
+        </td>
+        <td>
+            @Html.ActionLink("Del", "Delete", new { name=item.Name })
+        </td>
+    </tr>
+}
+
+</table>
+
