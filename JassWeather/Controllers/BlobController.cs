@@ -23,6 +23,14 @@ namespace JassWeather.Controllers
             return View(blobs);
         }
 
+        public ActionResult ShowAppData()
+        {
+
+            JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+            List<string> files = apiCaller.listFiles_in_AppData(HttpContext.Server.MapPath("~/App_Data"));
+            return View(files);
+        }
+
         public ActionResult Delete(string name)
         {
 

@@ -26,7 +26,8 @@ namespace JassWeather
 /*
             System.Data.Entity.Database.SetInitializer(
                 new JassWeather.Models.JassWeatherContextInitializer());
- * */
+
+ */ 
         }
     }
 }

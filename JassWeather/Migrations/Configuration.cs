@@ -5,14 +5,14 @@ namespace JassWeather.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<JassWeather.Models.UsersContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<JassWeather.Models.JassWeatherContext>
     {
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
         }
 
-        protected override void Seed(JassWeather.Models.UsersContext context)
+        protected override void Seed(JassWeather.Models.JassWeatherContext context)
         {
             //  This method will be called after migrating to the latest version.
 

@@ -1,0 +1,24 @@
+﻿@model List<string>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Files on Website App_Data </h2>
+
+<table>
+    <tr>
+        <th>
+            File Name
+        </th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+         <td>
+            @item
+        </td>
+    </tr>
+}
+
+</table>

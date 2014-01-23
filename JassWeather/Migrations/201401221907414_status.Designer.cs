@@ -5,13 +5,13 @@ namespace JassWeather.Migrations
     using System.Data.Entity.Migrations.Infrastructure;
     using System.Resources;
     
-    public sealed partial class initial : IMigrationMetadata
+    public sealed partial class status : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(initial));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(status));
         
         string IMigrationMetadata.Id
         {
-            get { return "201312310213285_initial"; }
+            get { return "201401221907414_status"; }
         }
         
         string IMigrationMetadata.Source

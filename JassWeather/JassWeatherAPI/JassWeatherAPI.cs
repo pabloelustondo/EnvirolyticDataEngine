@@ -396,6 +396,71 @@ namespace JassWeather.Models
             return Message;
         }
 
+        public string AnalyzeFileBlob(string blogUri)
+        {
+           try{
+
+               string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+               CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+
+               CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+               // Retrieve a reference to a container. 
+               CloudBlobContainer container = blobClient.GetContainerReference("envirolytic");
+
+               CloudBlockBlob blockBlob = container.GetBlockBlobReference(blogUri);
+
+               string uri = blockBlob.Uri.ToString();
+               string uri2 = "msds:nc?file=http://envirolytic.blob.core.windows.net/envirolytic/ftp___ftp.cdc.noaa.gov_Projects_Datasets_ncep.reanalysis_pressure_air.2013.nc";
+               var dataset = DataSet.Open(uri2);
+
+            /*
+                ViewBag.yc = dataset.GetData<double[]>("yc");
+                ViewBag.xc = dataset.GetData<double[]>("xc");
+                ViewBag.time = dataset.GetData<double[]>("time");
+                var schema = dataset.GetSchema();
+
+                ViewBag.schema = schema;
+
+                ViewBag.level = dataset.GetData<double>("level");
+
+                // tas[,yc=43,xc=67]
+                ViewBag.tas = dataset.GetData<Single[, ,]>("tas");
+             */ 
+
+            }
+            catch (Exception e)
+            {
+              return "Error: " + e.Message;  
+            }
+           return "Hi";
+        }
+
+        public string AnalyzeFileDisk(string downloadedFilePath)
+        {
+            string result = "Variables: ";
+            try
+            {
+
+               var dataset = DataSet.Open(downloadedFilePath);
+
+               var schema = dataset.GetSchema();
+
+               foreach (var v in schema.Variables)
+               {
+                   result = result + " " + v.Name;
+
+               }
+
+               var x = 1;
+
+            }
+            catch (Exception e)
+            {
+                return "Error: " + e.Message;
+            }
+            return result;
+        }
+
         public List<CloudBlockBlob> listBlobs_in_envirolytics()
         {
 
@@ -452,7 +517,15 @@ namespace JassWeather.Models
 
         }
 
+        public List<string> listFiles_in_AppData(string appDataFolder)
+        {
+            List<string> response = new List<string>();
 
+
+            string[] array1 = Directory.GetFiles(@appDataFolder);
+
+            return array1.ToList();
+        }
 
     }
 }

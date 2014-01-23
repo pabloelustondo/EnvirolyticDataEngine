@@ -16,7 +16,7 @@
         @Html.HiddenFor(model => model.Id)
 
         <div class="editor-label">
-            @Html.LabelFor(model => model.name,{})
+            @Html.LabelFor(model => model.name)
         </div>
         <div class="editor-field">
             @Html.EditorFor(model => model.name)
@@ -29,6 +29,54 @@
         <div class="editor-field">
             @Html.EditorFor(model => model.description)
             @Html.ValidationMessageFor(model => model.description)
+        </div>
+        
+        <div class="editor-label">
+            @Html.LabelFor(model => model.priority)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.priority)
+            @Html.ValidationMessageFor(model => model.priority)
+        </div>
+
+         <div class="editor-label">
+            @Html.LabelFor(model => model.dataAccessLocation)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.dataAccessLocation)
+            @Html.ValidationMessageFor(model => model.dataAccessLocation)
+        </div>
+
+                 <div class="editor-label">
+            @Html.LabelFor(model => model.HistoricalCurrentForecast)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.HistoricalCurrentForecast)
+            @Html.ValidationMessageFor(model => model.HistoricalCurrentForecast)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.dataSetUpdates)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.dataSetUpdates)
+            @Html.ValidationMessageFor(model => model.dataSetUpdates)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.temporalResolution)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.temporalResolution)
+            @Html.ValidationMessageFor(model => model.temporalResolution)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.fileType)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.fileType)
+            @Html.ValidationMessageFor(model => model.fileType)
         </div>
 
         <p>

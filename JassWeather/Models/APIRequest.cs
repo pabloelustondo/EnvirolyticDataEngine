@@ -16,10 +16,35 @@ namespace JassWeather.Models
         [DataType(DataType.MultilineText)]
         public string url { get; set; }
         public string name { get; set; }
+        public string status { get; set; }
+        public string schema { get; set; }
+        public int fileSize { get; set; }   //in MB
         public string type { get; set; }
         public string schedule { get; set; }
 
+
+        public string zenType { get; set; }
+        public string variable { get; set; }
+        public string variableConsolidated { get; set; }
+
+        public int impactHealth { get; set; }
+        public int impactBusiness { get; set; }
+        public int impactConsumer { get; set; }
+        public int impactAgriculture { get; set; }
+
         [DataType(DataType.MultilineText)]
         public string description { get; set; }
+        public string dataSource { get; set; }
+
+        public bool isHistorical { get; set; }
+        public bool isCurrent { get; set; }
+        public bool isForecast { get; set; }
+
+        public string geographicResolution { get; set; }
+        public string frecuency { get; set; }
+        public string typeOfMeasure { get; set; }
+        public string cost { get; set; }
+        public string fileFormat { get; set; }
+
     }
 }

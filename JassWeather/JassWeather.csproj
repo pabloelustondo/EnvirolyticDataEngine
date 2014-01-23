@@ -240,6 +240,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\BlobController.cs" />
+    <Compile Include="Controllers\Default1Controller.cs" />
     <Compile Include="JassWeatherAPI\JassWeatherAPI.cs" />
     <Compile Include="App_Start\AuthConfig.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -254,9 +255,25 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201312310213285_initial.cs" />
-    <Compile Include="Migrations\201312310213285_initial.Designer.cs">
-      <DependentUpon>201312310213285_initial.cs</DependentUpon>
+    <Compile Include="Migrations\201401202017109_initial.cs" />
+    <Compile Include="Migrations\201401202017109_initial.Designer.cs">
+      <DependentUpon>201401202017109_initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201401202049048_historical-field.cs" />
+    <Compile Include="Migrations\201401202049048_historical-field.Designer.cs">
+      <DependentUpon>201401202049048_historical-field.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201401221907414_status.cs" />
+    <Compile Include="Migrations\201401221907414_status.Designer.cs">
+      <DependentUpon>201401221907414_status.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201401231642238_metadata.cs" />
+    <Compile Include="Migrations\201401231642238_metadata.Designer.cs">
+      <DependentUpon>201401231642238_metadata.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201401231655004_schema.cs" />
+    <Compile Include="Migrations\201401231655004_schema.Designer.cs">
+      <DependentUpon>201401231655004_schema.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
@@ -346,8 +363,10 @@
     <None Include="Properties\PublishProfiles\envirojass - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirojass - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - FTP %282%29.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolytic - FTP %283%29.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - Web Deploy %282%29.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolytic - Web Deploy %283%29.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\locahost.pubxml" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
@@ -419,6 +438,14 @@
     <Content Include="Views\Request\ShowError.cshtml" />
     <Content Include="Views\Blob\Index.cshtml" />
     <Content Include="Views\Blob\Delete.cshtml" />
+    <Content Include="Views\Request\AnalyzeFileDisk.cshtml" />
+    <Content Include="Views\Blob\ShowAppData.cshtml" />
+    <Content Include="Views\Request\AnalyzeFileBlob.cshtml" />
+    <Content Include="Views\Default1\Index.cshtml" />
+    <Content Include="Views\Default1\Details.cshtml" />
+    <Content Include="Views\Default1\Create.cshtml" />
+    <Content Include="Views\Default1\Edit.cshtml" />
+    <Content Include="Views\Default1\Delete.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -427,8 +454,20 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201312310213285_initial.resx">
-      <DependentUpon>201312310213285_initial.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201401202017109_initial.resx">
+      <DependentUpon>201401202017109_initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201401202049048_historical-field.resx">
+      <DependentUpon>201401202049048_historical-field.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201401221907414_status.resx">
+      <DependentUpon>201401221907414_status.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201401231642238_metadata.resx">
+      <DependentUpon>201401231642238_metadata.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201401231655004_schema.resx">
+      <DependentUpon>201401231655004_schema.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

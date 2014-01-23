@@ -1,6 +1,6 @@
 ﻿@model JassWeather.Models.APIRequestSet
 
-<h2>API Requests for API @Model.name </h2>
+<h2>Data Sources in @Model.name </h2>
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
@@ -8,6 +8,12 @@
     <tr>
         <th>
             Name
+        </th>
+        <th>
+            Variable
+        </th>
+        <th>
+            Status
         </th>
         <th>
             Type
@@ -24,14 +30,22 @@
             @Html.DisplayFor(modelItem => item.name)
         </td>
         <td>
+            @Html.DisplayFor(modelItem => item.variable)
+        </td>
+         <td>
+            @Html.DisplayFor(modelItem => item.status)
+        </td>
+        <td>
             @Html.DisplayFor(modelItem => item.type)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.url)
         </td>
         <td>
-            @Html.ActionLink("Edit/See", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Call", "Call", new { id=item.Id }) |
+            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+            @Html.ActionLink("Get B", "Download2Blob", new { id=item.Id }) |
+            @Html.ActionLink("Get D", "Download2Disk", new { id=item.Id }) |
+            @Html.ActionLink("Inspect", "AnalyzeFileDisk", new { id=item.Id }) |
             @Html.ActionLink("Del", "Delete", new { id=item.Id })
         </td>
     </tr>
