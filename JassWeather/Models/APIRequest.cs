@@ -17,7 +17,17 @@ namespace JassWeather.Models
         public string url { get; set; }
         public string name { get; set; }
         public string status { get; set; }
+
+        public DateTime startGetTime { get; set; }
+        public DateTime endGetTime { get; set; }
+        public TimeSpan spanGetTime { get; set; }
+
+        public string onDisk { get; set; }
+        public string onBlob { get; set; }
+        public string onTable { get; set; }
         public string schema { get; set; }
+
+
         public int fileSize { get; set; }   //in MB
         public string type { get; set; }
         public string schedule { get; set; }

@@ -437,7 +437,8 @@ namespace JassWeather.Models
 
         public string AnalyzeFileDisk(string downloadedFilePath)
         {
-            string result = "Variables: ";
+            string schemaString = "";
+            string dimensionsString = "";
             try
             {
 
@@ -447,18 +448,24 @@ namespace JassWeather.Models
 
                foreach (var v in schema.Variables)
                {
-                   result = result + " " + v.Name;
-
+                   if (v.Name != "" && v.Dimensions.Count > 1)
+                   {
+                       schemaString += v.Name;
+                       dimensionsString = "  ";
+                       foreach (var d in v.Dimensions)
+                       {
+                           dimensionsString += "<" + d.Name + "|" + d.Length + ">";
+                       }
+                       schemaString += dimensionsString;
+                   }
                }
-
-               var x = 1;
 
             }
             catch (Exception e)
             {
                 return "Error: " + e.Message;
             }
-            return result;
+            return schemaString;
         }
 
         public List<CloudBlockBlob> listBlobs_in_envirolytics()
@@ -525,6 +532,14 @@ namespace JassWeather.Models
             string[] array1 = Directory.GetFiles(@appDataFolder);
 
             return array1.ToList();
+        
+         }
+
+        public bool deleteFile_in_AppData(string fileName)
+        {
+            File.Delete(fileName);
+
+             return true;
         }
 
     }

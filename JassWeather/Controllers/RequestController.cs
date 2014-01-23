@@ -341,11 +341,20 @@ namespace JassWeather.Controllers
                 ViewBag.request = apiRequest.url;
                 ViewBag.response = apiCaller.get_big_NetCDF_by_ftp2(apiRequest.url, workingDirectorypath);
 
-                apiRequest.status = "OK";
+                EndTime = DateTime.Now;
+
+                TimeSpan TotalTime = EndTime - StartTime;
+                apiRequest.startGetTime = StartTime;
+                apiRequest.endGetTime = EndTime;
+                apiRequest.spanGetTime = TotalTime;
+                apiRequest.onDisk = "File";
                 db.Entry(apiRequest).State = System.Data.EntityState.Modified;
                 db.SaveChanges();
 
-                TimeSpan TotalTime = EndTime - StartTime;
+
+                DataSetSchema schema = AnalyzeFileDiskAction(id);
+
+
                 ViewBag.TotalTime = "hs: " + TotalTime.TotalHours + "mins: " + TotalTime.TotalMinutes + "secs: " + TotalTime.TotalSeconds;
                 return View("ShowNetCDF");
             }
@@ -355,7 +364,8 @@ namespace JassWeather.Controllers
 
         }
 
-        public ActionResult AnalyzeFileDisk(int id = 0)
+
+        public DataSetSchema AnalyzeFileDiskAction(int id)
         {
             APIRequest apiRequest = db.APIRequests.Find(id);
             string url = apiRequest.url;
@@ -363,25 +373,34 @@ namespace JassWeather.Controllers
             JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
             string downloadedFilePath = HttpContext.Server.MapPath("~/App_Data/" + safeFileName);
 
-            DataSetSchema schema=null;
+            DataSetSchema schema = null;
 
-            apiRequest.status = "N/A";
+            apiRequest.onDisk = "N/A";
             bool fileExists = System.IO.File.Exists(downloadedFilePath);
+
             if (System.IO.File.Exists(downloadedFilePath))
             {
-                string result = apiCaller.AnalyzeFileDisk(downloadedFilePath);
+                string schemaString = apiCaller.AnalyzeFileDisk(downloadedFilePath);
+
+                long length = new System.IO.FileInfo(downloadedFilePath).Length;
 
                 var dataset = Microsoft.Research.Science.Data.DataSet.Open(downloadedFilePath);
                 schema = dataset.GetSchema();
                 if (schema.Variables.Length > 1)
                 {
-                    apiRequest.status = "OK";
+                    apiRequest.onDisk = "OK";
+                    apiRequest.fileSize = (int)length / 1000000;
+                    apiRequest.schema = schemaString;
                 }
             }
 
             db.Entry(apiRequest).State = System.Data.EntityState.Modified;
             db.SaveChanges();
-
+            return schema;
+        }
+        public ActionResult AnalyzeFileDisk(int id = 0)
+        {
+            DataSetSchema schema = AnalyzeFileDiskAction(id);               
             return View(schema);
         }
 

@@ -275,6 +275,18 @@
     <Compile Include="Migrations\201401231655004_schema.Designer.cs">
       <DependentUpon>201401231655004_schema.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201401231826542_status1.cs" />
+    <Compile Include="Migrations\201401231826542_status1.Designer.cs">
+      <DependentUpon>201401231826542_status1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201401231941310_timespan.cs" />
+    <Compile Include="Migrations\201401231941310_timespan.Designer.cs">
+      <DependentUpon>201401231941310_timespan.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201401232004569_filesize.cs" />
+    <Compile Include="Migrations\201401232004569_filesize.Designer.cs">
+      <DependentUpon>201401232004569_filesize.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -468,6 +480,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201401231655004_schema.resx">
       <DependentUpon>201401231655004_schema.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201401231826542_status1.resx">
+      <DependentUpon>201401231826542_status1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201401231941310_timespan.resx">
+      <DependentUpon>201401231941310_timespan.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201401232004569_filesize.resx">
+      <DependentUpon>201401232004569_filesize.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -41,5 +41,14 @@ namespace JassWeather.Controllers
             return View();
         }
 
+        public ActionResult DeleteFromAppData(string fileName)
+        {
+
+            JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+            bool result = apiCaller.deleteFile_in_AppData(fileName);
+            ViewBag.Message = result;
+            return View();
+        }
+
     }
 }

@@ -11,12 +11,18 @@
         <th>
             File Name
         </th>
+        <th>
+            Action
+        </th>
     </tr>
 
 @foreach (var item in Model) {
     <tr>
          <td>
             @item
+        </td>
+        <td>
+            @Html.ActionLink("Del", "DeleteFromAppData", new { fileName=item })
         </td>
     </tr>
 }

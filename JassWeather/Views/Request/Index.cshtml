@@ -10,16 +10,28 @@
             Name
         </th>
         <th>
-            Variable
-        </th>
-        <th>
-            Status
+            VarCons
         </th>
         <th>
             Type
         </th>
         <th>
-            URL
+            Var/Dims
+        </th>
+        <th>
+            MBs
+        </th>
+        <th>
+            Delay
+        </th>
+        <th>
+            OnD
+        </th>
+        <th>
+            OnB
+        </th>
+        <th>
+            OnT
         </th>
         <th></th>
     </tr>
@@ -31,22 +43,34 @@
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.variable)
-        </td>
-         <td>
-            @Html.DisplayFor(modelItem => item.status)
-        </td>
+        </td>       
         <td>
             @Html.DisplayFor(modelItem => item.type)
         </td>
+         <td>
+            @Html.DisplayFor(modelItem => item.schema)
+        </td>
         <td>
-            @Html.DisplayFor(modelItem => item.url)
+            @Html.DisplayFor(modelItem => item.fileSize)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.spanGetTime)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.onDisk)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.onBlob)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.onTable)
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Get B", "Download2Blob", new { id=item.Id }) |
-            @Html.ActionLink("Get D", "Download2Disk", new { id=item.Id }) |
-            @Html.ActionLink("Inspect", "AnalyzeFileDisk", new { id=item.Id }) |
-            @Html.ActionLink("Del", "Delete", new { id=item.Id })
+            @Html.ActionLink("G2B", "Download2Blob", new { id=item.Id }) |
+            @Html.ActionLink("G2D", "Download2Disk", new { id=item.Id }) |
+            @Html.ActionLink("Insp", "AnalyzeFileDisk", new { id=item.Id }) |
+            @Html.ActionLink("D", "Delete", new { id=item.Id })
         </td>
     </tr>
 }
