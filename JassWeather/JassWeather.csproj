@@ -283,9 +283,17 @@
     <Compile Include="Migrations\201401231941310_timespan.Designer.cs">
       <DependentUpon>201401231941310_timespan.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201401232004569_filesize.cs" />
-    <Compile Include="Migrations\201401232004569_filesize.Designer.cs">
-      <DependentUpon>201401232004569_filesize.cs</DependentUpon>
+    <Compile Include="Migrations\201401232137567_somebasdtypechecking.cs" />
+    <Compile Include="Migrations\201401232137567_somebasdtypechecking.Designer.cs">
+      <DependentUpon>201401232137567_somebasdtypechecking.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201401232218190_statistic-level.cs" />
+    <Compile Include="Migrations\201401232218190_statistic-level.Designer.cs">
+      <DependentUpon>201401232218190_statistic-level.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201401291813235_loadDelay.cs" />
+    <Compile Include="Migrations\201401291813235_loadDelay.Designer.cs">
+      <DependentUpon>201401291813235_loadDelay.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
@@ -453,11 +461,16 @@
     <Content Include="Views\Request\AnalyzeFileDisk.cshtml" />
     <Content Include="Views\Blob\ShowAppData.cshtml" />
     <Content Include="Views\Request\AnalyzeFileBlob.cshtml" />
+    <Content Include="Views\Home\TestGeneral.cshtml" />
     <Content Include="Views\Default1\Index.cshtml" />
     <Content Include="Views\Default1\Details.cshtml" />
     <Content Include="Views\Default1\Create.cshtml" />
     <Content Include="Views\Default1\Edit.cshtml" />
     <Content Include="Views\Default1\Delete.cshtml" />
+    <Content Include="Views\Request\Add2Table.cshtml" />
+    <Content Include="Views\Blob\ShowTables.cshtml" />
+    <Content Include="Views\Blob\ShowTable.cshtml" />
+    <Content Include="Views\Blob\DeleteTable.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -487,8 +500,14 @@
     <EmbeddedResource Include="Migrations\201401231941310_timespan.resx">
       <DependentUpon>201401231941310_timespan.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201401232004569_filesize.resx">
-      <DependentUpon>201401232004569_filesize.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201401232137567_somebasdtypechecking.resx">
+      <DependentUpon>201401232137567_somebasdtypechecking.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201401232218190_statistic-level.resx">
+      <DependentUpon>201401232218190_statistic-level.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201401291813235_loadDelay.resx">
+      <DependentUpon>201401291813235_loadDelay.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

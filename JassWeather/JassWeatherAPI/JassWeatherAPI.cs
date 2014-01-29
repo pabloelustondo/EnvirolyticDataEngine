@@ -1,5 +1,4 @@
-﻿using Microsoft.Research.Science.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -13,6 +12,9 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System.Configuration;
+using Microsoft.WindowsAzure.Storage.Table;
+using Microsoft.Research.Science.Data;
+using Microsoft.Research.Science.Data.Imperative;
 
 namespace JassWeather.Models
 {
@@ -20,6 +22,7 @@ namespace JassWeather.Models
         public string url { get; set; }
         public int length { get; set; }   
     }
+
     public class JassWeatherDataSourceAPI
     {
         public string ping_Json_DataSource(string url){
@@ -454,7 +457,7 @@ namespace JassWeather.Models
                        dimensionsString = "  ";
                        foreach (var d in v.Dimensions)
                        {
-                           dimensionsString += "<" + d.Name + "|" + d.Length + ">";
+                           dimensionsString += "(" + d.Name + "," + d.Length + ")";
                        }
                        schemaString += dimensionsString;
                    }
@@ -468,6 +471,137 @@ namespace JassWeather.Models
             return schemaString;
         }
 
+        public string store2table(string downloadedFilePath)
+        {
+            string schemaString = "";
+            string dimensionsString = "";
+            try
+            {
+
+                #region Accessing the Table Storage
+
+
+                string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+
+                CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+
+                //Testing... just creating a table for this specific file
+                CloudTable table = tableClient.GetTableReference("envirolyticTable");
+                table.CreateIfNotExists();
+
+                #endregion
+
+
+            #region Opening the DataSet and BS
+
+                var dataset = DataSet.Open(downloadedFilePath);
+
+                var schema = dataset.GetSchema();
+
+                foreach (var v in schema.Variables)
+                {
+                    if (v.Name != "" && v.Dimensions.Count > 1)
+                    {
+                        schemaString += v.Name;
+                        dimensionsString = "  ";
+                        foreach (var d in v.Dimensions)
+                        {
+                            dimensionsString += "(" + d.Name + "," + d.Length + ")";
+                        }
+                        schemaString += dimensionsString;
+                    }
+                }
+
+                Single[] yDim = dataset.GetData<Single[]>("y");
+                Single[] xDim = dataset.GetData<Single[]>("x");
+                double[] timeDim = dataset.GetData<double[]>("time");
+                Single[] levelDim = dataset.GetData<Single[]>("level");
+
+
+                var facts = dataset.GetData<Int16[,,]>("air",
+      DataSet.FromToEnd(0), /* removing first dimension from data*/
+      DataSet.ReduceDim(0), /* removing first dimension from data*/
+      DataSet.FromToEnd(0),
+      DataSet.FromToEnd(0));
+
+                EnviromentalFact fact = new EnviromentalFact();
+                fact.x = (int)xDim[0];
+                fact.y = (int)yDim[0];
+                fact.time = timeDim[0];
+                fact.level = (int)levelDim[0];
+                fact.air = facts[0, 0, 0];
+                fact.PartitionKey = fact.x.ToString() + "-" + fact.y.ToString() + "-" + fact.level;
+                fact.RowKey = fact.time.ToString();
+                TableOperation insertOperation;
+
+                try
+                {
+                    insertOperation = TableOperation.Insert(fact);
+
+                    // Execute the insert operation.
+                    table.Execute(insertOperation);
+                }
+                catch (Exception) { };
+
+                // air[,yc=43,xc=67]
+                // ViewBag.tas = dataset.GetData<Single[, ,]>("tas");
+
+
+                int[] parameters = new int[]{0,0,0,0};
+
+
+                for (int x = 0; x < 10; x++)
+                {
+                    for (int y = 0; y < 10; y++)
+                    {
+                        for (int t = 0; t < 10; t++)
+                        {
+                            fact = new EnviromentalFact();
+                            fact.x = (int)xDim[x];
+                            fact.y = (int)yDim[y];
+                            fact.time = timeDim[t];
+                            fact.level = (int)levelDim[1];
+                            fact.air = facts[t, y, x];
+                            fact.PartitionKey = fact.x.ToString() + "-" + fact.y.ToString() + "-" + fact.level;
+                            fact.RowKey = fact.time.ToString();
+
+
+                            try{
+                            insertOperation = TableOperation.Insert(fact);
+
+                            // Execute the insert operation.
+                            table.Execute(insertOperation);
+                            } catch(Exception e){
+                                var kk = 1;
+                            }
+                        }
+                    }
+                }
+
+            #endregion
+
+
+
+
+
+
+            }
+            catch (Exception e)
+            {
+                return "Error: " + e.Message;
+            }
+            return schemaString;
+        }
+        public class EnviromentalFact : TableEntity
+        {
+            public EnviromentalFact() { }
+            public int air { get; set; }
+            public int x { get; set; }
+            public int y { get; set; }
+            public double time { get; set; }
+            public int level { get; set; }
+        }
         public List<CloudBlockBlob> listBlobs_in_envirolytics()
         {
 
@@ -535,11 +669,79 @@ namespace JassWeather.Models
         
          }
 
+        public List<string> listTables()
+        {
+            List<string> response = new List<string>();
+
+
+            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+
+            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+
+            var tables = tableClient.ListTables();
+
+            foreach (var t in tables)
+            {
+                response.Add(t.Name);
+            }
+
+            return response;
+        }
+
+        public List<string> listTableValues(string tableName)
+        {
+            List<string> response = new List<string>();
+
+
+            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+
+            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+
+            CloudTable table = tableClient.GetTableReference("envirolyticTable");
+
+            // Construct the query operation for all customer entities where PartitionKey="Smith".
+            TableQuery<EnviromentalFact> query = new TableQuery<EnviromentalFact>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.NotEqual, ""));
+
+            string factString;
+
+            foreach (EnviromentalFact entity in table.ExecuteQuery(query).Take(100))
+            {
+                factString =
+                    "PKey/Location: " + entity.PartitionKey + " | " +
+                    "RKey/Time: " + entity.RowKey + " | " +
+                    "x: " + entity.x + " | " +
+                    "y: " + entity.y + " | " +
+                    "l: " + entity.level + " | " +
+                    "t: " + entity.time + " | " +
+                    "air temp: " + entity.air;
+
+                response.Add(factString);
+            }
+
+            return response;
+        }
+
         public bool deleteFile_in_AppData(string fileName)
         {
             File.Delete(fileName);
 
              return true;
+        }
+
+        public bool deleteTable(string fileName)
+        {
+            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+
+            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+
+            CloudTable table = tableClient.GetTableReference(fileName);
+
+            table.DeleteIfExists();
+
+            return true;
         }
 
     }

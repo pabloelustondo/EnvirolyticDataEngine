@@ -248,6 +248,41 @@ namespace JassWeather.Controllers
 
         }
 
+
+        public ActionResult Add2Table(int id = 0)
+        {
+            JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+            APIRequest apiRequest = db.APIRequests.Find(id);
+            string schemaString = "";
+            try
+            {
+                DateTime StartTime = DateTime.Now;
+
+                string url = apiRequest.url;
+                string safeFileName = url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
+                string downloadedFilePath = HttpContext.Server.MapPath("~/App_Data/" + safeFileName);
+
+                schemaString = apiCaller.store2table(downloadedFilePath);
+
+                DateTime EndTime = DateTime.Now;
+
+                TimeSpan TotalTime = EndTime - StartTime;
+                apiRequest.startLoadTime = StartTime;
+                apiRequest.endLoadTime = EndTime;
+                apiRequest.spanLoadTime = TotalTime;
+                apiRequest.onDisk = "File";
+                db.Entry(apiRequest).State = System.Data.EntityState.Modified;
+                db.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                return View("ShowError");
+            }
+
+            ViewBag.schemaString = schemaString;
+            return View();
+        }
+
         public ActionResult Download2Disk(int id = 0)
         {
             APIRequest apiRequest = db.APIRequests.Find(id);
@@ -368,30 +403,38 @@ namespace JassWeather.Controllers
         public DataSetSchema AnalyzeFileDiskAction(int id)
         {
             APIRequest apiRequest = db.APIRequests.Find(id);
-            string url = apiRequest.url;
-            string safeFileName = url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
-            JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
-            string downloadedFilePath = HttpContext.Server.MapPath("~/App_Data/" + safeFileName);
-
             DataSetSchema schema = null;
-
-            apiRequest.onDisk = "N/A";
-            bool fileExists = System.IO.File.Exists(downloadedFilePath);
-
-            if (System.IO.File.Exists(downloadedFilePath))
+            try
             {
-                string schemaString = apiCaller.AnalyzeFileDisk(downloadedFilePath);
+                string url = apiRequest.url;
+                string safeFileName = url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
+                JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+                string downloadedFilePath = HttpContext.Server.MapPath("~/App_Data/" + safeFileName);
 
-                long length = new System.IO.FileInfo(downloadedFilePath).Length;
 
-                var dataset = Microsoft.Research.Science.Data.DataSet.Open(downloadedFilePath);
-                schema = dataset.GetSchema();
-                if (schema.Variables.Length > 1)
+
+                apiRequest.onDisk = "N/A";
+                bool fileExists = System.IO.File.Exists(downloadedFilePath);
+
+                if (System.IO.File.Exists(downloadedFilePath))
                 {
-                    apiRequest.onDisk = "OK";
-                    apiRequest.fileSize = (int)length / 1000000;
-                    apiRequest.schema = schemaString;
+                    string schemaString = apiCaller.AnalyzeFileDisk(downloadedFilePath);
+
+                    long length = new System.IO.FileInfo(downloadedFilePath).Length;
+
+                    var dataset = Microsoft.Research.Science.Data.DataSet.Open(downloadedFilePath);
+                    schema = dataset.GetSchema();
+                    if (schema.Variables.Length > 1)
+                    {
+                        apiRequest.onDisk = "OK";
+                        apiRequest.fileSize = (int)length / 1000000;
+                        apiRequest.schema = schemaString;
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                apiRequest.onDisk = "Error: " + e.Message;
             }
 
             db.Entry(apiRequest).State = System.Data.EntityState.Modified;

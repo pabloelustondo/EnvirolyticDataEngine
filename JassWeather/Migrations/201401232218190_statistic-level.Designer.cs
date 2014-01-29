@@ -5,13 +5,13 @@ namespace JassWeather.Migrations
     using System.Data.Entity.Migrations.Infrastructure;
     using System.Resources;
     
-    public sealed partial class filesize : IMigrationMetadata
+    public sealed partial class statisticlevel : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(filesize));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(statisticlevel));
         
         string IMigrationMetadata.Id
         {
-            get { return "201401232004569_filesize"; }
+            get { return "201401232218190_statistic-level"; }
         }
         
         string IMigrationMetadata.Source

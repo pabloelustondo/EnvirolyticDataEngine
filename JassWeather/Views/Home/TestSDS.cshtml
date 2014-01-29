@@ -43,3 +43,24 @@ This page specifically test the use of the SDS library to read the data comming 
 }
 }
 
+
+<p> First 4x4x4 values of tas (Surface Air Temperature)(Kelvin)</p>
+@for(int i=0;i<1;i++){
+    for(int j=0;j<4;j++){
+        for(int k=0;k<4;k++){
+   <text> time: @ViewBag.time[i] y: @ViewBag.yc[j] x: @ViewBag.xc[k] => </text>@ViewBag.prec0[j,k]  <br />
+}
+}
+}
+
+<p> First 4x4x4 values of tas (Surface Air Temperature)(Kelvin)</p>
+@for(int i=0;i<1;i++){
+    for(int j=0;j<4;j++){
+        for(int k=0;k<4;k++){
+   <text> time: @ViewBag.time[i] y: @ViewBag.yc[j] x: @ViewBag.xc[k] => </text>@ViewBag.prec1[j,k]  <br />
+}
+}
+}
+
+
+

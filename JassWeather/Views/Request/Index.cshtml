@@ -13,6 +13,15 @@
             VarCons
         </th>
         <th>
+            VarNarr
+        </th>
+        <th>
+            Stat
+        </th>
+        <th>
+            Level
+        </th>
+        <th>
             Type
         </th>
         <th>
@@ -22,7 +31,10 @@
             MBs
         </th>
         <th>
-            Delay
+            Delay2Disk
+        </th>
+        <th>
+            Delay2Table
         </th>
         <th>
             OnD
@@ -42,8 +54,17 @@
             @Html.DisplayFor(modelItem => item.name)
         </td>
         <td>
+            @Html.DisplayFor(modelItem => item.variableConsolidated)
+        </td>  
+         <td>
             @Html.DisplayFor(modelItem => item.variable)
-        </td>       
+        </td>  
+        <td>
+            @Html.DisplayFor(modelItem => item.statistic)
+        </td> 
+        <td>
+            @Html.DisplayFor(modelItem => item.level)
+        </td>    
         <td>
             @Html.DisplayFor(modelItem => item.type)
         </td>
@@ -55,6 +76,9 @@
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.spanGetTime)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.spanLoadTime)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.onDisk)
@@ -69,6 +93,7 @@
             @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
             @Html.ActionLink("G2B", "Download2Blob", new { id=item.Id }) |
             @Html.ActionLink("G2D", "Download2Disk", new { id=item.Id }) |
+            @Html.ActionLink("S2T", "Add2Table", new { id=item.Id }) |
             @Html.ActionLink("Insp", "AnalyzeFileDisk", new { id=item.Id }) |
             @Html.ActionLink("D", "Delete", new { id=item.Id })
         </td>

@@ -18,9 +18,13 @@ namespace JassWeather.Models
         public string name { get; set; }
         public string status { get; set; }
 
-        public DateTime startGetTime { get; set; }
-        public DateTime endGetTime { get; set; }
-        public TimeSpan spanGetTime { get; set; }
+        public DateTime? startGetTime { get; set; }
+        public DateTime? endGetTime { get; set; }
+        public TimeSpan? spanGetTime { get; set; }
+
+        public DateTime? startLoadTime { get; set; }
+        public DateTime? endLoadTime { get; set; }
+        public TimeSpan? spanLoadTime { get; set; }
 
         public string onDisk { get; set; }
         public string onBlob { get; set; }
@@ -28,7 +32,7 @@ namespace JassWeather.Models
         public string schema { get; set; }
 
 
-        public int fileSize { get; set; }   //in MB
+        public int? fileSize { get; set; }   //in MB
         public string type { get; set; }
         public string schedule { get; set; }
 
@@ -37,10 +41,13 @@ namespace JassWeather.Models
         public string variable { get; set; }
         public string variableConsolidated { get; set; }
 
-        public int impactHealth { get; set; }
-        public int impactBusiness { get; set; }
-        public int impactConsumer { get; set; }
-        public int impactAgriculture { get; set; }
+        public string statistic { get; set; }
+        public string level { get; set; }
+
+        public int? impactHealth { get; set; }
+        public int? impactBusiness { get; set; }
+        public int? impactConsumer { get; set; }
+        public int? impactAgriculture { get; set; }
 
         [DataType(DataType.MultilineText)]
         public string description { get; set; }

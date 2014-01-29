@@ -31,6 +31,23 @@ namespace JassWeather.Controllers
             return View(files);
         }
 
+        public ActionResult ShowTables()
+        {
+
+            JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+            List<string> files = apiCaller.listTables();
+            return View(files);
+        }
+
+        public ActionResult ShowTable(string tableName)
+        {
+
+            JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+            List<string> files = apiCaller.listTableValues(tableName);
+            ViewBag.TableName = tableName;
+            return View(files);
+        }
+
         public ActionResult Delete(string name)
         {
 
@@ -46,6 +63,15 @@ namespace JassWeather.Controllers
 
             JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
             bool result = apiCaller.deleteFile_in_AppData(fileName);
+            ViewBag.Message = result;
+            return View();
+        }
+
+        public ActionResult DeleteTable(string fileName)
+        {
+
+            JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+            bool result = apiCaller.deleteTable(fileName);
             ViewBag.Message = result;
             return View();
         }

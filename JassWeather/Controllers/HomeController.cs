@@ -15,7 +15,17 @@ namespace JassWeather.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index()       
+
+        public ActionResult Index()
+        {
+            //Response.Redirect("ControllerName/ActionName")
+            //return RedirectToAction("Index", "Request");
+
+            Session["CurrentRequestSetId"] = 2;
+            Session["CurrentRequestSetName"]="NCEP-NARR";
+            return RedirectToAction("Index", "Request");
+        }
+        public ActionResult TestGeneral()       
         {
           
             string commandResponse = "n/a";
@@ -175,6 +185,23 @@ commandResponse = cmd2.StandardOutput.ReadToEnd() + commandResponse1;
 
                 // tas[,yc=43,xc=67]
                 ViewBag.tas = dataset.GetData<Single[, ,]>("tas");
+
+                var tas = dataset.GetData<Single[, ,]>("tas");
+
+                var prec0 = dataset.GetData<Single[,]>("tas",
+DataSet.ReduceDim(0), /* removing first dimension from data*/
+DataSet.FromToEnd(0),
+DataSet.FromToEnd(0));
+
+                ViewBag.prec0 = prec0;
+
+                var prec1 = dataset.GetData<Single[,]>("tas",
+DataSet.ReduceDim(1), /* removing first dimension from data*/
+DataSet.FromToEnd(0),
+DataSet.FromToEnd(0));
+
+                ViewBag.prec1 = prec1;
+
 
                 string command2 = string.Format("/c dir");
                 ProcessStartInfo cmdsi2 = new ProcessStartInfo("cmd.exe");
