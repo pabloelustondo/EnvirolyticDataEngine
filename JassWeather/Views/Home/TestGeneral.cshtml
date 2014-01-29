@@ -1,0 +1,73 @@
+﻿
+
+<h1>What is this?</h1> <br />
+<p>
+
+    This is just a very early stage prototype/proof concept to experiment with:
+    <ul>
+        <li>getting real time information from a Weather API (Weather Underground for now)</li>
+        <li>getting historical information from NOAA (a small sample for now)</li>
+        <li>using metadata to define which and how APIs are called and how information is retrieved and used (just and idea)</li>
+        <li>storing this information into a fact table with a normalized schema (future.. ?.. DB?,mhh)</li>
+        <li>get historical information in bulk and storing it using the same schema (future..maybe using <a href="http://www.unidata.ucar.edu/software/thredds/current/netcdf-java/CDM/">Common Data Model</a>)</li>
+        <li>storing / processing historical information to hadoop cluster (long term future)</li>
+    </ul>
+    This home page in particular is just a 'sanity test' and will show errors in case something is wrong with the setup.
+    
+    Just to give a test of what is comming, below you will see a real response from a real call 
+    to the weather underground apis. 
+    <br />
+    Note: An error may be caused by reaching the limits on our developer access to APIs
+</p>
+
+<h1>What can i do for now?</h1> <br />
+
+<p>First of all you can see, directly in this page, how we call two weather info sources. One that we call using a real time web services that sends us JSON back and the other the we call using FTP and sends us netCDF back
+    You can see how we store the netCDF file in a folder and how we interpret the information inside using a Common Data Model API.
+</p>
+
+<p>Then, you can see a preview of the long term idea using metadata to connect to sources.
+For now you can go to the "Weather APIs" menu to see/add/modify the few currently defined APIs.
+An API is basically a set of calls and each call is normally defined, at least, by an URL.
+Future version will add more information to be able to process the response.
+For each defined API Request you can use the application to actually place the call and see what you get
+as response.</p>
+
+
+
+<h1>Sample Request to NOAA </h1> <br />
+
+"http://www.narccap.ucar.edu/data/example/tas_WRFG_example.nc"
+
+<h1>Response from NOAA </h1>
+
+@ViewBag.Message
+
+<p><h2>Test test SDS Library reading the netCDF file go here ==> <br />
+    @Html.ActionLink("Test reading content of netCDF file", "TestSDS", "Home")</h2>
+    </p>
+
+<h1>Sample Request to Weather Underground</h1> <br />
+
+"http://api.wunderground.com/api/501a82781dc79a42/geolookup/conditions/q/IA/Cedar_Rapids.json";
+
+<br/><br/>
+<h1>Sample Response from Weather Underground </h1>
+<table>
+            @{Newtonsoft.Json.JsonTextReader reader = new Newtonsoft.Json.JsonTextReader(new StringReader(ViewBag.response1));}
+            @while (reader.Read())
+            {
+                  if (reader.Value != null){                       
+                     <tr><td>@reader.TokenType</td><td>@reader.Value</td></tr>;
+                  }
+                else{
+                     <tr><td>@reader.TokenType</td><td></td></tr>;
+                }
+            }
+</table>
+
+
+
+
+
+

@@ -1,0 +1,31 @@
+﻿@model List<string>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Tables on table storage </h2>
+
+<table>
+    <tr>
+        <th>
+            File Name
+        </th>
+        <th>
+            Action
+        </th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+         <td>
+            @item
+        </td>
+        <td>
+            @Html.ActionLink("Show Data", "ShowTable", new { fileName=item })
+            @Html.ActionLink("Del", "DeleteTable", new { fileName=item })
+        </td>
+    </tr>
+}
+
+</table>

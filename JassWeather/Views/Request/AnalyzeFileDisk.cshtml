@@ -1,0 +1,45 @@
+﻿@using Microsoft.Research.Science.Data
+@using Microsoft.Research.Science.Data.Imperative
+@model DataSetSchema
+<h2>Variables in File</h2>
+@Html.ActionLink("GoBack DataSources", "Index", "Request")
+
+@if (@Model != null){
+<table>
+    <tr>
+        <td>
+            name
+        </td>
+        <td>
+            type
+        </td>
+        <td>
+            dimensions
+        </td>
+
+    </tr>
+
+    @for (int i = 1; i < @Model.Variables.Length; i++)
+    {  //i is a variable
+    <tr>
+    <td>@Model.Variables[i].Name
+    </td>
+    <td>@Model.Variables[i].TypeOfData.FullName </td>  
+    <td>
+        @for (int d = 0; d < @Model.Variables[i].Dimensions.Count; d++)
+        {
+          <text><</text> @Model.Variables[i].Dimensions[d].Name <text>|</text> 
+          @Model.Variables[i].Dimensions[d].Length  
+          <text>></text>
+        }
+    </td>    
+           
+    </tr>
+    }
+
+ </table>
+} else {
+    
+ <text>File is not here or cannot be read</text>   
+}
+
