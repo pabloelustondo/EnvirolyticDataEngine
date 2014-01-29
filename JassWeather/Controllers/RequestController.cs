@@ -251,8 +251,23 @@ namespace JassWeather.Controllers
 
         public ActionResult Add2Table(int id = 0)
         {
-            JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+
             APIRequest apiRequest = db.APIRequests.Find(id);
+
+            string maxFileSizeS = "1000000000000000";
+
+
+
+            int typeIndex = apiRequest.type.IndexOf("#");
+            if (typeIndex > 0)
+            {
+                maxFileSizeS = apiRequest.type.Substring(typeIndex + 1);
+                apiRequest.type = apiRequest.type.Substring(0, typeIndex);
+            }
+
+            double maxFileSize = Double.Parse(maxFileSizeS);
+            
+            JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
             string schemaString = "";
             try
             {
@@ -262,7 +277,7 @@ namespace JassWeather.Controllers
                 string safeFileName = url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
                 string downloadedFilePath = HttpContext.Server.MapPath("~/App_Data/" + safeFileName);
 
-                schemaString = apiCaller.store2table(downloadedFilePath);
+                schemaString = apiCaller.store2table(downloadedFilePath, (int)maxFileSize);
 
                 DateTime EndTime = DateTime.Now;
 

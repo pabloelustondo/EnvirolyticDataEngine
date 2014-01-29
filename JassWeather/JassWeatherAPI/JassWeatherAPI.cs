@@ -471,7 +471,7 @@ namespace JassWeather.Models
             return schemaString;
         }
 
-        public string store2table(string downloadedFilePath)
+        public string store2table(string downloadedFilePath, int max)
         {
             string schemaString = "";
             string dimensionsString = "";
@@ -550,12 +550,15 @@ namespace JassWeather.Models
 
                 int[] parameters = new int[]{0,0,0,0};
 
+                int xMax = (xDim.Length<max)?xDim.Length:(int)max;
+                int yMax = (yDim.Length < max) ? yDim.Length : (int)max;
+                int tMax = (timeDim.Length<max)?timeDim.Length:(int)max;
 
-                for (int x = 0; x < 10; x++)
+                for (int x = 0; x < xMax; x++)
                 {
-                    for (int y = 0; y < 10; y++)
+                    for (int y = 0; y < yMax; y++)
                     {
-                        for (int t = 0; t < 10; t++)
+                        for (int t = 0; t < tMax; t++)
                         {
                             fact = new EnviromentalFact();
                             fact.x = (int)xDim[x];
