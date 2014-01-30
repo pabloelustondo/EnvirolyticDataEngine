@@ -471,29 +471,45 @@ namespace JassWeather.Models
             return schemaString;
         }
 
-        public string store2table(string downloadedFilePath, int max)
+        public string store2table_0(string downloadedFilePath, int max)
         {
             string schemaString = "";
             string dimensionsString = "";
+
+            long StartTotalMemory = GC.GetTotalMemory(true);
+            DateTime StartTime = DateTime.Now;
+            TimeSpan Total = StartTime - StartTime;
+
+            DateTime ReadSDSFactsStart;
+            TimeSpan ReadSDSFactsSpan;
+            long ReadSDSFactsTotalMemory;
+
+            DateTime WriteFactStart = DateTime.Now;
+            TimeSpan WriteFactSpan = DateTime.Now - DateTime.Now;
+            long WriteFactTotalMemory = 0;
+            long WriteFactMaxMemory = 0;
+
+            CloudTable table;
             try
             {
-
                 #region Accessing the Table Storage
-
 
                 string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
                 CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
-
                 CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
                 //Testing... just creating a table for this specific file
-                CloudTable table = tableClient.GetTableReference("envirolyticTable");
+
+                DateTime ahora = DateTime.Now;
+                string timestamp = ahora.Hour.ToString() + ahora.Minute.ToString() + ahora.Second.ToString();
+                table = tableClient.GetTableReference("et" + timestamp);
                 table.CreateIfNotExists();
 
                 #endregion
 
 
-            #region Opening the DataSet and BS
+                #region Opening the DataSet and BS
+
 
                 var dataset = DataSet.Open(downloadedFilePath);
 
@@ -518,41 +534,25 @@ namespace JassWeather.Models
                 double[] timeDim = dataset.GetData<double[]>("time");
                 Single[] levelDim = dataset.GetData<Single[]>("level");
 
+                ReadSDSFactsStart = DateTime.Now;
 
-                var facts = dataset.GetData<Int16[,,]>("air",
-      DataSet.FromToEnd(0), /* removing first dimension from data*/
-      DataSet.ReduceDim(0), /* removing first dimension from data*/
-      DataSet.FromToEnd(0),
-      DataSet.FromToEnd(0));
+                var facts = dataset.GetData<Int16[, ,]>("air",
+                    DataSet.FromToEnd(0), /* removing first dimension from data*/
+                    DataSet.ReduceDim(0), /* removing first dimension from data*/
+                    DataSet.FromToEnd(0),
+                    DataSet.FromToEnd(0));
 
-                EnviromentalFact fact = new EnviromentalFact();
-                fact.x = (int)xDim[0];
-                fact.y = (int)yDim[0];
-                fact.time = timeDim[0];
-                fact.level = (int)levelDim[0];
-                fact.air = facts[0, 0, 0];
-                fact.PartitionKey = fact.x.ToString() + "-" + fact.y.ToString() + "-" + fact.level;
-                fact.RowKey = fact.time.ToString();
+                ReadSDSFactsSpan = DateTime.Now - ReadSDSFactsStart;
+                ReadSDSFactsTotalMemory = GC.GetTotalMemory(false);
+
+
+
+                int xMax = (xDim.Length < max) ? xDim.Length : (int)max;
+                int yMax = (yDim.Length < max) ? yDim.Length : (int)max;
+                int tMax = (timeDim.Length < max) ? timeDim.Length : (int)max;
                 TableOperation insertOperation;
 
-                try
-                {
-                    insertOperation = TableOperation.Insert(fact);
-
-                    // Execute the insert operation.
-                    table.Execute(insertOperation);
-                }
-                catch (Exception) { };
-
-                // air[,yc=43,xc=67]
-                // ViewBag.tas = dataset.GetData<Single[, ,]>("tas");
-
-
-                int[] parameters = new int[]{0,0,0,0};
-
-                int xMax = (xDim.Length<max)?xDim.Length:(int)max;
-                int yMax = (yDim.Length < max) ? yDim.Length : (int)max;
-                int tMax = (timeDim.Length<max)?timeDim.Length:(int)max;
+                EnviromentalFact fact;
 
                 for (int x = 0; x < xMax; x++)
                 {
@@ -570,15 +570,170 @@ namespace JassWeather.Models
                             fact.RowKey = fact.time.ToString();
 
 
-                            try{
-                            insertOperation = TableOperation.Insert(fact);
+                            try
+                            {
 
-                            // Execute the insert operation.
-                            table.Execute(insertOperation);
-                            } catch(Exception e){
+                                WriteFactStart = DateTime.Now;
+
+                                insertOperation = TableOperation.Insert(fact);
+                                // Execute the insert operation.
+                                table.Execute(insertOperation);
+
+                                WriteFactSpan = WriteFactSpan + (DateTime.Now - WriteFactStart);
+                                WriteFactTotalMemory = GC.GetTotalMemory(false);
+                                if (WriteFactMaxMemory < WriteFactTotalMemory) WriteFactMaxMemory = WriteFactTotalMemory;
+
+                            }
+                            catch (Exception e)
+                            {
                                 var kk = 1;
                             }
                         }
+                    }
+                }
+
+                #endregion
+
+
+
+
+
+
+            }
+            catch (Exception e)
+            {
+                return "Error: " + e.Message;
+            }
+
+            // Construct the query operation for all customer entities where PartitionKey="Smith".
+            TableQuery<EnviromentalFact> query = new TableQuery<EnviromentalFact>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.NotEqual, ""));
+
+            TableQuery<EnviromentalFact> numberOfRowsQuery = new TableQuery<EnviromentalFact>();
+            var numberOfRows = table.ExecuteQuery(numberOfRowsQuery).Count();
+
+
+            Total = DateTime.Now - StartTime;
+
+            string performance = " Number of Rows in Table: " + numberOfRows +
+                " Total Span: " + Total +
+                " Time and memory Reading SDS: " +
+            ReadSDSFactsSpan + " - " + ReadSDSFactsTotalMemory +
+
+            " Time and max memory Writting to Tables: " +
+            WriteFactSpan + " - " + WriteFactMaxMemory;
+
+            return schemaString + "    performance: " + performance;
+        }
+
+        public string store2table(string downloadedFilePath, int max)
+        {
+            string schemaString = "";
+            string dimensionsString = "";
+
+            long StartTotalMemory = GC.GetTotalMemory(true);
+            DateTime StartTime = DateTime.Now;
+            TimeSpan Total = StartTime- StartTime;
+
+            DateTime ReadSDSFactsStart;
+            TimeSpan ReadSDSFactsSpan;
+            long ReadSDSFactsTotalMemory;
+
+            DateTime WriteFactStart = DateTime.Now;
+            TimeSpan WriteFactSpan = DateTime.Now - DateTime.Now; 
+            long WriteFactTotalMemory = 0;
+            long WriteFactMaxMemory = 0;
+
+            CloudTable table;
+            try
+            {
+                #region Accessing the Table Storage
+
+                string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+                CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+
+                //Testing... just creating a table for this specific file
+
+                DateTime ahora = DateTime.Now;
+                string timestamp = ahora.Hour.ToString() + ahora.Minute.ToString() +  ahora.Second.ToString();
+                table = tableClient.GetTableReference("et" + timestamp);
+                table.CreateIfNotExists();
+
+                #endregion
+
+
+            #region Opening the DataSet and BS
+
+               
+                var dataset = DataSet.Open(downloadedFilePath);
+
+                var schema = dataset.GetSchema();
+
+                foreach (var v in schema.Variables)
+                {
+                    if (v.Name != "" && v.Dimensions.Count > 1)
+                    {
+                        schemaString += v.Name;
+                        dimensionsString = "  ";
+                        foreach (var d in v.Dimensions)
+                        {
+                            dimensionsString += "(" + d.Name + "," + d.Length + ")";
+                        }
+                        schemaString += dimensionsString;
+                    }
+                }
+
+                Single[] yDim = dataset.GetData<Single[]>("y");
+                Single[] xDim = dataset.GetData<Single[]>("x");
+                double[] timeDim = dataset.GetData<double[]>("time");
+                Single[] levelDim = dataset.GetData<Single[]>("level");
+
+    ReadSDSFactsStart = DateTime.Now;
+
+                var facts = dataset.GetData<Int16[,,]>("air",
+                    DataSet.FromToEnd(0), /* removing first dimension from data*/
+                    DataSet.ReduceDim(0), /* removing first dimension from data*/
+                    DataSet.FromToEnd(0),
+                    DataSet.FromToEnd(0));
+
+    ReadSDSFactsSpan = DateTime.Now - ReadSDSFactsStart;
+    ReadSDSFactsTotalMemory = GC.GetTotalMemory(false);
+
+     
+
+                int xMax = (xDim.Length<max)?xDim.Length:(int)max;
+                int yMax = (yDim.Length < max) ? yDim.Length : (int)max;
+                int tMax = (timeDim.Length<max)?timeDim.Length:(int)max;
+                TableOperation insertOperation;
+                TableBatchOperation batchOperation;
+
+                EnviromentalFact fact;
+
+                for (int x = 0; x < xMax; x++)
+                {
+                    for (int y = 0; y < yMax; y++)
+                    {
+                        batchOperation = new TableBatchOperation();
+                        WriteFactStart = DateTime.Now;
+                        for (int t = 0; t < tMax; t++)
+                        {
+                            fact = new EnviromentalFact();
+                            fact.x = (int)xDim[x];
+                            fact.y = (int)yDim[y];
+                            fact.time = timeDim[t];
+                            fact.level = (int)levelDim[1];
+                            fact.air = facts[t, y, x];
+                            fact.PartitionKey = fact.x.ToString() + "-" + fact.y.ToString() + "-" + fact.level;
+                            fact.RowKey = fact.time.ToString();
+                            batchOperation.Insert(fact);
+
+                        }
+                        // Execute the insert operation.
+                        table.ExecuteBatch(batchOperation);
+
+                        WriteFactSpan = WriteFactSpan + (DateTime.Now - WriteFactStart);
+                        WriteFactTotalMemory = GC.GetTotalMemory(false);
+                        if (WriteFactMaxMemory < WriteFactTotalMemory) WriteFactMaxMemory = WriteFactTotalMemory;
                     }
                 }
 
@@ -594,8 +749,28 @@ namespace JassWeather.Models
             {
                 return "Error: " + e.Message;
             }
-            return schemaString;
+
+            // Construct the query operation for all customer entities where PartitionKey="Smith".
+            TableQuery<EnviromentalFact> query = new TableQuery<EnviromentalFact>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.NotEqual, ""));
+
+            TableQuery<EnviromentalFact> numberOfRowsQuery = new TableQuery<EnviromentalFact>();
+            var numberOfRows = table.ExecuteQuery(numberOfRowsQuery).Count();
+
+
+            Total = DateTime.Now - StartTime;
+
+            string performance = " Number of Rows in Table: " + numberOfRows +
+                " Total Span: "  + Total +               
+                " Time and memory Reading SDS: " + 
+            ReadSDSFactsSpan + " - " + ReadSDSFactsTotalMemory +
+
+            " Time and max memory Writting to Tables: " + 
+            WriteFactSpan + " - " + WriteFactMaxMemory;
+
+            return schemaString + "    performance: " + performance;
         }
+
+
         public class EnviromentalFact : TableEntity
         {
             public EnviromentalFact() { }
@@ -707,7 +882,11 @@ namespace JassWeather.Models
             // Construct the query operation for all customer entities where PartitionKey="Smith".
             TableQuery<EnviromentalFact> query = new TableQuery<EnviromentalFact>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.NotEqual, ""));
 
-            string factString;
+            TableQuery<EnviromentalFact> numberOfRowsQuery = new TableQuery<EnviromentalFact>();
+            var numberOfRows = table.ExecuteQuery(numberOfRowsQuery).Count();
+
+            string factString = "number of rows: " + numberOfRows;
+            response.Add(factString);
 
             foreach (EnviromentalFact entity in table.ExecuteQuery(query).Take(100))
             {

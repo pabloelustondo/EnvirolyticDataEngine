@@ -254,7 +254,7 @@ namespace JassWeather.Controllers
 
             APIRequest apiRequest = db.APIRequests.Find(id);
 
-            string maxFileSizeS = "1000000000000000";
+            string maxFileSizeS = "12";
 
 
 
