@@ -729,7 +729,7 @@ namespace JassWeather.Models
 
                         }
                         // Execute the insert operation.
-                        table.ExecuteBatch(batchOperation);
+                        table.BeginExecuteBatch(batchOperation, null,null);
 
                         WriteFactSpan = WriteFactSpan + (DateTime.Now - WriteFactStart);
                         WriteFactTotalMemory = GC.GetTotalMemory(false);
@@ -877,7 +877,7 @@ namespace JassWeather.Models
 
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
-            CloudTable table = tableClient.GetTableReference("envirolyticTable");
+            CloudTable table = tableClient.GetTableReference(tableName);
 
             // Construct the query operation for all customer entities where PartitionKey="Smith".
             TableQuery<EnviromentalFact> query = new TableQuery<EnviromentalFact>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.NotEqual, ""));
@@ -912,14 +912,44 @@ namespace JassWeather.Models
              return true;
         }
 
-        public bool deleteTable(string fileName)
+        public static string fileTimeStamp()
+        {
+            DateTime t = DateTime.Now;
+            string timeStamp = "_" + t.Year + "_" + t.Month + "_" + t.Day + "_" + t.Hour + "_" + t.Minute + "_" + t.Second + "_" + t.Millisecond;
+
+            return timeStamp; 
+        }
+
+        public static string schema2string(DataSetSchema schema)
+        {
+            string schemaString = "";
+            string dimensionsString = "";
+
+            foreach (var v in schema.Variables)
+            {
+                if (v.Name != "")
+                {
+                    schemaString += v.Name;
+                    dimensionsString = "  ";
+                    foreach (var d in v.Dimensions)
+                    {
+                        dimensionsString += "(" + d.Name + "," + d.Length + ")";
+                    }
+                    schemaString += dimensionsString;
+                }
+            }
+
+            return schemaString;
+        }
+
+        public bool deleteTable(string tableName)
         {
             string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
 
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
-            CloudTable table = tableClient.GetTableReference(fileName);
+            CloudTable table = tableClient.GetTableReference(tableName);
 
             table.DeleteIfExists();
 

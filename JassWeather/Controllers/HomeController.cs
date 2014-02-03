@@ -225,6 +225,59 @@ DataSet.FromToEnd(0));
             return View();
         }
 
+        public ActionResult TestMerge1()
+        {
+
+            try
+            {
+    
+
+                string appDataFolder = HttpContext.Server.MapPath("~/App_Data");
+
+                string timestamp = JassWeatherDataSourceAPI.fileTimeStamp();
+
+                string inputFile1 = appDataFolder + "/one_dimensional_measure_sample_1.csv";
+                string inputFile3 = appDataFolder + "/merged_file_3_"+timestamp+".csv";
+
+                System.IO.File.Copy(inputFile1, inputFile3);
+                
+                var dataset1 = DataSet.Open(inputFile1);
+                var dataset3 = DataSet.Open(inputFile3);
+
+                string inputFile2 = appDataFolder + "/one_dimensional_measure_sample_2.csv";
+                var dataset2 = DataSet.Open(inputFile2);
+
+                var schema2 = dataset2.GetSchema();
+                var schema1 = dataset1.GetSchema();
+
+                var x = dataset3.GetData<double[]>("X");
+                var temp = dataset3.GetData<double[]>("Temp");
+                var humidity = dataset2.GetData<double[]>("Humidity");
+
+                dataset3.Add<double[]>("Humid");
+                dataset3.PutData<double[]>("Humid",humidity);
+
+                var schema3 = dataset3.GetSchema();
+
+                ViewBag.sschema1 = JassWeatherDataSourceAPI.schema2string(schema1);
+                ViewBag.sschema2 = JassWeatherDataSourceAPI.schema2string(schema2);
+                ViewBag.sschema3 = JassWeatherDataSourceAPI.schema2string(schema3);
+
+                ViewBag.x3 = dataset3.GetData<double[]>("X");
+                ViewBag.temp3 = dataset3.GetData<double[]>("Temp");
+                ViewBag.humid3 = dataset3.GetData<double[]>("Humid");
+
+                ViewBag.Message = "Test executed correctly:";
+
+            }
+            catch (Exception e)
+            {
+                ViewBag.Message = e.Message; ;
+            }
+
+            return View();
+        }
+
         public ActionResult About()
         {
             ViewBag.Message = "Your app description page.";

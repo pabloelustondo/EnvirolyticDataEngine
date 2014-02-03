@@ -1,0 +1,32 @@
+﻿@{
+    ViewBag.Title = "TestMerge1";
+}
+
+<h2>TestMerge1</h2>
+
+<p>@ViewBag.Message</p>
+<p>Schema1: @ViewBag.sschema1</p>
+<p>Schema1: @ViewBag.sschema2</p>
+<p>Schema1: @ViewBag.sschema3</p>
+
+
+Merged File Sample
+
+<table>
+    <tr>
+    <td>X</td>
+    <td>Temp</td>
+    <td>Humidity</td>
+</tr> 
+@for (var i = 0; i < 10; i++)
+{
+<tr>
+    <td>@ViewBag.x3[i]</td>
+    <td>@ViewBag.temp3[i]</td>
+    <td>@ViewBag.humid3[i]</td>
+</tr>    
+
+}
+    </table>
+
+

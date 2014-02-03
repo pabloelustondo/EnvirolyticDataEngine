@@ -471,6 +471,7 @@
     <Content Include="Views\Blob\ShowTables.cshtml" />
     <Content Include="Views\Blob\ShowTable.cshtml" />
     <Content Include="Views\Blob\DeleteTable.cshtml" />
+    <Content Include="Views\Home\TestMerge1.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
