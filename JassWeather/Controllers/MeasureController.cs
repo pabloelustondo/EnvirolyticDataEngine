@@ -9,112 +9,107 @@ using JassWeather.Models;
 
 namespace JassWeather.Controllers
 {
-    public class Default1Controller : Controller
+    public class MeasureController : Controller
     {
         private JassWeatherContext db = new JassWeatherContext();
 
         //
-        // GET: /Default1/
+        // GET: /Measure/
 
         public ActionResult Index()
         {
-            var apirequests = db.APIRequests.Include(a => a.APIRequestSet);
-            return View(apirequests.ToList());
+            return View(db.JassMeasures.ToList());
         }
 
         //
-        // GET: /Default1/Details/5
+        // GET: /Measure/Details/5
 
         public ActionResult Details(int id = 0)
         {
-            APIRequest apirequest = db.APIRequests.Find(id);
-            if (apirequest == null)
+            JassMeasure jassmeasure = db.JassMeasures.Find(id);
+            if (jassmeasure == null)
             {
                 return HttpNotFound();
             }
-            return View(apirequest);
+            return View(jassmeasure);
         }
 
         //
-        // GET: /Default1/Create
+        // GET: /Measure/Create
 
         public ActionResult Create()
         {
-            ViewBag.APIRequestSetId = new SelectList(db.APIRequestSets, "Id", "name");
             return View();
         }
 
         //
-        // POST: /Default1/Create
+        // POST: /Measure/Create
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(APIRequest apirequest)
+        public ActionResult Create(JassMeasure jassmeasure)
         {
             if (ModelState.IsValid)
             {
-                db.APIRequests.Add(apirequest);
+                db.JassMeasures.Add(jassmeasure);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.APIRequestSetId = new SelectList(db.APIRequestSets, "Id", "name", apirequest.APIRequestSetId);
-            return View(apirequest);
+            return View(jassmeasure);
         }
 
         //
-        // GET: /Default1/Edit/5
+        // GET: /Measure/Edit/5
 
         public ActionResult Edit(int id = 0)
         {
-            APIRequest apirequest = db.APIRequests.Find(id);
-            if (apirequest == null)
+            JassMeasure jassmeasure = db.JassMeasures.Find(id);
+            if (jassmeasure == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.APIRequestSetId = new SelectList(db.APIRequestSets, "Id", "name", apirequest.APIRequestSetId);
-            return View(apirequest);
+            return View(jassmeasure);
         }
 
         //
-        // POST: /Default1/Edit/5
+        // POST: /Measure/Edit/5
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(APIRequest apirequest)
+        public ActionResult Edit(JassMeasure jassmeasure)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(apirequest).State = EntityState.Modified;
+                db.Entry(jassmeasure).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.APIRequestSetId = new SelectList(db.APIRequestSets, "Id", "name", apirequest.APIRequestSetId);
-            return View(apirequest);
+            return View(jassmeasure);
         }
 
         //
-        // GET: /Default1/Delete/5
+        // GET: /Measure/Delete/5
 
         public ActionResult Delete(int id = 0)
         {
-            APIRequest apirequest = db.APIRequests.Find(id);
-            if (apirequest == null)
+            JassMeasure jassmeasure = db.JassMeasures.Find(id);
+            if (jassmeasure == null)
             {
                 return HttpNotFound();
             }
-            return View(apirequest);
+            return View(jassmeasure);
         }
 
         //
-        // POST: /Default1/Delete/5
+        // POST: /Measure/Delete/5
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            APIRequest apirequest = db.APIRequests.Find(id);
-            db.APIRequests.Remove(apirequest);
+            JassMeasure jassmeasure = db.JassMeasures.Find(id);
+            db.JassMeasures.Remove(jassmeasure);
             db.SaveChanges();
             return RedirectToAction("Index");
         }
