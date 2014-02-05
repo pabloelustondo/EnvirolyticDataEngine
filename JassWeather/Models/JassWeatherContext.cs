@@ -19,5 +19,7 @@ namespace JassWeather.Models
 
         public DbSet<APIRequestSet> APIRequestSets { get; set; }
         public DbSet<APIRequest> APIRequests { get; set; }
+
+        public DbSet<JassMeasure> JassMeasures { get; set; }
     }
 }

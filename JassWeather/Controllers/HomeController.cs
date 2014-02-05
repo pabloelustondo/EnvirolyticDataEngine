@@ -241,11 +241,11 @@ DataSet.FromToEnd(0));
 
                 System.IO.File.Copy(inputFile1, inputFile3);
                 
-                var dataset1 = DataSet.Open(inputFile1);
-                var dataset3 = DataSet.Open(inputFile3);
+                var dataset1 = DataSet.Open(inputFile1+"?appendMetadata=true");
+                var dataset3 = DataSet.Open(inputFile3+"?appendMetadata=true");
 
                 string inputFile2 = appDataFolder + "/one_dimensional_measure_sample_2.csv";
-                var dataset2 = DataSet.Open(inputFile2);
+                var dataset2 = DataSet.Open(inputFile2+"?appendMetadata=true");
 
                 var schema2 = dataset2.GetSchema();
                 var schema1 = dataset1.GetSchema();
@@ -254,8 +254,23 @@ DataSet.FromToEnd(0));
                 var temp = dataset3.GetData<double[]>("Temp");
                 var humidity = dataset2.GetData<double[]>("Humidity");
 
-                dataset3.Add<double[]>("Humid");
-                dataset3.PutData<double[]>("Humid",humidity);
+                var humidVarID = dataset3.Add<double[]>("Humid", dataset3.Dimensions[0].Name).ID;
+
+                dataset3.PutData<double[]>(humidVarID, humidity);
+
+                var dim = dataset3.Dimensions;
+
+                var x3ID = dataset3["X"].ID;
+                var temp3ID = dataset3["Temp"].ID;
+                var humid3ID = dataset3["Humid"].ID;
+
+                var x2ID = dataset2["X"].ID;
+                var humid2ID = dataset2["Humidity"].ID;
+
+                var x1ID = dataset1["X"].ID;
+                var temp1ID = dataset1["Temp"].ID;
+
+                dataset3.View();
 
                 var schema3 = dataset3.GetSchema();
 
@@ -277,6 +292,365 @@ DataSet.FromToEnd(0));
 
             return View();
         }
+
+        public ActionResult TestMerge2()
+        {
+
+            try
+            {
+                //Let try to re-create the file...
+
+                string appDataFolder = HttpContext.Server.MapPath("~/App_Data");
+                string timestamp = JassWeatherDataSourceAPI.fileTimeStamp();
+
+                //tas_WRFG_example_2014_2_3_11_10_31_322.nc
+
+                string inputFile1 = appDataFolder + "/tas_WRFG_example_2014_2_3_11_10_31_322.nc";
+                string inputFile3 = appDataFolder + "/new_WRFG__" + timestamp + ".nc";
+
+                var dataset1 = DataSet.Open(inputFile1 + "?openMode=open");
+
+                var dataset3 = DataSet.Open(inputFile3 + "?openMode=create");
+
+                var schema1 = dataset1.GetSchema();
+                var schema3 = dataset3.GetSchema();
+
+                double[] yc = dataset1.GetData<double[]>("yc");
+                double[] xc = dataset1.GetData<double[]>("xc");
+                double[] time = dataset1.GetData<double[]>("time");
+                Single[,,] temperature = dataset1.GetData<Single[,,]>("tas");
+
+                dataset3.Add<double[]>("time", time, "time");
+                dataset3.Add<double[]>("xc", xc, "xc");
+                dataset3.Add<double[]>("yc",yc,"yc");
+                dataset3.Add<Single[,,]>("temperature", temperature, "time", "yc","xc");
+
+                //temperature tas (time,50)(yc,109)(xc,134)
+
+                var dataset_new = DataSet.Open(inputFile3 + "?openMode=open");
+                var schema_new = dataset_new.GetSchema();
+                double[] yc_new = dataset_new.GetData<double[]>("yc");
+                double[] xc_new = dataset_new.GetData<double[]>("xc");
+                double[] time_new = dataset_new.GetData<double[]>("time");
+                Single[,,] temperature_new = dataset_new.GetData<Single[,,]>("temperature");
+
+                ViewBag.sschema_new = JassWeatherDataSourceAPI.schema2string(schema_new);
+                ViewBag.sschema1 = JassWeatherDataSourceAPI.schema2string(schema1);
+                ViewBag.sschema3 = JassWeatherDataSourceAPI.schema2string(schema3);
+
+                ViewBag.Message = "Test executed correctly:";
+            }
+            catch (Exception e)
+            {
+                ViewBag.Message = e.Message; ;
+            }
+
+            return View();
+        }
+
+        public ActionResult TestMerge3()
+        {
+
+            long StartingMemory;
+            DateTime StartingTime = DateTime.Now;
+            long AfterOpenMemory;
+            long AfterLoadMemory;
+            DateTime EndingTime = DateTime.Now;
+            TimeSpan TotalDelay;
+
+            try
+            {
+                //Let try to re-create the file...
+                GC.Collect();
+                StartingMemory = GC.GetTotalMemory(true);
+
+                string appDataFolder = HttpContext.Server.MapPath("~/App_Data");
+                string timestamp = JassWeatherDataSourceAPI.fileTimeStamp();
+
+                //tas_WRFG_example_2014_2_3_11_10_31_322.nc
+
+                string inputFile1 = appDataFolder + "/ftp___ftp.cdc.noaa.gov_Datasets_NARR_pressure_air.201201.nc";
+                string inputFile3 = appDataFolder + "/new_NARR_air__" + timestamp + ".nc";
+
+                var dataset1 = DataSet.Open(inputFile1 + "?openMode=open");
+
+                var dataset3 = DataSet.Open(inputFile3 + "?openMode=create");
+
+                AfterOpenMemory = GC.GetTotalMemory(true);
+                var schema1 = dataset1.GetSchema();
+                var schema3 = dataset3.GetSchema();
+
+                Single[] y = dataset1.GetData<Single[]>("y");
+                Single[] x = dataset1.GetData<Single[]>("x");
+                double[] time = dataset1.GetData<double[]>("time");
+                Single[] level = dataset1.GetData<Single[]>("level");
+
+               // Int16[,,,] temperature = dataset1.GetData<Int16[,,,]>("air");
+
+                Int16[, , ] temperature = dataset1.GetData<Int16[, , ]>("air",
+                     DataSet.FromToEnd(0), /* removing first dimension from data*/
+                     DataSet.ReduceDim(0), /* removing first dimension from data*/
+                     DataSet.FromToEnd(0),
+                     DataSet.FromToEnd(0));
+
+                AfterLoadMemory = GC.GetTotalMemory(true);
+
+                dataset3.Add<double[]>("time", time, "time");
+                dataset3.Add<Single[]>("level", level, "level");
+                dataset3.Add<Single[]>("y", y, "y");
+                dataset3.Add<Single[]>("x", x, "x");
+
+
+                dataset3.Add<Int16[, ,]>("temperature", temperature, "time", "y", "x");
+
+                //temperature tas (time,50)(yc,109)(xc,134)
+
+                var dataset_new = DataSet.Open(inputFile3 + "?openMode=open");
+                var schema_new = dataset_new.GetSchema();
+                Single[] yc_new = dataset_new.GetData<Single[]>("y");
+                Single[] xc_new = dataset_new.GetData<Single[]>("x");
+                double[] time_new = dataset_new.GetData<double[]>("time");
+                Int16[, ,] temperature_new = dataset_new.GetData<Int16[, ,]>("temperature");
+
+
+                var size = sizeof(Int16);
+                var c = size;
+
+                EndingTime = DateTime.Now;
+                TotalDelay = EndingTime - StartingTime;
+
+                ViewBag.sschema_new = JassWeatherDataSourceAPI.schema2string(schema_new);
+                ViewBag.sschema1 = JassWeatherDataSourceAPI.schema2string(schema1);
+                ViewBag.sschema3 = JassWeatherDataSourceAPI.schema2string(schema3);
+
+                ViewBag.StartingMemory = StartingMemory  /1000000;
+                ViewBag.AfterOpenMemory = AfterOpenMemory / 1000000;
+                ViewBag.AfterLoadMemory = AfterLoadMemory / 1000000;
+                ViewBag.AfterLoadDiffMemory = AfterLoadMemory - AfterOpenMemory;
+
+                EndingTime = DateTime.Now;
+                TotalDelay = EndingTime - StartingTime;
+
+                ViewBag.TotalDelay = TotalDelay;
+
+                ViewBag.Message = "Test executed correctly:";
+            }
+            catch (Exception e)
+            {
+                ViewBag.Message = e.Message; ;
+            }
+
+            return View();
+        }
+
+        public ActionResult TestMerge4()
+        {
+
+            long StartingMemory;
+            DateTime StartingTime = DateTime.Now;
+            long AfterOpenMemory;
+            long AfterLoadMemory;
+            DateTime EndingTime = DateTime.Now;
+            TimeSpan TotalDelay;
+
+            try
+            {
+                //Let try to re-create the file...
+                GC.Collect();
+                StartingMemory = GC.GetTotalMemory(true);
+
+                string appDataFolder = HttpContext.Server.MapPath("~/App_Data");
+                string timestamp = JassWeatherDataSourceAPI.fileTimeStamp();
+
+                //tas_WRFG_example_2014_2_3_11_10_31_322.nc
+
+                string inputFile1 = appDataFolder + "/ftp___ftp.cdc.noaa.gov_Datasets_NARR_pressure_air.201201.nc";
+                var dataset1 = DataSet.Open(inputFile1 + "?openMode=open");
+                var schema1 = dataset1.GetSchema();
+                Single[] y = dataset1.GetData<Single[]>("y");
+                Single[] x = dataset1.GetData<Single[]>("x");
+                double[] time = dataset1.GetData<double[]>("time");
+                Single[] level = dataset1.GetData<Single[]>("level");
+
+                for (var df = 0; df < time.Length; df += 8)
+                {
+
+                string inputFile3 = appDataFolder + "/envirolitic_air_ " + timestamp +"__2012_01_" + df + ".nc";
+
+
+                var dataset3 = DataSet.Open(inputFile3 + "?openMode=create");
+
+                AfterOpenMemory = GC.GetTotalMemory(true);
+
+                var schema3 = dataset3.GetSchema();
+
+   
+
+                // Int16[,,,] temperature = dataset1.GetData<Int16[,,,]>("air");
+
+                Int16[, ,] temperature = dataset1.GetData<Int16[, ,]>("air",
+                     DataSet.Range(0,1,7), /* removing first dimension from data*/
+                     DataSet.ReduceDim(0), /* removing first dimension from data*/
+                     DataSet.FromToEnd(0),
+                     DataSet.FromToEnd(0));
+
+                AfterLoadMemory = GC.GetTotalMemory(true);
+
+                double[] timeday = new double[8];
+
+                for (var t = 0; t < 8; t++)
+                {
+                    timeday[t] = time[t];
+                }
+
+                dataset3.Add<double[]>("time", timeday, "time");
+                dataset3.Add<Single[]>("level", level, "level");
+                dataset3.Add<Single[]>("y", y, "y");
+                dataset3.Add<Single[]>("x", x, "x");
+
+
+                dataset3.Add<Int16[,,]>("temperature", temperature, "time", "y", "x");
+
+                //temperature tas (time,50)(yc,109)(xc,134)
+
+                var dataset_new = DataSet.Open(inputFile3 + "?openMode=open");
+                var schema_new = dataset_new.GetSchema();
+                Single[] yc_new = dataset_new.GetData<Single[]>("y");
+                Single[] xc_new = dataset_new.GetData<Single[]>("x");
+                double[] time_new = dataset_new.GetData<double[]>("time");
+                Int16[, ,] temperature_new = dataset_new.GetData<Int16[, ,]>("temperature");
+
+
+                ViewBag.sschema_new = JassWeatherDataSourceAPI.schema2string(schema_new);
+                ViewBag.sschema1 = JassWeatherDataSourceAPI.schema2string(schema1);
+                ViewBag.sschema3 = JassWeatherDataSourceAPI.schema2string(schema3);
+                ViewBag.AfterOpenMemory = AfterOpenMemory / 1000000;
+                ViewBag.AfterLoadMemory = AfterLoadMemory / 1000000;
+                ViewBag.AfterLoadDiffMemory = AfterLoadMemory - AfterOpenMemory;
+
+                }
+
+                EndingTime = DateTime.Now;
+                TotalDelay = EndingTime - StartingTime;
+
+                ViewBag.StartingMemory = StartingMemory / 1000000;
+
+                ViewBag.TotalDelay = TotalDelay;
+
+                ViewBag.Message = "Test executed correctly:";
+            }
+            catch (Exception e)
+            {
+                ViewBag.Message = e.Message; ;
+            }
+
+            return View();
+        }
+
+        public ActionResult TestMerge5()
+        {
+
+            long StartingMemory;
+            DateTime StartingTime = DateTime.Now;
+            long AfterOpenMemory;
+            long AfterLoadMemory;
+            DateTime EndingTime = DateTime.Now;
+            TimeSpan TotalDelay;
+
+            try
+            {
+                //Let try to re-create the file...
+                GC.Collect();
+                StartingMemory = GC.GetTotalMemory(true);
+
+                string appDataFolder = HttpContext.Server.MapPath("~/App_Data");
+                string timestamp = JassWeatherDataSourceAPI.fileTimeStamp();
+
+                //tas_WRFG_example_2014_2_3_11_10_31_322.nc
+
+                string inputFile1 = appDataFolder + "/ftp___ftp.cdc.noaa.gov_Datasets_NARR_pressure_air.201201.nc";
+                var dataset1 = DataSet.Open(inputFile1 + "?openMode=open");
+                var schema1 = dataset1.GetSchema();
+                Single[] y = dataset1.GetData<Single[]>("y");
+                Single[] x = dataset1.GetData<Single[]>("x");
+                double[] time = dataset1.GetData<double[]>("time");
+                Single[] level = dataset1.GetData<Single[]>("level");
+
+                for (var df = 0; df < time.Length; df += 8)
+                {
+
+                    string inputFile3 = appDataFolder + "/envirolitic_air_ " + timestamp + "__2012_01_" + df + ".nc";
+
+
+                    var dataset3 = DataSet.Open(inputFile3 + "?openMode=create");
+
+                    AfterOpenMemory = GC.GetTotalMemory(true);
+
+                    var schema3 = dataset3.GetSchema();
+
+
+
+                    // Int16[,,,] temperature = dataset1.GetData<Int16[,,,]>("air");
+
+                    Int16[,,,] temperature = dataset1.GetData<Int16[,,,]>("air",
+                         DataSet.Range(0, 1, 7), /* removing first dimension from data*/
+                         DataSet.FromToEnd(0), /* removing first dimension from data*/
+                         DataSet.FromToEnd(0),
+                         DataSet.FromToEnd(0));
+
+                    AfterLoadMemory = GC.GetTotalMemory(true);
+
+                    double[] timeday = new double[8];
+
+                    for (var t = 0; t < 8; t++)
+                    {
+                        timeday[t] = time[t];
+                    }
+
+                    dataset3.Add<double[]>("time", timeday, "time");
+                    dataset3.Add<Single[]>("level", level, "level");
+                    dataset3.Add<Single[]>("y", y, "y");
+                    dataset3.Add<Single[]>("x", x, "x");
+
+
+                    dataset3.Add<Int16[,, ,]>("temperature", temperature, "time", "level", "y", "x");
+
+                    //temperature tas (time,50)(yc,109)(xc,134)
+
+                    var dataset_new = DataSet.Open(inputFile3 + "?openMode=open");
+                    var schema_new = dataset_new.GetSchema();
+                    Single[] yc_new = dataset_new.GetData<Single[]>("y");
+                    Single[] xc_new = dataset_new.GetData<Single[]>("x");
+                    double[] time_new = dataset_new.GetData<double[]>("time");
+                    Int16[, , ,] temperature_new = dataset_new.GetData<Int16[, , ,]>("temperature");
+
+
+                    ViewBag.sschema_new = JassWeatherDataSourceAPI.schema2string(schema_new);
+                    ViewBag.sschema1 = JassWeatherDataSourceAPI.schema2string(schema1);
+                    ViewBag.sschema3 = JassWeatherDataSourceAPI.schema2string(schema3);
+                    ViewBag.AfterOpenMemory = AfterOpenMemory / 1000000;
+                    ViewBag.AfterLoadMemory = AfterLoadMemory / 1000000;
+                    ViewBag.AfterLoadDiffMemory = AfterLoadMemory - AfterOpenMemory;
+                    ViewBag.temperature_new = temperature_new;
+                }
+
+                EndingTime = DateTime.Now;
+                TotalDelay = EndingTime - StartingTime;
+
+                ViewBag.StartingMemory = StartingMemory / 1000000;
+
+                ViewBag.TotalDelay = TotalDelay;
+
+                ViewBag.Message = "Test executed correctly:";
+            }
+            catch (Exception e)
+            {
+                ViewBag.Message = e.Message; ;
+            }
+
+            return View();
+        }
+
 
         public ActionResult About()
         {

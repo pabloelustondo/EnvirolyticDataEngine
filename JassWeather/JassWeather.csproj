@@ -241,6 +241,7 @@
   <ItemGroup>
     <Compile Include="Controllers\BlobController.cs" />
     <Compile Include="Controllers\Default1Controller.cs" />
+    <Compile Include="Controllers\MeasureController.cs" />
     <Compile Include="JassWeatherAPI\JassWeatherAPI.cs" />
     <Compile Include="App_Start\AuthConfig.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -295,12 +296,17 @@
     <Compile Include="Migrations\201401291813235_loadDelay.Designer.cs">
       <DependentUpon>201401291813235_loadDelay.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201402042316329_measures.cs" />
+    <Compile Include="Migrations\201402042316329_measures.Designer.cs">
+      <DependentUpon>201402042316329_measures.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
     <Compile Include="Models\APIRequestSet.cs" />
     <Compile Include="Models\JassWeatherContext.cs" />
     <Compile Include="Models\JassWeatherContextInitializer.cs" />
+    <Compile Include="Models\Measure.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -472,6 +478,15 @@
     <Content Include="Views\Blob\ShowTable.cshtml" />
     <Content Include="Views\Blob\DeleteTable.cshtml" />
     <Content Include="Views\Home\TestMerge1.cshtml" />
+    <Content Include="Views\Home\TestMerge2.cshtml" />
+    <Content Include="Views\Home\TestMerge3.cshtml" />
+    <Content Include="Views\Home\TestMerge4.cshtml" />
+    <Content Include="Views\Home\TestMerge5.cshtml" />
+    <Content Include="Views\Measure\Index.cshtml" />
+    <Content Include="Views\Measure\Details.cshtml" />
+    <Content Include="Views\Measure\Create.cshtml" />
+    <Content Include="Views\Measure\Edit.cshtml" />
+    <Content Include="Views\Measure\Delete.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -509,6 +524,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201401291813235_loadDelay.resx">
       <DependentUpon>201401291813235_loadDelay.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201402042316329_measures.resx">
+      <DependentUpon>201402042316329_measures.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
