@@ -11,6 +11,13 @@
     <legend>JassMeasure</legend>
 
     <div class="display-label">
+         @Html.DisplayNameFor(model => model.JassVariable.Name)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.JassVariable.Name)
+    </div>
+
+    <div class="display-label">
          @Html.DisplayNameFor(model => model.x)
     </div>
     <div class="display-field">
@@ -22,6 +29,20 @@
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.y)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.year)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.year)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.month)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.month)
     </div>
 
     <div class="display-label">

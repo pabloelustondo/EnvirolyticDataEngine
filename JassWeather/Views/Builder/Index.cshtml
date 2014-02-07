@@ -1,0 +1,81 @@
+﻿@model IEnumerable<JassWeather.Models.JassBuilder>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table>
+    <tr>
+        <th>
+            Variable
+        </th>
+        <th>
+            Grid
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.x)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.y)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.year)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.month)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.day)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.hour3)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.level)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.JassVariable.Name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.JassGrid.Name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.x)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.y)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.year)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.month)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.day)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.hour3)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.level)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.JassBuilderID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.JassBuilderID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.JassBuilderID })
+        </td>
+    </tr>
+}
+
+</table>

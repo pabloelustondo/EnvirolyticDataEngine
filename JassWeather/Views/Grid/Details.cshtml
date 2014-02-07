@@ -1,0 +1,57 @@
+﻿@model JassWeather.Models.JassGrid
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>JassGrid</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Name)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Name)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Xsize)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Xsize)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Ysize)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Ysize)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Levelsize)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Levelsize)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Timesize)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Timesize)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.JassPartition.Name)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.JassPartition.Name)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.JassGridID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

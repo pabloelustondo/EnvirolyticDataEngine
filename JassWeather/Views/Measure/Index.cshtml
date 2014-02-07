@@ -12,10 +12,19 @@
 <table>
     <tr>
         <th>
+            @Html.DisplayNameFor(model => model.JassVariable.Name)
+        </th>
+        <th>
             @Html.DisplayNameFor(model => model.x)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.y)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.year)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.month)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.day)
@@ -32,10 +41,19 @@
 @foreach (var item in Model) {
     <tr>
         <td>
+            @Html.DisplayFor(modelItem => item.JassVariable.Name)
+        </td>
+        <td>
             @Html.DisplayFor(modelItem => item.x)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.y)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.year)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.month)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.day)
@@ -48,7 +66,7 @@
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.JassMeasureID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.JassMeasureID }) |
+            @Html.ActionLink("GetValue", "GetMeasureValue", new { id=item.JassMeasureID }) |
             @Html.ActionLink("Delete", "Delete", new { id=item.JassMeasureID })
         </td>
     </tr>

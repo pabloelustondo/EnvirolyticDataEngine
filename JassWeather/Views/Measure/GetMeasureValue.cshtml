@@ -1,0 +1,43 @@
+﻿@{
+    ViewBag.Title = "GetMeasureValue";
+}
+
+<h2>GetMeasureValue</h2>
+
+
+          <p>   @ViewBag.StartingMemory = StartingMemory / 1000000</p> 
+          <p>   @ViewBag.TotalDelay = TotalDelay</p> 
+          <p>   @ViewBag.AfterOpenMemory = AfterOpenMemory / 1000000</p> 
+          <p>   @ViewBag.AfterLoadMemory = AfterLoadMemory / 1000000</p> 
+          <p>   @ViewBag.AfterLoadDiffMemory = AfterLoadMemory - AfterOpenMemory</p> 
+          <p>   @ViewBag.Message = "Test executed correctly:"</p> 
+
+<table>
+     <tr><td>Temperature Our File </td><td>TemperatureOriginalFile</td></tr>   
+@for (int h = 0; h < ViewBag.temperature.Length; h++)
+{
+     <tr><td>@(ViewBag.temperature[h])</td><td>@(ViewBag.air[h])</td></tr> 
+  
+} 
+</table>
+
+
+Data Sample from original file:
+
+<table>
+     <tr><td>Temperature Our File </td><td>TemperatureOriginalFile</td></tr>   
+@for (int t = 0; t < 7; t++)
+{
+    for (int l = 0; l < 7; l++)
+    {
+        for (int y = 0; y < 7; y++)
+        {
+            for (int x = 0; x < 7; x++)
+            {
+                <tr><td>t: @t  l: @l  y: @y x: @x </td><td>@(ViewBag.airSample[t, l, y, x])</td></tr> 
+ 
+            }
+        }
+    } 
+} 
+</table>

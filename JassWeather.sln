@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JassWeather.Tests", "JassWe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JassWeatherAPI", "JassWeatherAPI\JassWeatherAPI.csproj", "{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JassFetchClimate", "JassFetchClimate\JassFetchClimate.csproj", "{2B5FAB13-25DD-45CD-B116-236B901A0FD3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,16 @@ Global
 		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Release|Win32.ActiveCfg = Release|Any CPU
+		{2B5FAB13-25DD-45CD-B116-236B901A0FD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B5FAB13-25DD-45CD-B116-236B901A0FD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B5FAB13-25DD-45CD-B116-236B901A0FD3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{2B5FAB13-25DD-45CD-B116-236B901A0FD3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{2B5FAB13-25DD-45CD-B116-236B901A0FD3}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{2B5FAB13-25DD-45CD-B116-236B901A0FD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B5FAB13-25DD-45CD-B116-236B901A0FD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B5FAB13-25DD-45CD-B116-236B901A0FD3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{2B5FAB13-25DD-45CD-B116-236B901A0FD3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{2B5FAB13-25DD-45CD-B116-236B901A0FD3}.Release|Win32.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

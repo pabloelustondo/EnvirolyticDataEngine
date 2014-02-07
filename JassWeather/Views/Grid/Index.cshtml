@@ -1,0 +1,63 @@
+﻿@model IEnumerable<JassWeather.Models.JassGrid>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Xsize)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Ysize)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Levelsize)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Timesize)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.JassPartition.Name)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Xsize)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Ysize)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Levelsize)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Timesize)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.JassPartition.Name)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.JassGridID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.JassGridID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.JassGridID })
+        </td>
+    </tr>
+}
+
+</table>

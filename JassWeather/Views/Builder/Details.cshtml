@@ -1,0 +1,85 @@
+﻿@model JassWeather.Models.JassBuilder
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>JassBuilder</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Name)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Name)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.JassVariable.Name)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.JassVariable.Name)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.JassGrid.Name)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.JassGrid.Name)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.x)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.x)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.y)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.y)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.year)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.year)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.month)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.month)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.day)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.day)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.hour3)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.hour3)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.level)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.level)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.JassBuilderID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

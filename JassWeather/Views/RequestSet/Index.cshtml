@@ -4,7 +4,7 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Weather APIs</h2>
+<h2>Data Sources</h2>
 
 <p>
     @Html.ActionLink("Create New", "Create")
@@ -29,9 +29,9 @@
             @Html.DisplayFor(modelItem => item.description)
         </td>
         <td>
-            @Html.ActionLink("Edit Name/Description", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Add/Edit API Calls", "EditCalls", new { id=item.Id }) |
-            @Html.ActionLink("Delete This Weather API", "Delete", new { id=item.Id })
+            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+            @Html.ActionLink("Add/Edit Data Requests", "EditCalls", new { id=item.Id }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
         </td>
     </tr>
 }
