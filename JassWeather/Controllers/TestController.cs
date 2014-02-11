@@ -14,7 +14,7 @@ using Microsoft.Research.Science.Data.Azure;
 
 namespace JassWeather.Controllers
 {
-    public class TestController : Controller
+    public class TestController : JassController
     {
         //
         // GET: /Test/
@@ -32,8 +32,6 @@ namespace JassWeather.Controllers
 
             try
             {
-
-                JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
                 string request1 = "http://api.wunderground.com/api/501a82781dc79a42/geolookup/conditions/q/IA/Cedar_Rapids.json";
                 string response1 = apiCaller.ping_Json_DataSource(request1);
 
@@ -234,7 +232,7 @@ DataSet.FromToEnd(0));
 
                 string appDataFolder = HttpContext.Server.MapPath("~/App_Data");
 
-                string timestamp = JassWeatherDataSourceAPI.fileTimeStamp();
+                string timestamp = JassWeatherAPI.fileTimeStamp();
 
                 string inputFile1 = appDataFolder + "/one_dimensional_measure_sample_1.csv";
                 string inputFile3 = appDataFolder + "/merged_file_3_" + timestamp + ".csv";
@@ -274,9 +272,9 @@ DataSet.FromToEnd(0));
 
                 var schema3 = dataset3.GetSchema();
 
-                ViewBag.sschema1 = JassWeatherDataSourceAPI.schema2string(schema1);
-                ViewBag.sschema2 = JassWeatherDataSourceAPI.schema2string(schema2);
-                ViewBag.sschema3 = JassWeatherDataSourceAPI.schema2string(schema3);
+                ViewBag.sschema1 = JassWeatherAPI.schema2string(schema1);
+                ViewBag.sschema2 = JassWeatherAPI.schema2string(schema2);
+                ViewBag.sschema3 = JassWeatherAPI.schema2string(schema3);
 
                 ViewBag.x3 = dataset3.GetData<double[]>("X");
                 ViewBag.temp3 = dataset3.GetData<double[]>("Temp");
@@ -301,7 +299,7 @@ DataSet.FromToEnd(0));
                 //Let try to re-create the file...
 
                 string appDataFolder = HttpContext.Server.MapPath("~/App_Data");
-                string timestamp = JassWeatherDataSourceAPI.fileTimeStamp();
+                string timestamp = JassWeatherAPI.fileTimeStamp();
 
                 //tas_WRFG_example_2014_2_3_11_10_31_322.nc
 
@@ -334,9 +332,9 @@ DataSet.FromToEnd(0));
                 double[] time_new = dataset_new.GetData<double[]>("time");
                 Single[, ,] temperature_new = dataset_new.GetData<Single[, ,]>("temperature");
 
-                ViewBag.sschema_new = JassWeatherDataSourceAPI.schema2string(schema_new);
-                ViewBag.sschema1 = JassWeatherDataSourceAPI.schema2string(schema1);
-                ViewBag.sschema3 = JassWeatherDataSourceAPI.schema2string(schema3);
+                ViewBag.sschema_new = JassWeatherAPI.schema2string(schema_new);
+                ViewBag.sschema1 = JassWeatherAPI.schema2string(schema1);
+                ViewBag.sschema3 = JassWeatherAPI.schema2string(schema3);
 
                 ViewBag.Message = "Test executed correctly:";
             }
@@ -365,7 +363,7 @@ DataSet.FromToEnd(0));
                 StartingMemory = GC.GetTotalMemory(true);
 
                 string appDataFolder = HttpContext.Server.MapPath("~/App_Data");
-                string timestamp = JassWeatherDataSourceAPI.fileTimeStamp();
+                string timestamp = JassWeatherAPI.fileTimeStamp();
 
                 //tas_WRFG_example_2014_2_3_11_10_31_322.nc
 
@@ -419,9 +417,9 @@ DataSet.FromToEnd(0));
                 EndingTime = DateTime.Now;
                 TotalDelay = EndingTime - StartingTime;
 
-                ViewBag.sschema_new = JassWeatherDataSourceAPI.schema2string(schema_new);
-                ViewBag.sschema1 = JassWeatherDataSourceAPI.schema2string(schema1);
-                ViewBag.sschema3 = JassWeatherDataSourceAPI.schema2string(schema3);
+                ViewBag.sschema_new = JassWeatherAPI.schema2string(schema_new);
+                ViewBag.sschema1 = JassWeatherAPI.schema2string(schema1);
+                ViewBag.sschema3 = JassWeatherAPI.schema2string(schema3);
 
                 ViewBag.StartingMemory = StartingMemory / 1000000;
                 ViewBag.AfterOpenMemory = AfterOpenMemory / 1000000;
@@ -460,7 +458,7 @@ DataSet.FromToEnd(0));
                 StartingMemory = GC.GetTotalMemory(true);
 
                 string appDataFolder = HttpContext.Server.MapPath("~/App_Data");
-                string timestamp = JassWeatherDataSourceAPI.fileTimeStamp();
+                string timestamp = JassWeatherAPI.fileTimeStamp();
 
                 //tas_WRFG_example_2014_2_3_11_10_31_322.nc
 
@@ -521,9 +519,9 @@ DataSet.FromToEnd(0));
                     Int16[, ,] temperature_new = dataset_new.GetData<Int16[, ,]>("temperature");
 
 
-                    ViewBag.sschema_new = JassWeatherDataSourceAPI.schema2string(schema_new);
-                    ViewBag.sschema1 = JassWeatherDataSourceAPI.schema2string(schema1);
-                    ViewBag.sschema3 = JassWeatherDataSourceAPI.schema2string(schema3);
+                    ViewBag.sschema_new = JassWeatherAPI.schema2string(schema_new);
+                    ViewBag.sschema1 = JassWeatherAPI.schema2string(schema1);
+                    ViewBag.sschema3 = JassWeatherAPI.schema2string(schema3);
                     ViewBag.AfterOpenMemory = AfterOpenMemory / 1000000;
                     ViewBag.AfterLoadMemory = AfterLoadMemory / 1000000;
                     ViewBag.AfterLoadDiffMemory = AfterLoadMemory - AfterOpenMemory;
@@ -564,7 +562,7 @@ DataSet.FromToEnd(0));
                 StartingMemory = GC.GetTotalMemory(true);
 
                 string appDataFolder = HttpContext.Server.MapPath("~/App_Data");
-                string timestamp = JassWeatherDataSourceAPI.fileTimeStamp();
+                string timestamp = JassWeatherAPI.fileTimeStamp();
 
                 //tas_WRFG_example_2014_2_3_11_10_31_322.nc
 
@@ -633,9 +631,9 @@ DataSet.FromToEnd(0));
                     Int16[, , ,] temperature_new = dataset_new.GetData<Int16[, , ,]>("temperature");
 
 
-                    ViewBag.sschema_new = JassWeatherDataSourceAPI.schema2string(schema_new);
-                    ViewBag.sschema1 = JassWeatherDataSourceAPI.schema2string(schema1);
-                    ViewBag.sschema3 = JassWeatherDataSourceAPI.schema2string(schema3);
+                    ViewBag.sschema_new = JassWeatherAPI.schema2string(schema_new);
+                    ViewBag.sschema1 = JassWeatherAPI.schema2string(schema1);
+                    ViewBag.sschema3 = JassWeatherAPI.schema2string(schema3);
                     ViewBag.AfterOpenMemory = AfterOpenMemory / 1000000;
                     ViewBag.AfterLoadMemory = AfterLoadMemory / 1000000;
                     ViewBag.AfterLoadDiffMemory = AfterLoadMemory - AfterOpenMemory;
@@ -672,7 +670,7 @@ DataSet.FromToEnd(0));
         public ActionResult TestWriteDataSet2Azure()
         {
             string rootFolder = HttpContext.Server.MapPath("~/App_Data");
-            string timestamp = JassWeatherDataSourceAPI.fileTimeStamp();
+            string timestamp = JassWeatherAPI.fileTimeStamp();
 
             try
             {
@@ -749,7 +747,7 @@ DataSet.FromToEnd(0));
                 var dataset_from_Azure = AzureDataSet.Open(azureDataSet_URI);
 
 
-                ViewBag.sschema_new = JassWeatherDataSourceAPI.schema2string(schema_new);
+                ViewBag.sschema_new = JassWeatherAPI.schema2string(schema_new);
                 ViewBag.Message = "Test executed correctly:";
             }
             catch (Exception e)

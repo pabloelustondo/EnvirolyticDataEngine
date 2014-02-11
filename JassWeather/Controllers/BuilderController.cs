@@ -6,19 +6,19 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using JassWeather.Models;
+using System.Threading;
 
 namespace JassWeather.Controllers
 {
-    public class BuilderController : Controller
+    public class BuilderController : JassController
     {
         private JassWeatherContext db = new JassWeatherContext();
-
         //
         // GET: /Builder/
 
         public ActionResult Index()
         {
-            var jassbuilders = db.JassBuilders.Include(j => j.JassVariable).Include(j => j.JassGrid);
+            var jassbuilders = db.JassBuilders.Include(j => j.JassVariable).Include(j => j.JassGrid).Include(j => j.APIRequest);
             return View(jassbuilders.ToList());
         }
 
@@ -35,6 +35,63 @@ namespace JassWeather.Controllers
             return View(jassbuilder);
         }
 
+        public ActionResult ProcessBuilder(int id = 0)
+        {
+            JassBuilder jassbuilder = db.JassBuilders.Find(id);
+            var result = apiCaller.processBuilder(jassbuilder, false);
+
+            if (jassbuilder == null)
+            {
+                return HttpNotFound();
+            }
+            ViewBag.Message = result;
+
+            return View(jassbuilder);
+        }
+
+        public ActionResult ProcessBuilderAndUpload(int id = 0)
+        {
+            JassBuilder jassbuilder = db.JassBuilders.Find(id);
+            var result = apiCaller.processBuilder(jassbuilder, true);
+
+            if (jassbuilder == null)
+            {
+                return HttpNotFound();
+            }
+            ViewBag.Message = result;
+
+            return View(jassbuilder);
+        }
+
+        public ActionResult CheckBuilderOnDisk(int id = 0)
+        {
+            JassBuilder jassbuilder = db.JassBuilders.Find(id);
+            var result = apiCaller.checkBuilderOnDisk(jassbuilder);
+
+            if (jassbuilder == null)
+            {
+                return HttpNotFound();
+            }
+            ViewBag.Message = result;
+
+            return View(jassbuilder);
+        }
+
+        public ActionResult CleanBuilderOnDisk(int id = 0)
+        {
+            JassBuilder jassbuilder = db.JassBuilders.Find(id);
+            var result = apiCaller.cleanBuilderOnDisk(jassbuilder);
+
+            if (jassbuilder == null)
+            {
+                return HttpNotFound();
+            }
+            ViewBag.Message = result;
+
+            return View(jassbuilder);
+        }
+
+
         //
         // GET: /Builder/Create
 
@@ -42,6 +99,7 @@ namespace JassWeather.Controllers
         {
             ViewBag.JassVariableID = new SelectList(db.JassVariables, "JassVariableID", "Name");
             ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name");
+            ViewBag.APIRequestId = new SelectList(db.APIRequests, "Id", "url");
             return View();
         }
 
@@ -61,6 +119,7 @@ namespace JassWeather.Controllers
 
             ViewBag.JassVariableID = new SelectList(db.JassVariables, "JassVariableID", "Name", jassbuilder.JassVariableID);
             ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", jassbuilder.JassGridID);
+            ViewBag.APIRequestId = new SelectList(db.APIRequests, "Id", "url", jassbuilder.APIRequestId);
             return View(jassbuilder);
         }
 
@@ -76,6 +135,7 @@ namespace JassWeather.Controllers
             }
             ViewBag.JassVariableID = new SelectList(db.JassVariables, "JassVariableID", "Name", jassbuilder.JassVariableID);
             ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", jassbuilder.JassGridID);
+            ViewBag.APIRequestId = new SelectList(db.APIRequests, "Id", "url", jassbuilder.APIRequestId);
             return View(jassbuilder);
         }
 
@@ -94,6 +154,7 @@ namespace JassWeather.Controllers
             }
             ViewBag.JassVariableID = new SelectList(db.JassVariables, "JassVariableID", "Name", jassbuilder.JassVariableID);
             ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", jassbuilder.JassGridID);
+            ViewBag.APIRequestId = new SelectList(db.APIRequests, "Id", "url", jassbuilder.APIRequestId);
             return View(jassbuilder);
         }
 

@@ -15,6 +15,7 @@ using System.Configuration;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.Research.Science.Data;
 using Microsoft.Research.Science.Data.Imperative;
+using Microsoft.WindowsAzure;
 
 namespace JassWeather.Models
 {
@@ -23,8 +24,253 @@ namespace JassWeather.Models
         public int length { get; set; }   
     }
 
-    public class JassWeatherDataSourceAPI
+    public class JassWeatherAPI
     {
+        public JassBuilder builder;
+        private JassWeatherContext db = new JassWeatherContext();
+        public string AppDataFolder;
+        DateTime startTotalTime = DateTime.UtcNow;
+        DateTime endTotalTime = DateTime.UtcNow;
+        TimeSpan spanTotalTime;
+
+        public JassWeatherAPI(string appDataFolder){
+
+            AppDataFolder = appDataFolder;
+          }
+
+
+        public string processBuilder(JassBuilder builder, Boolean upload)
+        {
+
+            string Message = "process builder sucessfuly";
+            long StartingMemory;
+            DateTime StartingTime = DateTime.Now;
+            long AfterOpenMemory;
+            long AfterLoadMemory;
+            DateTime EndingTime = DateTime.Now;
+            TimeSpan TotalDelay;
+            JassBuilder jassbuilder = db.JassBuilders.Find(builder.JassBuilderID);
+            try
+            {
+                //Let try to re-create the file...
+                GC.Collect();
+                StartingMemory = GC.GetTotalMemory(true);
+                startTotalTime = DateTime.Now;
+
+                string timestamp = JassWeatherAPI.fileTimeStamp();
+
+                string url = builder.APIRequest.url;
+                string inputFile1 = AppDataFolder + "/" + safeFileNameFromUrl(url);
+                var dataset1 = DataSet.Open(inputFile1 + "?openMode=open");
+                var schema1 = dataset1.GetSchema();
+                Single[] y = dataset1.GetData<Single[]>("y");
+                Single[] x = dataset1.GetData<Single[]>("x");
+                double[] time = dataset1.GetData<double[]>("time");
+                Single[] level = dataset1.GetData<Single[]>("level");
+                string dayString;
+                int in_year = 2012;
+                int in_month = 1;
+                int in_day;
+
+
+                jassbuilder.Status = JassBuilderStatus.Processing;
+                jassbuilder.setTotalSize = time.Length / 8;
+                jassbuilder.setCurrentSize = 0;
+                db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
+                db.SaveChanges();
+
+                for (var df = 0; df < time.Length; df += 8)
+                {
+                    in_day = df / 8;
+
+                    dayString = "" + in_year + "_" + in_month + "_" + in_day;
+
+                    string outputFileName = fileNameBuilderByDay(builder,in_day) + ".nc";
+                    string outputFilePath = AppDataFolder + "/" + outputFileName;
+                    var dataset3 = DataSet.Open(outputFilePath + "?openMode=create");
+                    AfterOpenMemory = GC.GetTotalMemory(true);
+                    var schema3 = dataset3.GetSchema();
+
+                    Int16[, , ,] dataset = dataset1.GetData<Int16[, , ,]>(builder.Source1VariableName,
+                         DataSet.Range(0, 1, 7), /* removing first dimension from data*/
+                         DataSet.FromToEnd(0), /* removing first dimension from data*/
+                         DataSet.FromToEnd(0),
+                         DataSet.FromToEnd(0));
+
+                    short tempSample = (short)dataset[0, 0, 0, 0];
+
+                    AfterLoadMemory = GC.GetTotalMemory(true);
+
+                    double[] timeday = new double[8];
+
+                    for (var t = 0; t < 8; t++)
+                    {
+                        timeday[t] = time[t];
+                    }
+
+                    dataset3.Add<double[]>("time", timeday, "time");
+                    dataset3.Add<Single[]>("level", level, "level");
+                    dataset3.Add<Single[]>("y", y, "y");
+                    dataset3.Add<Single[]>("x", x, "x");
+
+
+                    dataset3.Add<Int16[, , ,]>("temperature", dataset, "time", "level", "y", "x");
+                    dataset3.Commit();
+                    dataset3.Dispose();
+
+                    if (upload)
+                    {
+                        uploadBlob_to_envirolitics("envirolytic", outputFileName, outputFilePath);
+                    }
+
+                    jassbuilder.setCurrentSize = df/8 + 1;
+                    db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
+                    db.SaveChanges();
+
+ 
+                }
+
+                DateTime EndTime = DateTime.Now;
+
+                TimeSpan TotalTime = EndTime - startTotalTime;
+                jassbuilder.startTotalTime = startTotalTime;
+                jassbuilder.endTotalTime = EndTime;
+                jassbuilder.OnDisk = true;
+                jassbuilder.spanTotalTime = TotalTime;
+                jassbuilder.Status = JassBuilderStatus.Success;
+
+
+                db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
+                db.SaveChanges();
+
+            }
+
+            catch (Exception e)
+            {
+                Message = e.Message;
+                DateTime EndTime = DateTime.Now;
+                TimeSpan TotalTime = EndTime - startTotalTime;
+                jassbuilder.startTotalTime = startTotalTime;
+                jassbuilder.endTotalTime = EndTime;
+                jassbuilder.OnDisk = false;
+                jassbuilder.spanTotalTime = TotalTime;
+                jassbuilder.Status = JassBuilderStatus.Failure;
+                jassbuilder.Message = e.Message;
+            }
+
+
+            return Message; 
+        }
+
+        public string checkBuilderOnDisk(JassBuilder builder)
+        {
+            JassBuilder jassbuilder = db.JassBuilders.Find(builder.JassBuilderID);
+            try
+            {
+                string timestamp = JassWeatherAPI.fileTimeStamp();
+                string url = builder.APIRequest.url;
+                string inputFile1 = AppDataFolder + "/" + safeFileNameFromUrl(url);
+                string dayString;
+                int in_year = 2012;
+                int in_month = 1;
+                int in_day;
+                int currentNumberOfFiles = 0;
+
+                for (var df = 0; df < 24 /*time.Length*/; df += 8)
+                {
+                    in_day = df / 8;
+                    dayString = "" + in_year + "_" + in_month + "_" + in_day;
+                    string outputFile = AppDataFolder + "/" + fileNameBuilderByDay(builder, in_day) + ".nc";
+
+                    Boolean fileExists = File.Exists(outputFile);
+
+                    if (fileExists)
+                    {
+                        currentNumberOfFiles += 1;
+                    }
+                }
+
+
+                if (currentNumberOfFiles > 27)
+                {
+                    jassbuilder.OnDisk = true;
+                    jassbuilder.Status = JassBuilderStatus.Success;
+                    jassbuilder.Message = "number of files: " + currentNumberOfFiles;
+                    db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    jassbuilder.OnDisk = false;
+                    jassbuilder.Status = JassBuilderStatus.Failure;
+                    jassbuilder.Message = "number of files: " + currentNumberOfFiles;
+                    db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
+                    db.SaveChanges();
+                }
+
+            }
+            catch (Exception e)
+            {
+                jassbuilder.OnDisk = false;
+                jassbuilder.Status = JassBuilderStatus.Failure;
+                jassbuilder.Message = e.Message;
+                db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
+                db.SaveChanges();
+            }
+
+            string MessageString =     "Status: " + jassbuilder.Status +
+                                "#Files: " + jassbuilder.setCurrentSize + 
+                                "OnDisk: " + jassbuilder.OnDisk +
+                                "  " + jassbuilder.Message;
+
+            return MessageString;
+        }
+     
+        
+        public string cleanBuilderOnDisk(JassBuilder builder)
+        {
+            JassBuilder jassbuilder = db.JassBuilders.Find(builder.JassBuilderID);
+            try
+            {
+                string timestamp = JassWeatherAPI.fileTimeStamp();
+                string url = builder.APIRequest.url;
+                string inputFile1 = AppDataFolder + "/" + safeFileNameFromUrl(url);
+                string dayString;
+                int in_year = 2012;
+                int in_month = 1;
+                int in_day;
+                int currentNumberOfFiles = 0;
+
+                for (var df = 0; df < 24 /*time.Length*/; df += 8)
+                {
+                    in_day = df / 8;
+                    dayString = "" + in_year + "_" + in_month + "_" + in_day;
+                    string outputFile = AppDataFolder + "/" + fileNameBuilderByDay(builder, in_day) + ".nc";
+
+                    File.Delete(outputFile);
+                }
+
+                    jassbuilder.OnDisk = true;
+                    jassbuilder.Status = JassBuilderStatus.Success;
+                    jassbuilder.Message = "number of files: " + currentNumberOfFiles;
+                    db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
+                    db.SaveChanges();
+ 
+            }
+            catch (Exception e)
+            {
+                jassbuilder.OnDisk = false;
+                jassbuilder.Status = JassBuilderStatus.Failure;
+                jassbuilder.Message = e.Message;
+                db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
+                db.SaveChanges();
+            }
+
+            string MessageString =     "Status: " + jassbuilder.Status + 
+                                "  " + jassbuilder.Message;
+
+            return MessageString;
+        }
         public string ping_Json_DataSource(string url){
 
             WebRequest req = WebRequest.Create(url);
@@ -338,6 +584,22 @@ namespace JassWeather.Models
             return Message;
         }
 
+        public string safeFileNameFromUrl(string url)
+        {
+            return url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
+        }
+
+        public string fileNameBuilderByDay(JassBuilder builder, int day){
+
+            var dayString = (day+1).ToString();
+            if (dayString.Length < 2) dayString = "0" + dayString;
+
+            var monthString = builder.month.ToString();
+            if (monthString.Length < 2) monthString = "0" + monthString;
+
+            return builder.JassVariable.Name + "_" + builder.year + "_" + monthString + "_" + dayString;
+        }
+
         public string get_big_NetCDF_by_ftp5(string url, string workingDirectoryPath, double maxFileSizeToDownload)
         {
             //workingDirectorypath: HttpContext.Server.MapPath("~/App_Data")
@@ -351,7 +613,7 @@ namespace JassWeather.Models
 
                 DateTime t = DateTime.Now;
                 string timeStamp = "_" + t.Year + "_" + t.Month + "_" + t.Day + "_" + t.Hour + "_" + t.Minute + "_" + t.Second + "_" + t.Millisecond;
-                string safeFileName = url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
+                string safeFileName = safeFileNameFromUrl(url);
                 string downloadedFilePath = workingDirectoryPath + "\\" + safeFileName;
 
 
@@ -780,6 +1042,9 @@ namespace JassWeather.Models
             public double time { get; set; }
             public int level { get; set; }
         }
+
+
+        #region Blob Operations
         public List<CloudBlockBlob> listBlobs_in_envirolytics()
         {
 
@@ -835,6 +1100,68 @@ namespace JassWeather.Models
             return "Blob Deleted";
 
         }
+
+        public string uploadBlob_to_envirolitics(string blobContainer, string blobName, string filePath)
+        {
+            DateTime Start = DateTime.Now;
+            // Retrieve storage account from connection string.
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+                CloudConfigurationManager.GetSetting("StorageConnectionString"));
+
+            // Create the blob client.
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+
+            // Retrieve reference to a previously created container.
+            CloudBlobContainer container = blobClient.GetContainerReference(blobContainer);
+
+            // Retrieve reference to a blob named "myblob".
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
+
+            // Create or overwrite the "myblob" blob with contents from a local file.
+            using (var fileStream = System.IO.File.OpenRead(filePath))
+            {
+                blockBlob.UploadFromStream(fileStream);
+            }
+
+
+            DateTime End = DateTime.Now;
+            TimeSpan Delay = End - Start;
+
+            return "ok: " + Delay;
+        }
+
+        public string downloadBlob_to_envirolitics(string blobContainer, string blobName, string filePath)
+        {
+            DateTime Start = DateTime.Now;
+            // Retrieve storage account from connection string.
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+                CloudConfigurationManager.GetSetting("StorageConnectionString"));
+
+            // Create the blob client.
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+
+            // Retrieve reference to a previously created container.
+            CloudBlobContainer container = blobClient.GetContainerReference(blobContainer);
+
+            // Retrieve reference to a blob named "photo1.jpg".
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
+
+            // Save blob contents to a file.
+            using (var fileStream = System.IO.File.OpenWrite(filePath))
+            {
+                blockBlob.DownloadToStream(fileStream);
+            }
+
+            DateTime End = DateTime.Now;
+            TimeSpan Delay = End - Start;
+
+            return "ok: " + Delay;  
+                    return "ok";
+        }
+
+
+
+        #endregion Blob Operations
 
         public List<string> listFiles_in_AppData(string appDataFolder)
         {

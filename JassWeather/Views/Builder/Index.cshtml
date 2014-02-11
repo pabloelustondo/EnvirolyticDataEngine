@@ -18,10 +18,10 @@
             Grid
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.x)
+            Source1
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.y)
+            SourceVar
         </th>
         <th>
             @Html.DisplayNameFor(model => model.year)
@@ -29,15 +29,28 @@
         <th>
             @Html.DisplayNameFor(model => model.month)
         </th>
+        <td>
+            Status
+        </td>
+        <td>
+            #TotalFiles
+        </td>
+        <td>
+            #Files
+        </td>
         <th>
-            @Html.DisplayNameFor(model => model.day)
+            OnDisk
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.hour3)
+            StartTime
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.level)
+            Delay
         </th>
+        <th>
+            
+        </th>
+        
         <th></th>
     </tr>
 
@@ -50,10 +63,10 @@
             @Html.DisplayFor(modelItem => item.JassGrid.Name)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.x)
+            @Html.DisplayFor(modelItem => item.APIRequest.name)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.y)
+            @Html.DisplayFor(modelItem => item.Source1VariableName)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.year)
@@ -62,17 +75,33 @@
             @Html.DisplayFor(modelItem => item.month)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.day)
+            @Html.DisplayFor(modelItem => item.Status)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.hour3)
+            @Html.DisplayFor(modelItem => item.setTotalSize)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.level)
+            @Html.DisplayFor(modelItem => item.setCurrentSize)
         </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.OnDisk)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.startTotalTime)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.spanTotalTime)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Message)
+        </td>
+        
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.JassBuilderID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.JassBuilderID }) |
+            @Html.ActionLink("Process", "ProcessBuilder", new { id=item.JassBuilderID }) |
+            @Html.ActionLink("ProcessUpload", "ProcessBuilderAndUpload", new { id=item.JassBuilderID }) |
+            @Html.ActionLink("CheckD", "checkBuilderOnDisk", new { id=item.JassBuilderID }) |
+            @Html.ActionLink("CleanD", "cleanBuilderOnDisk", new { id=item.JassBuilderID }) |
             @Html.ActionLink("Delete", "Delete", new { id=item.JassBuilderID })
         </td>
     </tr>

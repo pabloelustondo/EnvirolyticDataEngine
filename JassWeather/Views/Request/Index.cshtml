@@ -95,7 +95,9 @@
             @Html.ActionLink("G2D", "Download2Disk", new { id=item.Id }) |
             @Html.ActionLink("S2T", "Add2Table", new { id=item.Id }) |
             @Html.ActionLink("Insp", "AnalyzeFileDisk", new { id=item.Id }) |
-            @Html.ActionLink("D", "Delete", new { id=item.Id })
+            @Html.ActionLink("D", "Delete", new { id=item.Id }) | 
+            @Html.ActionLink("B2D", "DownloadBlob", new { id=item.Id }) |
+            @Html.ActionLink("D2B", "UploadBlob", new { id=item.Id }) 
         </td>
     </tr>
 }

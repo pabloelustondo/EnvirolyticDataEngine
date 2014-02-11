@@ -242,6 +242,7 @@
     <Compile Include="Controllers\BlobController.cs" />
     <Compile Include="Controllers\BuilderController.cs" />
     <Compile Include="Controllers\GridController.cs" />
+    <Compile Include="Controllers\JassController.cs" />
     <Compile Include="Controllers\MeasureController.cs" />
     <Compile Include="Controllers\PartitionController.cs" />
     <Compile Include="Controllers\TestController.cs" />
@@ -387,6 +388,42 @@
     <Compile Include="Migrations\201402072114589_builder-added.cs" />
     <Compile Include="Migrations\201402072114589_builder-added.Designer.cs">
       <DependentUpon>201402072114589_builder-added.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201402072207324_remove-buidler.cs" />
+    <Compile Include="Migrations\201402072207324_remove-buidler.Designer.cs">
+      <DependentUpon>201402072207324_remove-buidler.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201402072211100_re-added-builder.cs" />
+    <Compile Include="Migrations\201402072211100_re-added-builder.Designer.cs">
+      <DependentUpon>201402072211100_re-added-builder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201402072215196_request.cs" />
+    <Compile Include="Migrations\201402072215196_request.Designer.cs">
+      <DependentUpon>201402072215196_request.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201402072223568_remove-builder.cs" />
+    <Compile Include="Migrations\201402072223568_remove-builder.Designer.cs">
+      <DependentUpon>201402072223568_remove-builder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201402101418326_what.cs" />
+    <Compile Include="Migrations\201402101418326_what.Designer.cs">
+      <DependentUpon>201402101418326_what.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201402101850066_source1-variable-name.cs" />
+    <Compile Include="Migrations\201402101850066_source1-variable-name.Designer.cs">
+      <DependentUpon>201402101850066_source1-variable-name.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201402102109208_aaa.cs" />
+    <Compile Include="Migrations\201402102109208_aaa.Designer.cs">
+      <DependentUpon>201402102109208_aaa.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201402111443057_status2.cs" />
+    <Compile Include="Migrations\201402111443057_status2.Designer.cs">
+      <DependentUpon>201402111443057_status2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201402111505508_message.cs" />
+    <Compile Include="Migrations\201402111505508_message.Designer.cs">
+      <DependentUpon>201402111505508_message.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
@@ -599,6 +636,12 @@
     <Content Include="Views\Builder\Create.cshtml" />
     <Content Include="Views\Builder\Edit.cshtml" />
     <Content Include="Views\Builder\Delete.cshtml" />
+    <Content Include="Views\Builder\ProcessBuilder.cshtml" />
+    <Content Include="Views\Builder\ProcessBuilderAsync.cshtml" />
+    <Content Include="Views\Builder\CheckBuilderOnDisk.cshtml" />
+    <Content Include="Views\Builder\CleanBuilderOnDisk.cshtml" />
+    <Content Include="Views\Request\DownloadBlob.cshtml" />
+    <Content Include="Views\Request\UploadBlob.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -702,6 +745,33 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201402072114589_builder-added.resx">
       <DependentUpon>201402072114589_builder-added.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201402072207324_remove-buidler.resx">
+      <DependentUpon>201402072207324_remove-buidler.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201402072211100_re-added-builder.resx">
+      <DependentUpon>201402072211100_re-added-builder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201402072215196_request.resx">
+      <DependentUpon>201402072215196_request.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201402072223568_remove-builder.resx">
+      <DependentUpon>201402072223568_remove-builder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201402101418326_what.resx">
+      <DependentUpon>201402101418326_what.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201402101850066_source1-variable-name.resx">
+      <DependentUpon>201402101850066_source1-variable-name.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201402102109208_aaa.resx">
+      <DependentUpon>201402102109208_aaa.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201402111443057_status2.resx">
+      <DependentUpon>201402111443057_status2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201402111505508_message.resx">
+      <DependentUpon>201402111505508_message.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

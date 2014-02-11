@@ -11,7 +11,7 @@ using Microsoft.Research.Science.Data.Imperative;
 
 namespace JassWeather.Controllers
 {
-    public class MeasureController : Controller
+    public class MeasureController : JassController
     {
         private JassWeatherContext db = new JassWeatherContext();
 
@@ -158,10 +158,10 @@ namespace JassWeather.Controllers
                 StartingMemory = GC.GetTotalMemory(true);
 
                 string appDataFolder = HttpContext.Server.MapPath("~/App_Data");
-                string timestamp = JassWeatherDataSourceAPI.fileTimeStamp();
+                string timestamp = JassWeatherAPI.fileTimeStamp();
 
                 //tas_WRFG_example_2014_2_3_11_10_31_322.nc
-                JassWeatherDataSourceAPI apiCaller = new JassWeatherDataSourceAPI();
+
                 List<string> files = apiCaller.listFiles_in_AppData(HttpContext.Server.MapPath("~/App_Data"));
 
                 string inputFile3 = appDataFolder + "/envirolitic_air_" + dayString + ".nc";
