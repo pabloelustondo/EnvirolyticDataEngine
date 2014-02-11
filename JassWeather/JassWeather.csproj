@@ -593,7 +593,7 @@
     <Content Include="Views\Request\ShowNetCDF.cshtml" />
     <Content Include="Views\Request\ShowError.cshtml" />
     <Content Include="Views\Blob\Index.cshtml" />
-    <Content Include="Views\Blob\Delete.cshtml" />
+    <Content Include="Views\Blob\DeleteContainer.cshtml" />
     <Content Include="Views\Request\AnalyzeFileDisk.cshtml" />
     <Content Include="Views\Blob\ShowAppData.cshtml" />
     <Content Include="Views\Request\AnalyzeFileBlob.cshtml" />
@@ -642,6 +642,9 @@
     <Content Include="Views\Builder\CleanBuilderOnDisk.cshtml" />
     <Content Include="Views\Request\DownloadBlob.cshtml" />
     <Content Include="Views\Request\UploadBlob.cshtml" />
+    <Content Include="Views\Builder\ProcessBuilderAndUpload.cshtml" />
+    <Content Include="Views\Blob\ListBlobs.cshtml" />
+    <Content Include="Views\Blob\CleanAppData.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

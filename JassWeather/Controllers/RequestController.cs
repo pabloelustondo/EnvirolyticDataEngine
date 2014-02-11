@@ -147,7 +147,7 @@ namespace JassWeather.Controllers
             APIRequest apiRequest = db.APIRequests.Find(id);
             var blobName = apiCaller.safeFileNameFromUrl(apiRequest.url);
             var filenPath = apiCaller.AppDataFolder + "/" + apiCaller.safeFileNameFromUrl(apiRequest.url);
-            apiCaller.downloadBlob_to_envirolitics("envirolytic", blobName, filenPath);
+            apiCaller.downloadBlob("envirolytic", blobName, filenPath);
             return View();
         }
 
@@ -156,7 +156,7 @@ namespace JassWeather.Controllers
             APIRequest apiRequest = db.APIRequests.Find(id);
             var blobName = apiCaller.safeFileNameFromUrl(apiRequest.url);
             var filenPath = apiCaller.AppDataFolder + "/" + apiCaller.safeFileNameFromUrl(apiRequest.url);
-            apiCaller.uploadBlob_to_envirolitics("envirolytic", blobName, filenPath);
+            apiCaller.uploadBlob("envirolytic", blobName, filenPath);
             return View();
         }
 

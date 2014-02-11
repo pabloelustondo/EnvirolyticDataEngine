@@ -14,7 +14,14 @@ namespace JassWeather.Controllers
         // GET: /Blob/
         public ActionResult Index()
         {
-            List<CloudBlockBlob> blobs = apiCaller.listBlobs_in_envirolytics();
+            List<CloudBlobContainer> blobs = apiCaller.listContainers();
+            return View(blobs);
+        }
+
+        public ActionResult ListBlobs(string containerName)
+        {
+
+            List<CloudBlockBlob> blobs = apiCaller.listBlobs(containerName);
             return View(blobs);
         }
 
@@ -38,10 +45,10 @@ namespace JassWeather.Controllers
             return View(files);
         }
 
-        public ActionResult Delete(string name)
+        public ActionResult DeleteContainer(string name)
         {
 
-            string result = apiCaller.deleteBlob_in_envirolytics(name);
+            string result = apiCaller.deleteContainer(name);
             ViewBag.Message = result;
 
             return View();
@@ -50,6 +57,13 @@ namespace JassWeather.Controllers
         public ActionResult DeleteFromAppData(string fileName)
         {
             bool result = apiCaller.deleteFile_in_AppData(fileName);
+            ViewBag.Message = result;
+            return View();
+        }
+
+        public ActionResult CleanAppData()
+        {
+            bool result = apiCaller.deleteAll();
             ViewBag.Message = result;
             return View();
         }

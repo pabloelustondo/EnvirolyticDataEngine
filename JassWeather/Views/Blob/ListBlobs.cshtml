@@ -1,5 +1,5 @@
 ﻿@using Microsoft.WindowsAzure.Storage.Blob;
-@model List<CloudBlobContainer>
+@model List<CloudBlockBlob>
 
 @{
     ViewBag.Title = "Index";
@@ -13,6 +13,9 @@
             Name
         </th>
         <th>
+            Length (MB)
+        </th>
+        <th>
             Last Updated (UTC)
         </th>
 
@@ -23,12 +26,14 @@
          <td>
             @item.Name
         </td>
+        <td>
+            @(item.Properties.Length / 1000000)
+        </td>
          <td>
             @item.Properties.LastModified
         </td>
         <td>
-            @Html.ActionLink("Explore", "ListBlobs", new { containerName=item.Name })
-            @Html.ActionLink("Del", "DeleteContainer", new { name=item.Name })
+            @Html.ActionLink("Del", "Delete", new { name=item.Name })
         </td>
     </tr>
 }

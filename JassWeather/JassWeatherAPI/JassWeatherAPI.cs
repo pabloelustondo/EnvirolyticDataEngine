@@ -120,7 +120,7 @@ namespace JassWeather.Models
 
                     if (upload)
                     {
-                        uploadBlob_to_envirolitics("envirolytic", outputFileName, outputFilePath);
+                        uploadBlob(builder.JassVariable.Name, outputFileName, outputFilePath);
                     }
 
                     jassbuilder.setCurrentSize = df/8 + 1;
@@ -1045,9 +1045,18 @@ namespace JassWeather.Models
 
 
         #region Blob Operations
-        public List<CloudBlockBlob> listBlobs_in_envirolytics()
-        {
 
+        public List<CloudBlobContainer> listContainers()
+        {
+            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            List<CloudBlobContainer> containers = blobClient.ListContainers().ToList<CloudBlobContainer>(); 
+            return containers;
+        }
+
+        public List<CloudBlockBlob> listBlobs(string containerName)
+        {
 
             List<CloudBlockBlob> blobs = new List<CloudBlockBlob>();
 
@@ -1056,8 +1065,9 @@ namespace JassWeather.Models
 
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             // Retrieve a reference to a container. 
-            CloudBlobContainer container = blobClient.GetContainerReference("envirolytic");
+            CloudBlobContainer container = blobClient.GetContainerReference(containerName);
 
+  
             foreach (IListBlobItem item in container.ListBlobs(null, false))
             {
                 if (item.GetType() == typeof(CloudBlockBlob))
@@ -1078,6 +1088,28 @@ namespace JassWeather.Models
             return blobs;
  
         }
+
+        public string deleteContainer(string containerName)
+        {
+
+
+            List<CloudBlockBlob> blobs = new List<CloudBlockBlob>();
+
+            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+ 
+            CloudBlobContainer container = blobClient.GetContainerReference(containerName);
+
+      
+            container.Delete();
+
+
+            return "Container Deleted";
+
+        }
+
 
         public string deleteBlob_in_envirolytics(string blobName)
         {
@@ -1101,7 +1133,7 @@ namespace JassWeather.Models
 
         }
 
-        public string uploadBlob_to_envirolitics(string blobContainer, string blobName, string filePath)
+        public string uploadBlob(string blobContainer, string blobName, string filePath)
         {
             DateTime Start = DateTime.Now;
             // Retrieve storage account from connection string.
@@ -1112,7 +1144,8 @@ namespace JassWeather.Models
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
             // Retrieve reference to a previously created container.
-            CloudBlobContainer container = blobClient.GetContainerReference(blobContainer);
+            CloudBlobContainer container = blobClient.GetContainerReference(blobContainer.ToLower());
+            container.CreateIfNotExists();
 
             // Retrieve reference to a blob named "myblob".
             CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
@@ -1130,7 +1163,7 @@ namespace JassWeather.Models
             return "ok: " + Delay;
         }
 
-        public string downloadBlob_to_envirolitics(string blobContainer, string blobName, string filePath)
+        public string downloadBlob(string blobContainer, string blobName, string filePath)
         {
             DateTime Start = DateTime.Now;
             // Retrieve storage account from connection string.
@@ -1237,6 +1270,15 @@ namespace JassWeather.Models
             File.Delete(fileName);
 
              return true;
+        }
+
+        public bool deleteAll()
+        {
+            foreach(string fileName in Directory.GetFiles(AppDataFolder)){
+                File.Delete(fileName);
+            }
+
+            return true;
         }
 
         public static string fileTimeStamp()
