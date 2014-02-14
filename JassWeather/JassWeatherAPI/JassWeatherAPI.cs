@@ -24,6 +24,42 @@ namespace JassWeather.Models
         public int length { get; set; }   
     }
 
+    public class JassFileNameComponents
+    {
+        string ContainerName { get; set; }
+        string VariableName { get; set; }
+        string BlobName { get; set; }
+        public int year { get; set; }
+        public int month { get; set; }
+        public int day { get; set; }
+
+        public JassFileNameComponents(string blobUri)
+        {
+            int index = blobUri.IndexOf("_");
+
+            this.ContainerName = blobUri.Substring(0, index).ToLower();
+            this.VariableName = blobUri.Substring(0, index);
+            this.BlobName = blobUri;
+
+            string fileNameRest1 = blobUri.Substring(index+1);
+            int indexRest1 = fileNameRest1.IndexOf("_");
+            string yearString = fileNameRest1.Substring(0, indexRest1).ToLower();
+
+            string fileNameRest2 = fileNameRest1.Substring(indexRest1 + 1);
+            int indexRest2 = fileNameRest2.IndexOf("_");
+            string monthString = fileNameRest2.Substring(0, indexRest2).ToLower();
+
+            string fileNameRest3 = fileNameRest2.Substring(indexRest2 + 1);
+            int indexRest3 = fileNameRest3.IndexOf(".");
+            string dayString = fileNameRest3.Substring(0, indexRest3).ToLower();
+
+
+            this.year = Int16.Parse(yearString);
+            this.month = Int16.Parse(monthString);
+            this.day = Int16.Parse(dayString);
+        }
+    }
+
     public class JassWeatherAPI
     {
         public JassBuilder builder;
@@ -66,11 +102,17 @@ namespace JassWeather.Models
                 Single[] y = dataset1.GetData<Single[]>("y");
                 Single[] x = dataset1.GetData<Single[]>("x");
                 double[] time = dataset1.GetData<double[]>("time");
-                Single[] level = dataset1.GetData<Single[]>("level");
+                Single[] level = new Single[0];
+                
+                if (builder.JassGrid.Levelsize!=0) level = dataset1.GetData<Single[]>("level");
+
                 string dayString;
-                int in_year = 2012;
-                int in_month = 1;
-                int in_day;
+                int in_year = (builder.year != null)? (int)builder.year:DateTime.Now.Year;
+                int in_month = (builder.month != null) ? (int)builder.month : 1;
+                int in_day = 1;
+                string variableName = builder.JassVariable.Name;
+
+                DateTime day = new DateTime(in_year, in_month, in_day);
 
 
                 jassbuilder.Status = JassBuilderStatus.Processing;
@@ -79,44 +121,60 @@ namespace JassWeather.Models
                 db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
                 db.SaveChanges();
 
+                double[] timeday = new double[8];
+
                 for (var df = 0; df < time.Length; df += 8)
                 {
-                    in_day = df / 8;
+                    in_year = day.Year;
+                    in_month = day.Month;
+                    in_day = day.Day;
 
                     dayString = "" + in_year + "_" + in_month + "_" + in_day;
 
-                    string outputFileName = fileNameBuilderByDay(builder,in_day) + ".nc";
+                    string outputFileName = fileNameBuilderByDay(variableName, in_year, in_month, in_day) + ".nc";
+
                     string outputFilePath = AppDataFolder + "/" + outputFileName;
                     var dataset3 = DataSet.Open(outputFilePath + "?openMode=create");
                     AfterOpenMemory = GC.GetTotalMemory(true);
                     var schema3 = dataset3.GetSchema();
 
+                    for (var t = 0; t < 8; t++)
+                    {
+                        timeday[t] = time[df + t];
+                    }
+
+
+                    if (builder.JassGrid.Levelsize!=0){
                     Int16[, , ,] dataset = dataset1.GetData<Int16[, , ,]>(builder.Source1VariableName,
                          DataSet.Range(0, 1, 7), /* removing first dimension from data*/
                          DataSet.FromToEnd(0), /* removing first dimension from data*/
                          DataSet.FromToEnd(0),
                          DataSet.FromToEnd(0));
 
-                    short tempSample = (short)dataset[0, 0, 0, 0];
-
-                    AfterLoadMemory = GC.GetTotalMemory(true);
-
-                    double[] timeday = new double[8];
-
-                    for (var t = 0; t < 8; t++)
-                    {
-                        timeday[t] = time[t];
-                    }
-
                     dataset3.Add<double[]>("time", timeday, "time");
                     dataset3.Add<Single[]>("level", level, "level");
                     dataset3.Add<Single[]>("y", y, "y");
                     dataset3.Add<Single[]>("x", x, "x");
+                    dataset3.Add<Int16[, , ,]>(builder.JassVariable.Name, dataset, "time", "level", "y", "x");
 
+                    }else{
+                          Int16[, ,] dataset = dataset1.GetData<Int16[, ,]>(builder.Source1VariableName,
+                         DataSet.Range(0, 1, 7), /* removing first dimension from data*/
+                         DataSet.FromToEnd(0),
+                         DataSet.FromToEnd(0));
 
-                    dataset3.Add<Int16[, , ,]>("temperature", dataset, "time", "level", "y", "x");
+                          dataset3.Add<double[]>("time", timeday, "time");
+                          dataset3.Add<Single[]>("y", y, "y");
+                          dataset3.Add<Single[]>("x", x, "x");
+                          dataset3.Add<Int16[, ,]>(builder.JassVariable.Name, dataset, "time", "y", "x");
+                    }
+
                     dataset3.Commit();
                     dataset3.Dispose();
+
+                    AfterLoadMemory = GC.GetTotalMemory(true);
+
+
 
                     if (upload)
                     {
@@ -127,6 +185,7 @@ namespace JassWeather.Models
                     db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
                     db.SaveChanges();
 
+                    day = day.AddDays(1);
  
                 }
 
@@ -171,16 +230,21 @@ namespace JassWeather.Models
                 string url = builder.APIRequest.url;
                 string inputFile1 = AppDataFolder + "/" + safeFileNameFromUrl(url);
                 string dayString;
-                int in_year = 2012;
-                int in_month = 1;
-                int in_day;
+                int in_year = (builder.year != null) ? (int)builder.year : DateTime.Now.Year;
+                int in_month = (builder.month != null) ? (int)builder.month : 1;
+                int in_day = 1;
+                DateTime day = new DateTime(in_year, in_month, in_day);
                 int currentNumberOfFiles = 0;
+                string variableName = builder.JassVariable.Name;
 
-                for (var df = 0; df < 24 /*time.Length*/; df += 8)
+                for (var df = 0; df < builder.JassGrid.Timesize; df += 8)
                 {
-                    in_day = df / 8;
+                    in_year = day.Year;
+                    in_month = day.Month;
+                    in_day = day.Day;
+
                     dayString = "" + in_year + "_" + in_month + "_" + in_day;
-                    string outputFile = AppDataFolder + "/" + fileNameBuilderByDay(builder, in_day) + ".nc";
+                    string outputFile = AppDataFolder + "/" + fileNameBuilderByDay(variableName, in_year, in_month, in_day) + ".nc";
 
                     Boolean fileExists = File.Exists(outputFile);
 
@@ -188,6 +252,7 @@ namespace JassWeather.Models
                     {
                         currentNumberOfFiles += 1;
                     }
+                    day.AddDays(1);
                 }
 
 
@@ -236,18 +301,25 @@ namespace JassWeather.Models
                 string url = builder.APIRequest.url;
                 string inputFile1 = AppDataFolder + "/" + safeFileNameFromUrl(url);
                 string dayString;
-                int in_year = 2012;
-                int in_month = 1;
-                int in_day;
+                int in_year = (builder.year != null) ? (int)builder.year : DateTime.Now.Year;
+                int in_month = (builder.month != null) ? (int)builder.month : 1;
+                int in_day = 1;
+                DateTime day = new DateTime(in_year, in_month, in_day);
                 int currentNumberOfFiles = 0;
+                string variableName = builder.JassVariable.Name;
 
-                for (var df = 0; df < 24 /*time.Length*/; df += 8)
+                for (var df = 0; df < builder.JassGrid.Timesize; df += 8)
                 {
-                    in_day = df / 8;
+                    in_year = day.Year;
+                    in_month = day.Month;
+                    in_day = day.Day;
+
                     dayString = "" + in_year + "_" + in_month + "_" + in_day;
-                    string outputFile = AppDataFolder + "/" + fileNameBuilderByDay(builder, in_day) + ".nc";
+                    string outputFile = AppDataFolder + "/" + fileNameBuilderByDay(variableName, in_year, in_month, in_day) + ".nc";
 
                     File.Delete(outputFile);
+
+                    day.AddDays(1);
                 }
 
                     jassbuilder.OnDisk = true;
@@ -589,15 +661,15 @@ namespace JassWeather.Models
             return url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
         }
 
-        public string fileNameBuilderByDay(JassBuilder builder, int day){
+        public string fileNameBuilderByDay(string variableName, int year, int month, int day){
 
-            var dayString = (day+1).ToString();
+            var dayString = (day).ToString();
             if (dayString.Length < 2) dayString = "0" + dayString;
 
-            var monthString = builder.month.ToString();
+            var monthString = month.ToString();
             if (monthString.Length < 2) monthString = "0" + monthString;
 
-            return builder.JassVariable.Name + "_" + builder.year + "_" + monthString + "_" + dayString;
+            return variableName + "_" + year + "_" + monthString + "_" + dayString;
         }
 
         public string get_big_NetCDF_by_ftp5(string url, string workingDirectoryPath, double maxFileSizeToDownload)
@@ -1043,6 +1115,48 @@ namespace JassWeather.Models
             public int level { get; set; }
         }
 
+        #region Dashboard operations
+
+        public List<JassVariableStatus> listVariableStatus()
+        {
+            List<JassVariableStatus> variableStatusList = new List<JassVariableStatus>();
+
+            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            List<CloudBlobContainer> containers = blobClient.ListContainers().ToList<CloudBlobContainer>();
+
+            //now I have the containers/variables... so I will loop on them
+
+            JassVariableStatus variableStatus;
+
+            foreach (var container in containers)
+            {
+                variableStatus = new JassVariableStatus(DateTime.Now.Year-9,DateTime.Now.Year);
+                variableStatus.ContainerName = container.Name;
+              
+                variableStatus.JassVariable = (from v in db.JassVariables where v.Name.ToLower() == container.Name select v).First();
+                variableStatus.VariableName = variableStatus.JassVariable.Name;
+
+                //now we need to see which days we actuall have, the idea will be to fill up this status structure
+                JassFileNameComponents dayMeasureNameComponents;
+
+                foreach (IListBlobItem dayMeasure in container.ListBlobs(null, false))
+                {
+                    dayMeasureNameComponents = new JassFileNameComponents(dayMeasure.Uri.ToString());
+                    variableStatus.countBlob(dayMeasureNameComponents);
+                }
+
+                variableStatus.calcuateStatus();
+
+                variableStatusList.Add(variableStatus);
+            }
+
+            return variableStatusList;
+        }
+
+
+        #endregion
 
         #region Blob Operations
 
@@ -1225,6 +1339,98 @@ namespace JassWeather.Models
             }
 
             return response;
+        }
+
+
+        public void DownloadFile2DiskIfNotThere(string fileName, string filePath)
+        {
+
+            Boolean fileOnDisk = File.Exists(fileName);
+
+            if (!fileOnDisk)
+            {
+                int index = fileName.IndexOf("_");
+
+                string ContainerName = fileName.Substring(0,index).ToLower();
+                string BlobName = fileName;
+                downloadBlob(ContainerName,BlobName,filePath);
+            }
+
+        }
+
+        public List<string> listNetCDFValues(string fileName)
+        {
+   
+            List<string> listOfValues = new List<string>();
+            string filePath = AppDataFolder + "/" + fileName;
+            DownloadFile2DiskIfNotThere(fileName, filePath);
+            using (var dataset1 = DataSet.Open(filePath + "?openMode=open"))
+            {
+                var schema1 = dataset1.GetSchema();
+                int maxSample = 10;
+                //first let's select the key variable by having various dimensions
+                VariableSchema keyVariable = null;
+                Boolean hasLevel = false;
+
+                foreach (var v in schema1.Variables)
+                {
+                    if (v.Dimensions.Count > 2)
+                    {
+                        keyVariable = v;
+                    }
+                    if (v.Name == "level")
+                    {
+                        hasLevel = true;
+                    }
+                }
+
+                Single[] y = dataset1.GetData<Single[]>("y");
+                Single[] x = dataset1.GetData<Single[]>("x");
+                double[] time = dataset1.GetData<double[]>("time");
+                Single[] level = new Single[1];
+                if (hasLevel) level = dataset1.GetData<Single[]>("level");
+
+                string outPutString = schema2string(schema1);
+
+                listOfValues.Add(outPutString);
+
+                if (hasLevel)
+                {
+                    Int16[, , ,] values = dataset1.GetData<Int16[, , ,]>(keyVariable.Name);
+                    for (int tt = 0; tt < maxSample & tt < time.Length; tt++)
+                    {
+                        for (int ll = 0; ll < maxSample & ll < level.Length; ll++)
+                        {
+                            for (int xx = 0; xx < maxSample & xx < x.Length; xx++)
+                            {
+                                for (int yy = 0; yy < maxSample & yy < y.Length; yy++)
+                                {
+                                    outPutString = "time: " + tt + " level: " + ll + " x: " + xx + " y: " + yy + " value: " + values[tt, ll, xx, yy];
+                                    listOfValues.Add(outPutString);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Int16[, ,] values = dataset1.GetData<Int16[, ,]>(keyVariable.Name);
+                    for (int tt = 0; tt < maxSample & tt < time.Length; tt++)
+                    {
+                        for (int xx = 0; xx < maxSample & xx < x.Length; xx++)
+                        {
+                            for (int yy = 0; yy < maxSample & yy < y.Length; yy++)
+                            {
+                                outPutString = "time: " + tt + " x: " + xx + " y: " + yy + " value: " + values[tt, xx, yy];
+                                listOfValues.Add(outPutString);
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            return listOfValues;
         }
 
         public List<string> listTableValues(string tableName)

@@ -19,17 +19,16 @@ namespace JassWeather.Controllers
 
         public ActionResult RedirectToNarr()
         {
-            //Response.Redirect("ControllerName/ActionName")
-            //return RedirectToAction("Index", "Request");
-
             Session["CurrentRequestSetId"] = 2;
-            Session["CurrentRequestSetName"]="NCEP-NARR";
-            return RedirectToAction("Index", "Request");
+            Session["CurrentRequestSetName"] = "NCEP-NARR";
+
+            //Response.Redirect("ControllerName/ActionName");
+            return RedirectToAction("ShowDashBoard", "Blob");
         }
 
         public ActionResult Index()
         {
-            return View();
+            return RedirectToAction("ShowDashBoard", "Blob");
         }
 
 

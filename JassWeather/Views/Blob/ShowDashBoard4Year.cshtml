@@ -1,0 +1,58 @@
+﻿@using JassWeather.Models;
+@model List<JassVariableStatus>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<style>
+    .green {background-color: lightgreen}
+    .yellow {background-color: lightyellow}
+    .white {}
+     th { text-decoration:underline}
+</style>
+
+<h2>Dashbord - Variables on Storage for @ViewBag.year  Status by Month </h2>
+
+<table>
+    <tr>
+        <th>
+            Variable
+        </th>
+        <th>
+            %Fill
+        </th>
+
+        @for(int y=1; y<13; y++){
+            <th>
+               @Html.ActionLink(y.ToString(), "ShowDashBoard4Month", new { yearIndex=ViewBag.yearIndex, monthIndex=y })   
+            </th>
+        }
+
+
+    </tr>
+
+@foreach (var item in Model) {
+    string classForVariable = "white";
+    if (item.StatusYearLevel[ViewBag.yearIndex] == 100) { classForVariable = "green"; }
+    if (item.StatusYearLevel[ViewBag.yearIndex] > 0 && item.StatusYearLevel[ViewBag.yearIndex] < 100) { classForVariable = "yellow"; }
+    <tr>
+         <td>
+            @item.VariableName
+        </td>
+         <td class="@classForVariable"> 
+           @item.StatusYearLevel[ViewBag.yearIndex]%
+        </td>
+        @for(int y=0; y<12; y++){
+            string color="white";
+            if (item.StatusMonthLevel[ViewBag.yearIndex][y] == 100) { color = "green"; }
+            if (item.StatusMonthLevel[ViewBag.yearIndex][y] > 0 && item.StatusMonthLevel[ViewBag.yearIndex][y] < 100) { color = "yellow"; }
+            <td class="@color">    
+            @item.StatusMonthLevel[ViewBag.yearIndex][y]%           
+            </td>
+        }
+    </tr>
+}
+
+</table>
+

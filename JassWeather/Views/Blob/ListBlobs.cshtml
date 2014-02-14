@@ -5,7 +5,7 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Blobs in Azure Storage Container "Envirolytics" </h2>
+<h2>Blobs in Azure Storage </h2>
 
 <table>
     <tr>
@@ -34,6 +34,12 @@
         </td>
         <td>
             @Html.ActionLink("Del", "Delete", new { name=item.Name })
+        </td>
+         <td>
+            @Html.ActionLink("Sample", "SampleNetCDF", new { fileName=item.Name })
+        </td>
+         <td>
+            @Html.ActionLink("Inspect", "SampleNetCDF", new { fileName=item.Name })
         </td>
     </tr>
 }

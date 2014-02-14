@@ -10,9 +10,9 @@ namespace JassWeather.Controllers
 {
     public class BlobController : JassController
     {
-        //
+
         // GET: /Blob/
-        public ActionResult Index()
+        public ActionResult Index()  //list container
         {
             List<CloudBlobContainer> blobs = apiCaller.listContainers();
             return View(blobs);
@@ -23,6 +23,46 @@ namespace JassWeather.Controllers
 
             List<CloudBlockBlob> blobs = apiCaller.listBlobs(containerName);
             return View(blobs);
+        }
+
+        public ActionResult ShowDashBoard()  //list container
+        {
+            List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
+            return View(variableStatusModel);
+        }
+
+
+        public ActionResult ShowDashBoard4Year(int yearIndex)  //list container
+        {
+            List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
+            ViewBag.year = yearIndex + (DateTime.Now.Year - 9);
+            ViewBag.yearIndex = yearIndex;
+            return View(variableStatusModel);
+        }
+
+        public ActionResult ShowDashBoard4Month(int yearIndex, int monthIndex)  //list container
+        {
+            List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
+            ViewBag.year = yearIndex + (DateTime.Now.Year - 9);
+            ViewBag.yearIndex = yearIndex;
+            ViewBag.monthIndex = monthIndex;
+            ViewBag.numberOfDays = variableStatusModel[0].StatusDayLevel[yearIndex][monthIndex].Count;
+            return View(variableStatusModel);
+        }
+
+        public ActionResult ShowDashBoard4Day(string variableName, int yearIndex, int monthIndex, int dayIndex)  //list container
+        {
+            List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
+            ViewBag.year = yearIndex + (DateTime.Now.Year - 9);
+            ViewBag.yearIndex = yearIndex;
+            ViewBag.monthIndex = monthIndex;
+            ViewBag.dayIndex = dayIndex;
+            ViewBag.numberOfDays = variableStatusModel[0].StatusDayLevel[yearIndex][monthIndex].Count;
+            string fileName = apiCaller.fileNameBuilderByDay(variableName, ViewBag.year, monthIndex, dayIndex) + ".nc";
+            List<string> rows = apiCaller.listNetCDFValues(fileName);
+            ViewBag.FileName = fileName;
+
+            return View(rows);
         }
 
         public ActionResult ShowAppData()
@@ -43,6 +83,14 @@ namespace JassWeather.Controllers
             List<string> files = apiCaller.listTableValues(tableName);
             ViewBag.TableName = tableName;
             return View(files);
+        }
+
+
+        public ActionResult SampleNetCDF(string fileName)
+        {
+            List<string> rows = apiCaller.listNetCDFValues(fileName);
+            ViewBag.FileName = fileName;
+            return View(rows);
         }
 
         public ActionResult DeleteContainer(string name)

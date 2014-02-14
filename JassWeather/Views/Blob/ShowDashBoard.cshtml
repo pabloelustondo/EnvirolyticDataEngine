@@ -1,0 +1,62 @@
+﻿@using JassWeather.Models;
+@model List<JassVariableStatus>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<style>
+    .green {background-color: lightgreen}
+    .yellow {background-color: lightyellow}
+    .white {}
+    th { text-decoration:underline}
+</style>
+
+<h2>Dashbord - Variables on Storage - Status by Time from @(DateTime.Now.Year-9) to @(DateTime.Now.Year)</h2>
+
+<table>
+    <tr>
+        <th>
+            Variable
+        </th>
+        <th>
+            %Fill
+        </th>
+
+        @for(int y=0; y<10; y++){
+            string yearString=(DateTime.Now.Year - 9 + y).ToString();
+            <th>
+            @Html.ActionLink(yearString, "ShowDashBoard4Year", new { yearIndex=y })              
+            </th>
+        }
+
+
+    </tr>
+
+@foreach (var item in Model) {
+    string classForVariable = "white";
+    if (item.StatusVariableLevel == 100) { classForVariable = "green"; }
+    if (item.StatusVariableLevel > 0 && item.StatusVariableLevel < 100) { classForVariable = "yellow"; }
+    <tr>
+         <td>
+            @item.VariableName
+        </td>
+         <td class="@classForVariable"> 
+           @item.StatusVariableLevel%
+        </td>
+        @for(int y=0; y<10; y++){
+            string color="white";
+            if (item.StatusYearLevel[y] == 100) { color = "green"; }
+            if (item.StatusYearLevel[y] > 0 && item.StatusYearLevel[y] < 100) { color = "yellow"; }
+            <td class="@color">    
+            @item.StatusYearLevel[y]%           
+            </td>
+        }
+        <td>
+            @Html.ActionLink("ExploreFiles", "ListBlobs", new { containerName=item.ContainerName })
+        </td>
+    </tr>
+}
+
+</table>
+
