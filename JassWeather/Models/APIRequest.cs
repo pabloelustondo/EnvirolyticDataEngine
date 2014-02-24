@@ -11,6 +11,8 @@ namespace JassWeather.Models
     {
         public int Id { get; set; }
         public int APIRequestSetId { get; set; }
+
+        
         public virtual APIRequestSet APIRequestSet { get; set; }
 
         [DataType(DataType.MultilineText)]

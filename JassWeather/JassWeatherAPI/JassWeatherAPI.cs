@@ -24,6 +24,41 @@ namespace JassWeather.Models
         public int length { get; set; }   
     }
 
+    public class JassRGB
+    {
+        public int r { get; set; }
+        public int g { get; set; }
+        public int b { get; set; }
+
+        public JassRGB(int rIn, int gIn, int bIn)
+        {
+            r = rIn; g = gIn; b = bIn;
+        }
+    }
+    public class JassGridValues
+    {
+        public int timeLength { get; set; }
+        public int levelLength { get; set; }
+        public int yLength { get; set; }
+        public int xLength { get; set; }
+        public Int16[, , ,] measure { get; set; }
+        public Int16  measureMax { get; set; }
+        public Int16  measureMin { get; set; }
+        public string VariableName { get; set; }
+
+        public JassGridValues(string variableNameIn, int timeLengthIn, int levelLengthIn, int yLengthIn, int xLengthIn)
+        {
+            VariableName = variableNameIn;
+            measureMax = 0;
+            measureMin = 0;
+            timeLength = timeLengthIn;
+            levelLength = levelLengthIn;
+            yLength = yLengthIn;
+            xLength = xLengthIn;
+            measure = new Int16[timeLengthIn, levelLengthIn, yLengthIn, xLengthIn];
+        }
+    }
+
     public class JassFileNameComponents
     {
         string ContainerName { get; set; }
@@ -74,6 +109,29 @@ namespace JassWeather.Models
             AppDataFolder = appDataFolder;
           }
 
+        public JassRGB[] getColors()
+        {
+            JassRGB[] color = new JassRGB[1024];
+
+            for (int x = 0; x < 256; x++)
+            {
+                color[x] = new JassRGB(0, x, 255);
+            }
+            for (int x = 0; x < 256; x++)
+            {
+                color[256 + x] = new JassRGB(0, 255, 255-x);
+            }
+            for (int x = 0; x < 256; x++)
+            {
+                color[256 + 256 + x] = new JassRGB(x, 255, 0);
+            }
+            for (int x = 0; x < 256; x++)
+            {
+                color[256 + 256 + 256 + x] = new JassRGB(255, 255-x, 0);
+            }
+
+            return color;
+        }
 
         public string processBuilder(JassBuilder builder, Boolean upload)
         {
@@ -86,6 +144,7 @@ namespace JassWeather.Models
             DateTime EndingTime = DateTime.Now;
             TimeSpan TotalDelay;
             JassBuilder jassbuilder = db.JassBuilders.Find(builder.JassBuilderID);
+            DataSet dataset3=null;
             try
             {
                 //Let try to re-create the file...
@@ -99,12 +158,37 @@ namespace JassWeather.Models
                 string inputFile1 = AppDataFolder + "/" + safeFileNameFromUrl(url);
                 var dataset1 = DataSet.Open(inputFile1 + "?openMode=open");
                 var schema1 = dataset1.GetSchema();
+                MetadataDictionary metaDataSet = dataset1.Metadata;
+
+                Dictionary<string,  MetadataDictionary> vars =
+                    new Dictionary<string, MetadataDictionary>();
+
+                foreach (var v in dataset1.Variables)
+                {
+                    vars.Add(v.Name, v.Metadata);
+                }
+
+
+                //Here we get all the information form the datasource1
+
                 Single[] y = dataset1.GetData<Single[]>("y");
+                MetadataDictionary metaY;vars.TryGetValue("y", out metaY);
                 Single[] x = dataset1.GetData<Single[]>("x");
+                MetadataDictionary metaX; vars.TryGetValue("x", out metaX);
                 double[] time = dataset1.GetData<double[]>("time");
+                MetadataDictionary metaTime; vars.TryGetValue("time", out metaTime);
                 Single[] level = new Single[0];
-                
-                if (builder.JassGrid.Levelsize!=0) level = dataset1.GetData<Single[]>("level");
+                MetadataDictionary metaLevel = null;
+
+                if (builder.JassGrid.Levelsize != 0)
+                {
+                    level = dataset1.GetData<Single[]>("level");
+                    vars.TryGetValue("level", out metaLevel);
+                }
+
+                MetadataDictionary metaVariable; vars.TryGetValue(builder.Source1VariableName, out metaVariable);
+
+
 
                 string dayString;
                 int in_year = (builder.year != null)? (int)builder.year:DateTime.Now.Year;
@@ -134,7 +218,7 @@ namespace JassWeather.Models
                     string outputFileName = fileNameBuilderByDay(variableName, in_year, in_month, in_day) + ".nc";
 
                     string outputFilePath = AppDataFolder + "/" + outputFileName;
-                    var dataset3 = DataSet.Open(outputFilePath + "?openMode=create");
+                    dataset3 = DataSet.Open(outputFilePath + "?openMode=create");
                     AfterOpenMemory = GC.GetTotalMemory(true);
                     var schema3 = dataset3.GetSchema();
 
@@ -143,6 +227,7 @@ namespace JassWeather.Models
                         timeday[t] = time[df + t];
                     }
 
+                    //here we create the new outpout datasource depending on whether we hae or not level dimension
 
                     if (builder.JassGrid.Levelsize!=0){
                     Int16[, , ,] dataset = dataset1.GetData<Int16[, , ,]>(builder.Source1VariableName,
@@ -151,23 +236,51 @@ namespace JassWeather.Models
                          DataSet.FromToEnd(0),
                          DataSet.FromToEnd(0));
 
-                    dataset3.Add<double[]>("time", timeday, "time");
                     dataset3.Add<Single[]>("level", level, "level");
-                    dataset3.Add<Single[]>("y", y, "y");
-                    dataset3.Add<Single[]>("x", x, "x");
+                    foreach (var attr in metaLevel){
+                        if (attr.Key!="Name") dataset3.PutAttr("level", attr.Key, attr.Value);
+                    }
+
+     
                     dataset3.Add<Int16[, , ,]>(builder.JassVariable.Name, dataset, "time", "level", "y", "x");
+
 
                     }else{
                           Int16[, ,] dataset = dataset1.GetData<Int16[, ,]>(builder.Source1VariableName,
-                         DataSet.Range(0, 1, 7), /* removing first dimension from data*/
-                         DataSet.FromToEnd(0),
-                         DataSet.FromToEnd(0));
+                          DataSet.Range(0, 1, 7), /* removing first dimension from data*/
+                          DataSet.FromToEnd(0),
+                          DataSet.FromToEnd(0));
 
-                          dataset3.Add<double[]>("time", timeday, "time");
-                          dataset3.Add<Single[]>("y", y, "y");
-                          dataset3.Add<Single[]>("x", x, "x");
                           dataset3.Add<Int16[, ,]>(builder.JassVariable.Name, dataset, "time", "y", "x");
                     }
+
+                    //dataset3.PutAttr(builder.JassVariable.Name, "Name", builder.JassVariable.Name);
+                    foreach (var attr in metaVariable) {
+                        //problem with _FillValue
+                        if (attr.Key != "Name")
+                        {
+                            try
+                            {
+                                dataset3.PutAttr(builder.JassVariable.Name, cleanMetadataKey(attr.Key), attr.Value);
+                            }
+                            catch (Exception e)
+                            {
+                                try
+                                {
+                                    dataset3.PutAttr(builder.JassVariable.Name, attr.Key, e.Message);
+                                }
+                                catch (Exception) { }
+                            }
+                        }
+                    }
+
+                    dataset3.Add<double[]>("time", timeday, "time");
+                    foreach (var attr in metaTime) { if (attr.Key!="Name") dataset3.PutAttr("time", attr.Key, attr.Value); }
+                    dataset3.Add<Single[]>("y", y, "y");
+                    foreach (var attr in metaY) { if (attr.Key != "Name") dataset3.PutAttr("y", attr.Key, attr.Value); }
+                    dataset3.Add<Single[]>("x", x, "x");
+                    foreach (var attr in metaX) { if (attr.Key != "Name") dataset3.PutAttr("x", attr.Key, attr.Value); }
+
 
                     dataset3.Commit();
                     dataset3.Dispose();
@@ -206,6 +319,10 @@ namespace JassWeather.Models
 
             catch (Exception e)
             {
+                if (dataset3 != null)
+                {
+                    dataset3.Dispose();
+                }
                 Message = e.Message;
                 DateTime EndTime = DateTime.Now;
                 TimeSpan TotalTime = EndTime - startTotalTime;
@@ -219,6 +336,14 @@ namespace JassWeather.Models
 
 
             return Message; 
+        }
+
+        public string cleanMetadataKey(string rawKey)
+        {
+            string newKey = rawKey;
+            int indexOfUnderscore = rawKey.IndexOf("_");
+            if (indexOfUnderscore > -1) newKey = newKey.Substring(1);
+            return newKey;
         }
 
         public string checkBuilderOnDisk(JassBuilder builder)
@@ -1431,6 +1556,85 @@ namespace JassWeather.Models
             }
 
             return listOfValues;
+        }
+
+        public JassGridValues GetDayValues(string fileName)
+        {
+
+            JassGridValues dayGridValues;
+            string filePath = AppDataFolder + "/" + fileName;
+            DownloadFile2DiskIfNotThere(fileName, filePath);
+            using (var dataset1 = DataSet.Open(filePath + "?openMode=open"))
+            {
+                var schema1 = dataset1.GetSchema();
+                //first let's select the key variable by having various dimensions
+                VariableSchema keyVariable = null;
+                Boolean hasLevel = false;
+
+                foreach (var v in schema1.Variables)
+                {
+                    if (v.Dimensions.Count > 2)
+                    {
+                        keyVariable = v;
+                    }
+                    if (v.Name == "level")
+                    {
+                        hasLevel = true;
+                    }
+                }
+
+                Single[] y = dataset1.GetData<Single[]>("y");
+                Single[] x = dataset1.GetData<Single[]>("x");
+                double[] time = dataset1.GetData<double[]>("time");
+                Single[] level = new Single[1];
+                if (hasLevel) level = dataset1.GetData<Single[]>("level");
+
+                dayGridValues = new JassGridValues(keyVariable.Name, time.Length, level.Length, y.Length, x.Length);
+
+                string outPutString = schema2string(schema1);
+
+                if (hasLevel)
+                {
+                    Int16[, , ,] values = dataset1.GetData<Int16[, , ,]>(keyVariable.Name);
+                    for (int tt = 0; tt < time.Length; tt++)
+                    {
+                        for (int ll = 0; ll < level.Length; ll++)
+                        {
+                            for (int yy = 0; yy < y.Length; yy++)
+                            {
+                                for (int xx = 0; xx < x.Length; xx++)
+                                {
+                                    dayGridValues.measure[tt, ll, yy, xx] = values[tt, ll, yy, xx];
+                                    if (values[tt, ll, yy, xx]> dayGridValues.measureMax){ dayGridValues.measureMax=values[tt, ll, yy, xx];}
+                                    if (values[tt, ll, yy, xx]< dayGridValues.measureMin){ dayGridValues.measureMin=values[tt, ll, yy, xx];}
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Int16[, ,] values = dataset1.GetData<Int16[, ,]>(keyVariable.Name);
+                    for (int tt = 0; tt < time.Length; tt++)
+                    {
+                        for (int ll = 0; ll < 1; ll++)
+                        {
+                            for (int yy = 0; yy < y.Length; yy++)
+                            {
+                                for (int xx = 0; xx < x.Length; xx++)
+                                {
+                                    dayGridValues.measure[tt, ll, yy, xx] = values[tt, yy, xx];
+                                    if (values[tt, yy, xx] > dayGridValues.measureMax) { dayGridValues.measureMax = values[tt, yy, xx]; }
+                                    if (values[tt, yy, xx] < dayGridValues.measureMin) { dayGridValues.measureMin = values[tt, yy, xx]; }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            return dayGridValues;
         }
 
         public List<string> listTableValues(string tableName)

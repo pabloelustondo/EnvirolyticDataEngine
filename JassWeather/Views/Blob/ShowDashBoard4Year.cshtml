@@ -23,9 +23,9 @@
             %Fill
         </th>
 
-        @for(int y=1; y<13; y++){
+        @for(int y=0; y<12; y++){
             <th>
-               @Html.ActionLink(y.ToString(), "ShowDashBoard4Month", new { yearIndex=ViewBag.yearIndex, monthIndex=y })   
+               @Html.ActionLink((y+1).ToString(), "ShowDashBoard4Month", new { yearIndex=ViewBag.yearIndex, monthIndex=y })   
             </th>
         }
 

@@ -1,23 +1,43 @@
-﻿@model List<string>
+﻿@model JassWeather.Models.JassGridValues
 
 @{
     ViewBag.Title = "Index";
 }
+<style>
 
-<h2>Sample of Values on File @ViewBag.fileName </h2>
+table { table-layout: fixed; }
+th, td { width: 2px; font-size:xx-small}
+
+</style>
+JassGridValues
+
+<h2>Values on File @ViewBag.fileName for time==0 level==0</h2>
+MaxValue: @Model.measureMax   MinValue: @Model.measureMin   Range: @(Model.measureMax - Model.measureMin)
+
 
 <table>
     <tr>
         <th>
-            File Name
+            Y
         </th>
+        @for (int x = 0; x < Model.xLength; x++ ){
+        <th>
+            @x
+        </th>
+        }
     </tr>
 
-@foreach (var item in Model) {
+@for (int y = 0; y < Model.yLength; y++ )
+{
     <tr>
-         <td>
-            @item
+        <td>
+            @y
         </td>
+           @for (int x = 0; x < Model.xLength; x++ ){
+        <td>
+            @Model.measure[0,0,y,x]
+        </td>
+            }
     </tr>
 }
 

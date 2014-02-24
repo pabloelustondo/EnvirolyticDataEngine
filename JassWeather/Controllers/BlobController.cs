@@ -58,8 +58,8 @@ namespace JassWeather.Controllers
             ViewBag.monthIndex = monthIndex;
             ViewBag.dayIndex = dayIndex;
             ViewBag.numberOfDays = variableStatusModel[0].StatusDayLevel[yearIndex][monthIndex].Count;
-            string fileName = apiCaller.fileNameBuilderByDay(variableName, ViewBag.year, monthIndex, dayIndex) + ".nc";
-            List<string> rows = apiCaller.listNetCDFValues(fileName);
+            string fileName = apiCaller.fileNameBuilderByDay(variableName, ViewBag.year, monthIndex+1, dayIndex+1) + ".nc";
+            JassGridValues rows = apiCaller.GetDayValues(fileName);
             ViewBag.FileName = fileName;
 
             return View(rows);
@@ -112,8 +112,8 @@ namespace JassWeather.Controllers
         public ActionResult CleanAppData()
         {
             bool result = apiCaller.deleteAll();
-            ViewBag.Message = result;
-            return View();
+            List<string> files = apiCaller.listFiles_in_AppData(HttpContext.Server.MapPath("~/App_Data"));
+            return View(files);
         }
 
         public ActionResult DeleteTable(string fileName)
