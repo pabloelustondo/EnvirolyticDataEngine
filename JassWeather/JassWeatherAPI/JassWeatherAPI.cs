@@ -160,6 +160,8 @@ namespace JassWeather.Models
                 var schema1 = dataset1.GetSchema();
                 MetadataDictionary metaDataSet = dataset1.Metadata;
 
+
+
                 Dictionary<string,  MetadataDictionary> vars =
                     new Dictionary<string, MetadataDictionary>();
 
@@ -219,6 +221,18 @@ namespace JassWeather.Models
 
                     string outputFilePath = AppDataFolder + "/" + outputFileName;
                     dataset3 = DataSet.Open(outputFilePath + "?openMode=create");
+
+                    foreach (var attr in dataset1.Metadata)
+                    {
+                        if (attr.Key != "Name"){
+                            dataset3.Metadata.AsDictionary().Add(attr.Key, attr.Value);
+                        }
+                        else {
+
+                            dataset3.Metadata.AsDictionary()[attr.Key] = outputFileName;
+                        }
+                    }
+
                     AfterOpenMemory = GC.GetTotalMemory(true);
                     var schema3 = dataset3.GetSchema();
 
@@ -342,7 +356,7 @@ namespace JassWeather.Models
         {
             string newKey = rawKey;
             int indexOfUnderscore = rawKey.IndexOf("_");
-            if (indexOfUnderscore > -1) newKey = newKey.Substring(1);
+            if (indexOfUnderscore == 0) newKey = newKey.Substring(1);
             return newKey;
         }
 

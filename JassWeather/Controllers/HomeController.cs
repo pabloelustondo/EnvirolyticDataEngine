@@ -14,6 +14,7 @@ using Microsoft.Research.Science.Data.Azure;
 
 namespace JassWeather.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
 

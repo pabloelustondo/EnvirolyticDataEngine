@@ -433,6 +433,10 @@
     <Compile Include="Migrations\201402120157538_bs.Designer.cs">
       <DependentUpon>201402120157538_bs.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201402251822108_whatwasthat.cs" />
+    <Compile Include="Migrations\201402251822108_whatwasthat.Designer.cs">
+      <DependentUpon>201402251822108_whatwasthat.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -795,6 +799,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201402120157538_bs.resx">
       <DependentUpon>201402120157538_bs.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201402251822108_whatwasthat.resx">
+      <DependentUpon>201402251822108_whatwasthat.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

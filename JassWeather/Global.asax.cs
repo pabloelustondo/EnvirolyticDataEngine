@@ -6,6 +6,8 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using System.Web.Security;
+using WebMatrix.WebData;
 
 namespace JassWeather
 {
@@ -27,7 +29,24 @@ namespace JassWeather
             System.Data.Entity.Database.SetInitializer(
                 new JassWeather.Models.JassWeatherContextInitializer());
 
- */ 
+ */
+            WebSecurity.InitializeDatabaseConnection(
+                 connectionStringName: "DefaultConnection",
+                 userTableName: "UserProfile",
+                 userIdColumn: "UserID",
+                 userNameColumn: "UserName",
+                 autoCreateTables: true);
+
+            if (!Roles.RoleExists("Admin")) {
+                Roles.CreateRole("Admin") ;
+            }
+
+            if (Roles.GetRolesForUser("pablo").Length <1)
+            {
+                Roles.AddUsersToRole(new string[1] { "pablo" }, "Admin");
+            }
+ 
+
         }
     }
 }

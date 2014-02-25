@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>@ViewBag.Title - Envirolytic POC 1</title>
+        <title>@ViewBag.Title - Envirolytic Data Engine Dashboard</title>
         <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <meta name="viewport" content="width=device-width" />
         @Styles.Render("~/Content/css")
@@ -12,16 +12,18 @@
         <header>
             <div class="content-wrapper">
                 <div class="float-left">
-                    <p class="site-title">@Html.ActionLink("Envirolytic POC 1", "Index", "Home")</p>
+                    <p class="site-title">@Html.ActionLink("Envirolytic Data Engine Dashboard", "Index", "Home")</p>
                 </div>
                 <div class="float-right">
                     <section id="login">
                         @Html.Partial("_LoginPartial")
                     </section>
                     <nav>
+                     
                         <ul id="menu">
                             <li>@Html.ActionLink("Dashboard", "ShowDashBoard", "Blob")</li>   
-                            <li>@Html.ActionLink("AboutThis", "Index", "Home")</li>                        
+                            <li>@Html.ActionLink("About", "About", "Home")</li>    
+                               @if(User.IsInRole("Admin")){                    
                             <li>@Html.ActionLink("1.Sources", "Index", "RequestSet")</li>
                             <li>@Html.ActionLink("2.Builders", "Index", "Builder")</li>
                             <li>@Html.ActionLink("3.Queries", "Index", "Measure")</li>
@@ -31,6 +33,7 @@
                             <li>@Html.ActionLink("Blobs", "Index", "Blob")</li>
                             <li>@Html.ActionLink("Disk", "ShowAppData", "Blob")</li>
                             <li>@Html.ActionLink("Tests", "Index", "Test")</li>
+                               }
                         </ul>
                     </nav>
                 </div>
@@ -45,7 +48,7 @@
         <footer>
             <div class="content-wrapper">
                 <div class="float-left">
-                    <p>&copy; @DateTime.Now.Year - Envirolytic POC 1</p>
+                    <p>&copy; @DateTime.Now.Year - Envirolytic Data Engine Dashboard</p>
                 </div>
             </div>
         </footer>

@@ -11,6 +11,7 @@ using Microsoft.Research.Science.Data.Imperative;
 
 namespace JassWeather.Controllers
 {
+    [Authorize]
     public class MeasureController : JassController
     {
         private JassWeatherContext db = new JassWeatherContext();

@@ -7,6 +7,7 @@ using System.Web.Mvc;
 
 namespace JassWeather.Controllers
 {
+    [Authorize]
     public class JassController : Controller
     {
 

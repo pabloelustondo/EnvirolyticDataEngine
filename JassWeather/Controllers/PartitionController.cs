@@ -9,6 +9,7 @@ using JassWeather.Models;
 
 namespace JassWeather.Controllers
 {
+    [Authorize]
     public class PartitionController : Controller
     {
         private JassWeatherContext db = new JassWeatherContext();

@@ -8,6 +8,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace JassWeather.Controllers
 {
+    [Authorize]
     public class BlobController : JassController
     {
 

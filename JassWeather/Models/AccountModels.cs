@@ -25,6 +25,7 @@ namespace JassWeather.Models
         [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
         public int UserId { get; set; }
         public string UserName { get; set; }
+        public Boolean IsAdmin { get; set; }
     }
 
     public class RegisterExternalLoginModel

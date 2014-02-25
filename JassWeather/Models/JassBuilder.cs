@@ -20,6 +20,7 @@ namespace JassWeather.Models
         public string Name { get; set; }
         public int JassVariableID { get; set; }
         public virtual JassVariable JassVariable { get; set; }
+        public bool unpack { get; set; }
         public int JassGridID { get; set; }
         public virtual JassGrid JassGrid { get; set; }
         public int APIRequestId { get; set; }

@@ -10,6 +10,7 @@ using System.Threading;
 
 namespace JassWeather.Controllers
 {
+    [Authorize]
     public class BuilderController : JassController
     {
         private JassWeatherContext db = new JassWeatherContext();
