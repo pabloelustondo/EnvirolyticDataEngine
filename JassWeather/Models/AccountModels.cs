@@ -87,6 +87,19 @@ namespace JassWeather.Models
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+
+        public bool IsAdmin { get; set; }
+        public bool IsEnvirolytic { get; set; }
+    }
+
+    public class SetRoleModel
+    {
+        [Required]
+        [Display(Name = "User name")]
+        public string UserName { get; set; }
+
+        public bool IsAdmin { get; set; }
+        public bool IsEnvirolytic { get; set; }
     }
 
     public class ExternalLogin

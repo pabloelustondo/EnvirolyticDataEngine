@@ -40,6 +40,10 @@ namespace JassWeather
             if (!Roles.RoleExists("Admin")) {
                 Roles.CreateRole("Admin") ;
             }
+            if (!Roles.RoleExists("Envirolytic"))
+            {
+                Roles.CreateRole("Envirolytic");
+            }
 
             if (Roles.GetRolesForUser("pablo").Length <1)
             {

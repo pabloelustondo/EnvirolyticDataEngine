@@ -21,8 +21,13 @@
                     <nav>
                      
                         <ul id="menu">
-                            <li>@Html.ActionLink("Dashboard", "ShowDashBoard", "Blob")</li>   
+                            <li>@Html.ActionLink("WDashboard", "ShowDashBoard", "Blob")</li>   
                             <li>@Html.ActionLink("About", "About", "Home")</li>    
+
+                            
+                               @if(User.IsInRole("Envirolytic")){  
+                            <li>@Html.ActionLink("Dashboard", "ShowDashBoard", "Blob")</li>   
+                               }
                                @if(User.IsInRole("Admin")){                    
                             <li>@Html.ActionLink("1.Sources", "Index", "RequestSet")</li>
                             <li>@Html.ActionLink("2.Builders", "Index", "Builder")</li>

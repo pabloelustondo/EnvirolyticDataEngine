@@ -69,7 +69,7 @@ namespace JassWeather.Controllers
         // POST: /Account/Register
 
         [HttpPost]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public ActionResult Register(RegisterModel model)
         {
@@ -80,6 +80,62 @@ namespace JassWeather.Controllers
                 {
                     WebSecurity.CreateUserAndAccount(model.UserName, model.Password);
                     WebSecurity.Login(model.UserName, model.Password);
+                    return RedirectToAction("Index", "Home");
+                }
+                catch (MembershipCreateUserException e)
+                {
+                    ModelState.AddModelError("", ErrorCodeToString(e.StatusCode));
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+        //
+        // GET: /Account/Register
+
+        [AllowAnonymous]
+        public ActionResult ListUsers()
+        {
+            var users = Membership.GetAllUsers();
+            List<SetRoleModel> roleModels = new List<SetRoleModel>();
+            SetRoleModel roleModel;
+
+            foreach (MembershipUser user in users)
+            {
+                roleModel = new SetRoleModel();
+                roleModel.UserName = user.UserName;
+                if (Roles.IsUserInRole("Admin")){ roleModel.IsAdmin = true;}
+                if (Roles.IsUserInRole("Envirolytic")){ roleModel.IsEnvirolytic = true;}
+                roleModels.Add(roleModel);
+            }
+            return View(roleModels);
+        }
+
+        [AllowAnonymous]
+        public ActionResult Edit()
+        {
+            return View();
+        }
+
+        //
+        // POST: /Account/Register
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(SetRoleModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Attempt to register the user
+                try
+                {
+                    var roles = Roles.GetRolesForUser(model.UserName);
+                    if (roles.Length > 0) Roles.RemoveUserFromRoles(model.UserName, roles);
+                    if (model.IsAdmin) Roles.AddUserToRole(model.UserName, "Admin");
+                    if (model.IsEnvirolytic) Roles.AddUserToRole(model.UserName, "Envirolytic");
                     return RedirectToAction("Index", "Home");
                 }
                 catch (MembershipCreateUserException e)

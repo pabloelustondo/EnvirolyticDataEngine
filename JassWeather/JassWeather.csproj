@@ -663,6 +663,8 @@
     <Content Include="Views\Blob\ShowDashBoard4Year.cshtml" />
     <Content Include="Views\Blob\ShowDashBoard4Month.cshtml" />
     <Content Include="Views\Blob\ShowDashBoard4Day.cshtml" />
+    <Content Include="Views\Account\Edit.cshtml" />
+    <Content Include="Views\Account\ListUsers.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

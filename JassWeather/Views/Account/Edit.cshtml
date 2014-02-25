@@ -1,0 +1,36 @@
+﻿@model JassWeather.Models.SetRoleModel
+@{
+    ViewBag.Title = "Set Roles for User Name";
+}
+
+<hgroup class="title">
+    <h1>@ViewBag.Title.</h1>
+</hgroup>
+
+@using (Html.BeginForm()) {
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary()
+
+    <fieldset>
+        <legend>Registration Form</legend>
+        <ol>
+            <li>
+                @Html.LabelFor(m => m.UserName)
+                @Html.TextBoxFor(m => m.UserName)
+            </li>
+                        <li>
+                @Html.LabelFor(m => m.IsEnvirolytic)
+                @Html.CheckBoxFor(m => m.IsEnvirolytic)
+            </li>
+                        <li>
+                @Html.LabelFor(m => m.IsAdmin)
+                @Html.CheckBoxFor(m => m.IsAdmin)
+            </li>
+        </ol>
+        <input type="submit" value="Set" />
+    </fieldset>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
