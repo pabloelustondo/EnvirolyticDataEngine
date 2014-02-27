@@ -100,12 +100,14 @@ namespace JassWeather.Models
         public JassBuilder builder;
         private JassWeatherContext db = new JassWeatherContext();
         public string AppDataFolder;
+        public string storageConnectionString = "StorageConnectionString";
         DateTime startTotalTime = DateTime.UtcNow;
         DateTime endTotalTime = DateTime.UtcNow;
         TimeSpan spanTotalTime;
 
         public JassWeatherAPI(string appDataFolder){
 
+            storageConnectionString = "StorageConnectionString";
             AppDataFolder = appDataFolder;
           }
 
@@ -133,6 +135,71 @@ namespace JassWeather.Models
             return color;
         }
 
+        public bool checkIfBlobExist(string fileName)
+        {
+            string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            var blob = blobClient.GetContainerReference("ftp").GetBlockBlobReference(fileName);
+            Boolean fileOnBlob = blob.Exists();
+
+            return fileOnBlob;
+        }
+
+        public string processSource(APIRequest source, Boolean upload, Boolean overWrite)
+        {
+            //this method will be idempotent... if nothing to do does nothing.
+            //this method is to help processBulder and will produce the file on disk
+            //the idea is that, first, it will check if the file is already there.
+            //unless overWrite is set of true which means that it will preprocess anyway.
+
+            //Check whether the file is on disk
+
+            string Message = "";
+
+            try
+            {
+
+                string fileName = safeFileNameFromUrl(source.url);
+                string filePath = AppDataFolder + "/" + fileName;
+                Boolean fileOnDisk = File.Exists(filePath);
+
+                //check if the file is on storage
+
+                Boolean fileOnBlob = checkIfBlobExist(fileName);
+
+                if (!fileOnDisk)
+                {
+
+                    //check if the file is on storage
+                    if (fileOnBlob)
+                    {
+                        DownloadFile2DiskIfNotThere(fileName, filePath);
+                    }
+                    else
+                    {
+                        //This is the case where we have to really download the file form the actual source
+                        //For the moment I am assuming that this is FTP-netCDF... 
+
+                        get_big_NetCDF_by_ftp2(source.url, AppDataFolder);
+
+                    }
+                }
+
+                //so, here we know the file is on dis for sure (unless there is an error)
+                if (upload)
+                {
+                    uploadBlob("ftp", fileName, filePath);
+                }
+            }
+            catch (Exception e)
+            {
+                Message = e.Message;
+            }
+
+            return Message; 
+        }
+
         public string processBuilder(JassBuilder builder, Boolean upload)
         {
 
@@ -153,6 +220,9 @@ namespace JassWeather.Models
                 startTotalTime = DateTime.Now;
 
                 string timestamp = JassWeatherAPI.fileTimeStamp();
+
+
+                processSource(builder.APIRequest, true, false);
 
                 string url = builder.APIRequest.url;
                 string inputFile1 = AppDataFolder + "/" + safeFileNameFromUrl(url);
@@ -671,7 +741,7 @@ namespace JassWeather.Models
 
             string Message = "";
 
-            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
 
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
@@ -740,7 +810,7 @@ namespace JassWeather.Models
 
             string Message = "";
 
-            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
 
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
@@ -830,7 +900,7 @@ namespace JassWeather.Models
 
                 //workingDirectorypath: HttpContext.Server.MapPath("~/App_Data")
 
-                string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+                string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
                 CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
 
                 CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
@@ -876,7 +946,7 @@ namespace JassWeather.Models
         {
            try{
 
-               string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+               string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
 
                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
@@ -967,7 +1037,7 @@ namespace JassWeather.Models
             {
                 #region Accessing the Table Storage
 
-                string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+                string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
                 CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
                 CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
@@ -1121,7 +1191,7 @@ namespace JassWeather.Models
             {
                 #region Accessing the Table Storage
 
-                string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+                string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
                 CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
                 CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
@@ -1260,7 +1330,7 @@ namespace JassWeather.Models
         {
             List<JassVariableStatus> variableStatusList = new List<JassVariableStatus>();
 
-            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             List<CloudBlobContainer> containers = blobClient.ListContainers().ToList<CloudBlobContainer>();
@@ -1271,24 +1341,27 @@ namespace JassWeather.Models
 
             foreach (var container in containers)
             {
-                variableStatus = new JassVariableStatus(DateTime.Now.Year-9,DateTime.Now.Year);
-                variableStatus.ContainerName = container.Name;
-              
-                variableStatus.JassVariable = (from v in db.JassVariables where v.Name.ToLower() == container.Name select v).First();
-                variableStatus.VariableName = variableStatus.JassVariable.Name;
-
-                //now we need to see which days we actuall have, the idea will be to fill up this status structure
-                JassFileNameComponents dayMeasureNameComponents;
-
-                foreach (IListBlobItem dayMeasure in container.ListBlobs(null, false))
+                if (container.Name != "ftp")
                 {
-                    dayMeasureNameComponents = new JassFileNameComponents(dayMeasure.Uri.ToString());
-                    variableStatus.countBlob(dayMeasureNameComponents);
+                    variableStatus = new JassVariableStatus(DateTime.Now.Year - 9, DateTime.Now.Year);
+                    variableStatus.ContainerName = container.Name;
+
+                    variableStatus.JassVariable = (from v in db.JassVariables where v.Name.ToLower() == container.Name select v).First();
+                    variableStatus.VariableName = variableStatus.JassVariable.Name;
+
+                    //now we need to see which days we actuall have, the idea will be to fill up this status structure
+                    JassFileNameComponents dayMeasureNameComponents;
+
+                    foreach (IListBlobItem dayMeasure in container.ListBlobs(null, false))
+                    {
+                        dayMeasureNameComponents = new JassFileNameComponents(dayMeasure.Uri.ToString());
+                        variableStatus.countBlob(dayMeasureNameComponents);
+                    }
+
+                    variableStatus.calcuateStatus();
+
+                    variableStatusList.Add(variableStatus);
                 }
-
-                variableStatus.calcuateStatus();
-
-                variableStatusList.Add(variableStatus);
             }
 
             return variableStatusList;
@@ -1301,7 +1374,7 @@ namespace JassWeather.Models
 
         public List<CloudBlobContainer> listContainers()
         {
-            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             List<CloudBlobContainer> containers = blobClient.ListContainers().ToList<CloudBlobContainer>(); 
@@ -1313,7 +1386,7 @@ namespace JassWeather.Models
 
             List<CloudBlockBlob> blobs = new List<CloudBlockBlob>();
 
-            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
 
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
@@ -1348,7 +1421,7 @@ namespace JassWeather.Models
 
             List<CloudBlockBlob> blobs = new List<CloudBlockBlob>();
 
-            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
 
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
@@ -1370,7 +1443,7 @@ namespace JassWeather.Models
 
             List<CloudBlockBlob> blobs = new List<CloudBlockBlob>();
 
-            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
 
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
@@ -1391,7 +1464,7 @@ namespace JassWeather.Models
             DateTime Start = DateTime.Now;
             // Retrieve storage account from connection string.
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-                CloudConfigurationManager.GetSetting("StorageConnectionString"));
+                CloudConfigurationManager.GetSetting(storageConnectionString));
 
             // Create the blob client.
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
@@ -1421,7 +1494,7 @@ namespace JassWeather.Models
             DateTime Start = DateTime.Now;
             // Retrieve storage account from connection string.
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-                CloudConfigurationManager.GetSetting("StorageConnectionString"));
+                CloudConfigurationManager.GetSetting(storageConnectionString));
 
             // Create the blob client.
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
@@ -1465,7 +1538,7 @@ namespace JassWeather.Models
             List<string> response = new List<string>();
 
 
-            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
 
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
@@ -1656,7 +1729,7 @@ namespace JassWeather.Models
             List<string> response = new List<string>();
 
 
-            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
 
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
@@ -1737,7 +1810,7 @@ namespace JassWeather.Models
 
         public bool deleteTable(string tableName)
         {
-            string connectionString = ConfigurationManager.AppSettings["StorageConnectionString"];
+            string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
 
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();

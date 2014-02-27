@@ -21,17 +21,18 @@
                     <nav>
                      
                         <ul id="menu">
-                            <li>@Html.ActionLink("WDashboard", "ShowDashBoard", "Blob")</li>   
-                            <li>@Html.ActionLink("About", "About", "Home")</li>    
-
-                            
+                            <li>@Html.ActionLink("About", "AboutUsers", "Home")</li> 
+                            <li>@Html.ActionLink("Dashboard", "ShowDashBoardExt", "Blob")</li>   
+   
+                           
                                @if(User.IsInRole("Envirolytic")){  
-                            <li>@Html.ActionLink("Dashboard", "ShowDashBoard", "Blob")</li>   
+                            <li>@Html.ActionLink("Dashboard(Int)", "ShowDashBoard", "Blob")</li>   
                                }
-                               @if(User.IsInRole("Admin")){                    
-                            <li>@Html.ActionLink("1.Sources", "Index", "RequestSet")</li>
-                            <li>@Html.ActionLink("2.Builders", "Index", "Builder")</li>
-                            <li>@Html.ActionLink("3.Queries", "Index", "Measure")</li>
+                               @if(User.IsInRole("Admin")){  
+                            <li>@Html.ActionLink("About(Int)", "About", "Home")</li>                   
+                            <li>@Html.ActionLink("Sources", "Index", "RequestSet")</li>
+                            <li>@Html.ActionLink("Builders", "Index", "Builder")</li>
+                            <li>@Html.ActionLink("Queries", "Index", "Measure")</li>
                             <li>@Html.ActionLink("Variables", "Index", "Variable")</li>
                             <li>@Html.ActionLink("Grids", "Index", "Grid")</li>
                             <li>@Html.ActionLink("Partitions", "Index", "Partition")</li>

@@ -29,9 +29,16 @@ namespace JassWeather.Controllers
 
         public ActionResult Index()
         {
-            return RedirectToAction("ShowDashBoard", "Blob");
+            return View();
         }
 
+        [AllowAnonymous]
+        public ActionResult AboutUsers()
+        {
+            ViewBag.Message = "Your app description page.";
+
+            return View();
+        }
 
 
         public ActionResult About()

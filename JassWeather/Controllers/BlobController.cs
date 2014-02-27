@@ -26,6 +26,13 @@ namespace JassWeather.Controllers
             return View(blobs);
         }
 
+        public ActionResult ShowDashBoardExt()  //list container
+        {
+            apiCaller.storageConnectionString = "StorageConnectionStringExt";
+            List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
+            return View("ShowDashBoard",variableStatusModel);
+        }
+
         public ActionResult ShowDashBoard()  //list container
         {
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
@@ -107,7 +114,7 @@ namespace JassWeather.Controllers
         {
             bool result = apiCaller.deleteFile_in_AppData(fileName);
             ViewBag.Message = result;
-            return View();
+            return View("Index");
         }
 
         public ActionResult CleanAppData()

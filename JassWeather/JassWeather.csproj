@@ -631,7 +631,6 @@
     <Content Include="Views\Measure\Delete.cshtml" />
     <Content Include="Views\Measure\GetMeasureValue.cshtml" />
     <Content Include="Views\Test\TestWriteDataSet2Azure.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Test\Index.cshtml" />
     <Content Include="Views\Partition\Index.cshtml" />
     <Content Include="Views\Partition\Details.cshtml" />
@@ -665,6 +664,8 @@
     <Content Include="Views\Blob\ShowDashBoard4Day.cshtml" />
     <Content Include="Views\Account\Edit.cshtml" />
     <Content Include="Views\Account\ListUsers.cshtml" />
+    <Content Include="Views\Home\AboutUsers.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
