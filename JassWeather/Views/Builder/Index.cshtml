@@ -98,8 +98,9 @@
         
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.JassBuilderID }) |
-            @Html.ActionLink("Process", "ProcessBuilder", new { id=item.JassBuilderID }) |
-            @Html.ActionLink("ProcessUpload", "ProcessBuilderAndUpload", new { id=item.JassBuilderID }) |
+            @Html.ActionLink("ProcessOnDisk", "ProcessBuilder", new { id=item.JassBuilderID }) |
+            @Html.ActionLink("TestOnDisk", "TestBuilder", new { id=item.JassBuilderID }) |
+            @Html.ActionLink("ProcessAndUpload", "ProcessBuilderAndUpload", new { id=item.JassBuilderID }) |
             @Html.ActionLink("CheckD", "checkBuilderOnDisk", new { id=item.JassBuilderID }) |
             @Html.ActionLink("CleanD", "cleanBuilderOnDisk", new { id=item.JassBuilderID }) |
             @Html.ActionLink("Delete", "Delete", new { id=item.JassBuilderID })

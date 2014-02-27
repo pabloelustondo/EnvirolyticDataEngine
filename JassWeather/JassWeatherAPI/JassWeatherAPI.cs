@@ -200,6 +200,130 @@ namespace JassWeather.Models
             return Message; 
         }
 
+
+        public string testBuilderOnDisk(JassBuilder builder, Boolean upload)
+        {
+            //This method assumes that all the files are in the DISK.
+            //The idea is to use it right after processing.
+            //So, the idea, among other things is to open both files and compare the values
+            //The easy way will be to pick some location and days and see if the have the same value for those days
+
+            //Let do it first for files without level like pressure.
+
+            string Message="OK";
+            try
+            {
+                //open the original file
+
+                string originalFile = AppDataFolder + "/" + this.safeFileNameFromUrl(builder.APIRequest.url);
+                using (var originalDataSet = DataSet.Open(originalFile + "?openMode=open"))
+                {
+                    double[] time = originalDataSet.GetData<double[]>("time");
+
+                    int entriesInDay = builder.JassGrid.Timesize;
+                    DateTime startDay = DateTime.Parse("1800-1-1 00:00:00");
+                    DateTime day;
+                    int originalMeasure;
+                    int generatedMeasure;
+
+                    if (builder.JassGrid.JassPartition.Name == "ByDay")
+                    {
+                        for (int t = 0; t + entriesInDay < time.Length - 1; t += entriesInDay)
+                        {
+
+                            day = startDay.AddHours(time[t]);
+                            string generatedFileName = AppDataFolder + "/" + fileNameBuilderByDay(builder.JassVariable.Name, day.Year, day.Month, day.Day) + ".nc";
+                            using (var generatedDataSet = DataSet.Open(generatedFileName + "?openMode=open"))
+                            {
+
+                                if (builder.JassGrid.Levelsize == 0)
+                                {
+                                    Int16[, ,] originalDataSetValues = originalDataSet.GetData<Int16[, ,]>(builder.Source1VariableName,
+                                    DataSet.Range(t, 1, t + entriesInDay - 1), /* removing first dimension from data*/
+                                    DataSet.FromToEnd(0),
+                                    DataSet.FromToEnd(0));
+
+                                    Int16[, ,] generatedDataSetValues = generatedDataSet.GetData<Int16[, ,]>(builder.JassVariable.Name,
+                                    DataSet.FromToEnd(0), /* removing first dimension from data*/
+                                    DataSet.FromToEnd(0),
+                                    DataSet.FromToEnd(0));
+
+                                    //now we go for each location.....I will hardcode for now.. but I need 
+
+                                    for (int y = 0; y < builder.JassGrid.Ysize; y++)
+                                    {
+                                        for (int x = 0; x < builder.JassGrid.Xsize; x++)
+                                        {
+                                            for (int tt = 0; tt < entriesInDay; tt++)
+                                            {
+                                                generatedMeasure = generatedDataSetValues[tt, y, x];
+                                                originalMeasure = originalDataSetValues[tt, y, x];
+                                                if (generatedMeasure != originalMeasure)
+                                                {
+                                                    Message = "Wrong Value at: " + t + " " + tt + " " + y + " " + x;
+                                                    return Message;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Int16[,,,] originalDataSetValues = originalDataSet.GetData<Int16[,,,]>(builder.Source1VariableName,
+                                    DataSet.Range(t, 1, t + entriesInDay - 1), /* removing first dimension from data*/
+                                    DataSet.FromToEnd(0),
+                                    DataSet.FromToEnd(0),
+                                    DataSet.FromToEnd(0));
+
+                                    Int16[,,,] generatedDataSetValues = generatedDataSet.GetData<Int16[,,,]>(builder.JassVariable.Name,
+                                    DataSet.FromToEnd(0), /* removing first dimension from data*/
+                                    DataSet.FromToEnd(0),
+                                    DataSet.FromToEnd(0),
+                                    DataSet.FromToEnd(0));
+
+                                    //now we go for each location.....I will hardcode for now.. but I need 
+
+                                    for (int l = 0; l < builder.JassGrid.Levelsize; l++)
+                                    {
+                                        for (int y = 0; y < builder.JassGrid.Ysize; y++)
+                                        {
+                                            for (int x = 0; x < builder.JassGrid.Xsize; x++)
+                                            {
+                                                for (int tt = 0; tt < entriesInDay; tt++)
+                                                {
+                                                    generatedMeasure = generatedDataSetValues[tt, l, y, x];
+                                                    originalMeasure = originalDataSetValues[tt, l, y, x];
+                                                    if (generatedMeasure != originalMeasure)
+                                                    {
+                                                        Message = "Wrong Value at: " + t + " " + tt + " " + y + " " + x;
+                                                        return Message;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+
+                        Message = "We do not know how to test this partition" + builder.JassGrid.JassPartition.Name;
+                    }
+                }
+                
+            }
+            catch (Exception e)
+            {
+                Message = e.Message;
+            }
+
+            return Message;
+        }
+
         public string processBuilder(JassBuilder builder, Boolean upload)
         {
 
@@ -221,184 +345,195 @@ namespace JassWeather.Models
 
                 string timestamp = JassWeatherAPI.fileTimeStamp();
 
-
-                processSource(builder.APIRequest, true, false);
+                int entriesInDay = builder.JassGrid.Timesize;
+                processSource(builder.APIRequest, upload, false);
 
                 string url = builder.APIRequest.url;
                 string inputFile1 = AppDataFolder + "/" + safeFileNameFromUrl(url);
-                var dataset1 = DataSet.Open(inputFile1 + "?openMode=open");
-                var schema1 = dataset1.GetSchema();
-                MetadataDictionary metaDataSet = dataset1.Metadata;
-
-
-
-                Dictionary<string,  MetadataDictionary> vars =
-                    new Dictionary<string, MetadataDictionary>();
-
-                foreach (var v in dataset1.Variables)
+                using (var dataset1 = DataSet.Open(inputFile1 + "?openMode=open"))
                 {
-                    vars.Add(v.Name, v.Metadata);
-                }
-
-
-                //Here we get all the information form the datasource1
-
-                Single[] y = dataset1.GetData<Single[]>("y");
-                MetadataDictionary metaY;vars.TryGetValue("y", out metaY);
-                Single[] x = dataset1.GetData<Single[]>("x");
-                MetadataDictionary metaX; vars.TryGetValue("x", out metaX);
-                double[] time = dataset1.GetData<double[]>("time");
-                MetadataDictionary metaTime; vars.TryGetValue("time", out metaTime);
-                Single[] level = new Single[0];
-                MetadataDictionary metaLevel = null;
-
-                if (builder.JassGrid.Levelsize != 0)
-                {
-                    level = dataset1.GetData<Single[]>("level");
-                    vars.TryGetValue("level", out metaLevel);
-                }
-
-                MetadataDictionary metaVariable; vars.TryGetValue(builder.Source1VariableName, out metaVariable);
+                    var schema1 = dataset1.GetSchema();
+                    MetadataDictionary metaDataSet = dataset1.Metadata;
 
 
 
-                string dayString;
-                int in_year = (builder.year != null)? (int)builder.year:DateTime.Now.Year;
-                int in_month = (builder.month != null) ? (int)builder.month : 1;
-                int in_day = 1;
-                string variableName = builder.JassVariable.Name;
+                    Dictionary<string, MetadataDictionary> vars =
+                        new Dictionary<string, MetadataDictionary>();
 
-                DateTime day = new DateTime(in_year, in_month, in_day);
-
-
-                jassbuilder.Status = JassBuilderStatus.Processing;
-                jassbuilder.setTotalSize = time.Length / 8;
-                jassbuilder.setCurrentSize = 0;
-                db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
-                db.SaveChanges();
-
-                double[] timeday = new double[8];
-
-                for (var df = 0; df < time.Length; df += 8)
-                {
-                    in_year = day.Year;
-                    in_month = day.Month;
-                    in_day = day.Day;
-
-                    dayString = "" + in_year + "_" + in_month + "_" + in_day;
-
-                    string outputFileName = fileNameBuilderByDay(variableName, in_year, in_month, in_day) + ".nc";
-
-                    string outputFilePath = AppDataFolder + "/" + outputFileName;
-                    dataset3 = DataSet.Open(outputFilePath + "?openMode=create");
-
-                    foreach (var attr in dataset1.Metadata)
+                    foreach (var v in dataset1.Variables)
                     {
-                        if (attr.Key != "Name"){
-                            dataset3.Metadata.AsDictionary().Add(attr.Key, attr.Value);
-                        }
-                        else {
-
-                            dataset3.Metadata.AsDictionary()[attr.Key] = outputFileName;
-                        }
+                        vars.Add(v.Name, v.Metadata);
                     }
 
-                    AfterOpenMemory = GC.GetTotalMemory(true);
-                    var schema3 = dataset3.GetSchema();
 
-                    for (var t = 0; t < 8; t++)
+                    //Here we get all the information form the datasource1
+
+                    Single[] y = dataset1.GetData<Single[]>("y");
+                    MetadataDictionary metaY; vars.TryGetValue("y", out metaY);
+                    Single[] x = dataset1.GetData<Single[]>("x");
+                    MetadataDictionary metaX; vars.TryGetValue("x", out metaX);
+                    double[] time = dataset1.GetData<double[]>("time");
+                    MetadataDictionary metaTime; vars.TryGetValue("time", out metaTime);
+                    Single[] level = new Single[0];
+                    MetadataDictionary metaLevel = null;
+
+                    if (builder.JassGrid.Levelsize != 0)
                     {
-                        timeday[t] = time[df + t];
+                        level = dataset1.GetData<Single[]>("level");
+                        vars.TryGetValue("level", out metaLevel);
                     }
 
-                    //here we create the new outpout datasource depending on whether we hae or not level dimension
-
-                    if (builder.JassGrid.Levelsize!=0){
-                    Int16[, , ,] dataset = dataset1.GetData<Int16[, , ,]>(builder.Source1VariableName,
-                         DataSet.Range(0, 1, 7), /* removing first dimension from data*/
-                         DataSet.FromToEnd(0), /* removing first dimension from data*/
-                         DataSet.FromToEnd(0),
-                         DataSet.FromToEnd(0));
-
-                    dataset3.Add<Single[]>("level", level, "level");
-                    foreach (var attr in metaLevel){
-                        if (attr.Key!="Name") dataset3.PutAttr("level", attr.Key, attr.Value);
-                    }
-
-     
-                    dataset3.Add<Int16[, , ,]>(builder.JassVariable.Name, dataset, "time", "level", "y", "x");
-
-
-                    }else{
-                          Int16[, ,] dataset = dataset1.GetData<Int16[, ,]>(builder.Source1VariableName,
-                          DataSet.Range(0, 1, 7), /* removing first dimension from data*/
-                          DataSet.FromToEnd(0),
-                          DataSet.FromToEnd(0));
-
-                          dataset3.Add<Int16[, ,]>(builder.JassVariable.Name, dataset, "time", "y", "x");
-                    }
-
-                    //dataset3.PutAttr(builder.JassVariable.Name, "Name", builder.JassVariable.Name);
-                    foreach (var attr in metaVariable) {
-                        //problem with _FillValue
-                        if (attr.Key != "Name")
-                        {
-                            try
-                            {
-                                dataset3.PutAttr(builder.JassVariable.Name, cleanMetadataKey(attr.Key), attr.Value);
-                            }
-                            catch (Exception e)
-                            {
-                                try
-                                {
-                                    dataset3.PutAttr(builder.JassVariable.Name, attr.Key, e.Message);
-                                }
-                                catch (Exception) { }
-                            }
-                        }
-                    }
-
-                    dataset3.Add<double[]>("time", timeday, "time");
-                    foreach (var attr in metaTime) { if (attr.Key!="Name") dataset3.PutAttr("time", attr.Key, attr.Value); }
-                    dataset3.Add<Single[]>("y", y, "y");
-                    foreach (var attr in metaY) { if (attr.Key != "Name") dataset3.PutAttr("y", attr.Key, attr.Value); }
-                    dataset3.Add<Single[]>("x", x, "x");
-                    foreach (var attr in metaX) { if (attr.Key != "Name") dataset3.PutAttr("x", attr.Key, attr.Value); }
-
-
-                    dataset3.Commit();
-                    dataset3.Dispose();
-
-                    AfterLoadMemory = GC.GetTotalMemory(true);
+                    MetadataDictionary metaVariable; vars.TryGetValue(builder.Source1VariableName, out metaVariable);
 
 
 
-                    if (upload)
-                    {
-                        uploadBlob(builder.JassVariable.Name, outputFileName, outputFilePath);
-                    }
+                    string dayString;
+                    int in_year = (builder.year != null) ? (int)builder.year : DateTime.Now.Year;
+                    int in_month = (builder.month != null) ? (int)builder.month : 1;
+                    int in_day = 1;
+                    string variableName = builder.JassVariable.Name;
 
-                    jassbuilder.setCurrentSize = df/8 + 1;
+                    DateTime day = new DateTime(in_year, in_month, in_day);
+
+
+                    jassbuilder.Status = JassBuilderStatus.Processing;
+                    jassbuilder.setTotalSize = time.Length / 8;
+                    jassbuilder.setCurrentSize = 0;
                     db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
                     db.SaveChanges();
 
-                    day = day.AddDays(1);
- 
+                    double[] timeday = new double[8];
+
+                    for (var df = 0; df < time.Length; df += 8)
+                    {
+                        in_year = day.Year;
+                        in_month = day.Month;
+                        in_day = day.Day;
+
+                        dayString = "" + in_year + "_" + in_month + "_" + in_day;
+
+                        string outputFileName = fileNameBuilderByDay(variableName, in_year, in_month, in_day) + ".nc";
+
+                        string outputFilePath = AppDataFolder + "/" + outputFileName;
+                        using (dataset3 = DataSet.Open(outputFilePath + "?openMode=create"))
+                        {
+
+                            foreach (var attr in dataset1.Metadata)
+                            {
+                                if (attr.Key != "Name")
+                                {
+                                    dataset3.Metadata.AsDictionary().Add(attr.Key, attr.Value);
+                                }
+                                else
+                                {
+
+                                    dataset3.Metadata.AsDictionary()[attr.Key] = outputFileName;
+                                }
+                            }
+
+                            AfterOpenMemory = GC.GetTotalMemory(true);
+                            var schema3 = dataset3.GetSchema();
+
+                            for (var t = 0; t < 8; t++)
+                            {
+                                timeday[t] = time[df + t];
+                            }
+
+                            //here we create the new outpout datasource depending on whether we hae or not level dimension
+
+                            if (builder.JassGrid.Levelsize != 0)
+                            {
+                                Int16[, , ,] dataset = dataset1.GetData<Int16[, , ,]>(builder.Source1VariableName,
+                                     DataSet.Range(df, 1, df + entriesInDay - 1), /* removing first dimension from data*/
+                                     DataSet.FromToEnd(0), /* removing first dimension from data*/
+                                     DataSet.FromToEnd(0),
+                                     DataSet.FromToEnd(0));
+
+                                dataset3.Add<Single[]>("level", level, "level");
+                                foreach (var attr in metaLevel)
+                                {
+                                    if (attr.Key != "Name") dataset3.PutAttr("level", attr.Key, attr.Value);
+                                }
+
+
+                                dataset3.Add<Int16[, , ,]>(builder.JassVariable.Name, dataset, "time", "level", "y", "x");
+
+
+                            }
+                            else
+                            {
+                                Int16[, ,] dataset = dataset1.GetData<Int16[, ,]>(builder.Source1VariableName,
+                                DataSet.Range(df, 1, df + entriesInDay - 1), /* removing first dimension from data*/
+                                DataSet.FromToEnd(0),
+                                DataSet.FromToEnd(0));
+
+                                dataset3.Add<Int16[, ,]>(builder.JassVariable.Name, dataset, "time", "y", "x");
+                            }
+
+                            //dataset3.PutAttr(builder.JassVariable.Name, "Name", builder.JassVariable.Name);
+                            foreach (var attr in metaVariable)
+                            {
+                                //problem with _FillValue
+                                if (attr.Key != "Name")
+                                {
+                                    try
+                                    {
+                                        dataset3.PutAttr(builder.JassVariable.Name, cleanMetadataKey(attr.Key), attr.Value);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        try
+                                        {
+                                            dataset3.PutAttr(builder.JassVariable.Name, attr.Key, e.Message);
+                                        }
+                                        catch (Exception) { }
+                                    }
+                                }
+                            }
+
+                            dataset3.Add<double[]>("time", timeday, "time");
+                            foreach (var attr in metaTime) { if (attr.Key != "Name") dataset3.PutAttr("time", attr.Key, attr.Value); }
+                            dataset3.Add<Single[]>("y", y, "y");
+                            foreach (var attr in metaY) { if (attr.Key != "Name") dataset3.PutAttr("y", attr.Key, attr.Value); }
+                            dataset3.Add<Single[]>("x", x, "x");
+                            foreach (var attr in metaX) { if (attr.Key != "Name") dataset3.PutAttr("x", attr.Key, attr.Value); }
+
+
+                            dataset3.Commit();
+                            dataset3.Dispose();
+
+                            AfterLoadMemory = GC.GetTotalMemory(true);
+
+
+
+                            if (upload)
+                            {
+                                uploadBlob(builder.JassVariable.Name, outputFileName, outputFilePath);
+                            }
+
+                            jassbuilder.setCurrentSize = df / 8 + 1;
+                            db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
+                            db.SaveChanges();
+
+                            day = day.AddDays(1);
+                            //end using
+                        }
+                    }
+
+                    DateTime EndTime = DateTime.Now;
+
+                    TimeSpan TotalTime = EndTime - startTotalTime;
+                    jassbuilder.startTotalTime = startTotalTime;
+                    jassbuilder.endTotalTime = EndTime;
+                    jassbuilder.OnDisk = true;
+                    jassbuilder.spanTotalTime = TotalTime;
+                    jassbuilder.Status = JassBuilderStatus.Success;
+
+
+                    db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
+                    db.SaveChanges();
+                    //end using
                 }
-
-                DateTime EndTime = DateTime.Now;
-
-                TimeSpan TotalTime = EndTime - startTotalTime;
-                jassbuilder.startTotalTime = startTotalTime;
-                jassbuilder.endTotalTime = EndTime;
-                jassbuilder.OnDisk = true;
-                jassbuilder.spanTotalTime = TotalTime;
-                jassbuilder.Status = JassBuilderStatus.Success;
-
-
-                db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
-                db.SaveChanges();
-
             }
 
             catch (Exception e)

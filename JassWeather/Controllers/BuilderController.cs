@@ -50,6 +50,20 @@ namespace JassWeather.Controllers
             return View(jassbuilder);
         }
 
+        public ActionResult TestBuilder(int id = 0)
+        {
+            JassBuilder jassbuilder = db.JassBuilders.Find(id);
+            var result = apiCaller.testBuilderOnDisk(jassbuilder, false);
+
+            if (jassbuilder == null)
+            {
+                return HttpNotFound();
+            }
+            ViewBag.Message = result;
+
+            return View(jassbuilder);
+        }
+
         public ActionResult ProcessBuilderAndUpload(int id = 0)
         {
             JassBuilder jassbuilder = db.JassBuilders.Find(id);
