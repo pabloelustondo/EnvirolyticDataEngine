@@ -13,7 +13,12 @@ JassGridValues
 
 <h2>Values on File @ViewBag.fileName for time==0 level==0</h2>
 MaxValue: @Model.measureMax   MinValue: @Model.measureMin   Range: @(Model.measureMax - Model.measureMin)
-
+<table><tr>
+@foreach (var v in Model.variableMetadata)
+{
+    <td>@v.Key<text>:</text>@v.Value</td>
+}
+</tr></table>
 
 <table>
     <tr>

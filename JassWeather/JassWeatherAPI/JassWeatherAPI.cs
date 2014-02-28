@@ -41,21 +41,24 @@ namespace JassWeather.Models
         public int levelLength { get; set; }
         public int yLength { get; set; }
         public int xLength { get; set; }
-        public Int16[, , ,] measure { get; set; }
+        public double[, , ,] measure { get; set; }
         public Int16  measureMax { get; set; }
         public Int16  measureMin { get; set; }
         public string VariableName { get; set; }
+        public MetadataDictionary variableMetadata { get; set; }
+ 
 
-        public JassGridValues(string variableNameIn, int timeLengthIn, int levelLengthIn, int yLengthIn, int xLengthIn)
+        public JassGridValues(MetadataDictionary variableMetadataIn, string variableNameIn, int timeLengthIn, int levelLengthIn, int yLengthIn, int xLengthIn)
         {
             VariableName = variableNameIn;
+            variableMetadata = variableMetadataIn;
             measureMax = 0;
             measureMin = 0;
             timeLength = timeLengthIn;
             levelLength = levelLengthIn;
             yLength = yLengthIn;
             xLength = xLengthIn;
-            measure = new Int16[timeLengthIn, levelLengthIn, yLengthIn, xLengthIn];
+            measure = new double[timeLengthIn, levelLengthIn, yLengthIn, xLengthIn];
         }
     }
 
@@ -1782,13 +1785,14 @@ namespace JassWeather.Models
 
         public JassGridValues GetDayValues(string fileName)
         {
-
+            //HERE
             JassGridValues dayGridValues;
             string filePath = AppDataFolder + "/" + fileName;
             DownloadFile2DiskIfNotThere(fileName, filePath);
             using (var dataset1 = DataSet.Open(filePath + "?openMode=open"))
             {
                 var schema1 = dataset1.GetSchema();
+
                 //first let's select the key variable by having various dimensions
                 VariableSchema keyVariable = null;
                 Boolean hasLevel = false;
@@ -1805,13 +1809,39 @@ namespace JassWeather.Models
                     }
                 }
 
+                Single scale_factor = 1;
+                Single add_offset = 0;
+                Single missing_value = 32766;
+                Single FillValue = 32766;
+
+                try { scale_factor = (Single)keyVariable.Metadata["scale_factor"]; }
+                catch (Exception e) {
+                    var n = e; };
+                try { add_offset = (Single)keyVariable.Metadata["add_offset"]; }
+                catch (Exception e) { 
+                    var n = e; };
+                try { missing_value = (Single)keyVariable.Metadata["missing_value"]; }
+                catch (Exception e) { 
+                    var n = e; };
+
+                /*
+                try { FillValue = (Single)keyVariable.Metadata["FillValue"]; }
+                catch (Exception e) { 
+                    var n = e; };
+                try { FillValue = (Single)keyVariable.Metadata["_FillValue"]; }
+                catch (Exception e) { 
+                    var n = e; };
+                 */ 
+
                 Single[] y = dataset1.GetData<Single[]>("y");
                 Single[] x = dataset1.GetData<Single[]>("x");
                 double[] time = dataset1.GetData<double[]>("time");
                 Single[] level = new Single[1];
                 if (hasLevel) level = dataset1.GetData<Single[]>("level");
 
-                dayGridValues = new JassGridValues(keyVariable.Name, time.Length, level.Length, y.Length, x.Length);
+                dayGridValues = new JassGridValues(keyVariable.Metadata, keyVariable.Name, time.Length, level.Length, y.Length, x.Length);
+
+                //how to get the scale/factor value.
 
                 string outPutString = schema2string(schema1);
 
@@ -1826,7 +1856,7 @@ namespace JassWeather.Models
                             {
                                 for (int xx = 0; xx < x.Length; xx++)
                                 {
-                                    dayGridValues.measure[tt, ll, yy, xx] = values[tt, ll, yy, xx];
+                                    dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, ll, yy, xx];
                                     if (values[tt, ll, yy, xx]> dayGridValues.measureMax){ dayGridValues.measureMax=values[tt, ll, yy, xx];}
                                     if (values[tt, ll, yy, xx]< dayGridValues.measureMin){ dayGridValues.measureMin=values[tt, ll, yy, xx];}
                                 }
@@ -1845,7 +1875,7 @@ namespace JassWeather.Models
                             {
                                 for (int xx = 0; xx < x.Length; xx++)
                                 {
-                                    dayGridValues.measure[tt, ll, yy, xx] = values[tt, yy, xx];
+                                    dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, yy, xx];
                                     if (values[tt, yy, xx] > dayGridValues.measureMax) { dayGridValues.measureMax = values[tt, yy, xx]; }
                                     if (values[tt, yy, xx] < dayGridValues.measureMin) { dayGridValues.measureMin = values[tt, yy, xx]; }
                                 }
