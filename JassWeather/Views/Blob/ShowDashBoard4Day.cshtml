@@ -50,3 +50,36 @@ Max Value:  @Math.Round(@Model.measureMax,0)  Min Value : @Math.Round(Model.meas
 }
 
 </table>
+
+<p></p>
+<p>
+Color Scale
+
+<table><tr>
+@{
+    double range = Model.measureMax - Model.measureMin;
+    int start, end;
+    
+    if (range < 1024){
+
+        start = Convert.ToInt16(Model.measureMin);
+        end = Convert.ToInt16(Model.measureMax); 
+        
+    } else {
+
+        start = 0;
+        end = 1024;
+    }
+
+
+
+
+    for (var c = start; c < end; c++ )
+    {JassRGB rgb = JassWeatherAPI.rgb(c,start,end);
+    <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b)">
+        @c</td>
+    }
+
+    }
+</tr></table>
+    </p>
