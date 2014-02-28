@@ -42,8 +42,8 @@ namespace JassWeather.Models
         public int yLength { get; set; }
         public int xLength { get; set; }
         public double[, , ,] measure { get; set; }
-        public Int16  measureMax { get; set; }
-        public Int16  measureMin { get; set; }
+        public double  measureMax { get; set; }
+        public double  measureMin { get; set; }
         public string VariableName { get; set; }
         public MetadataDictionary variableMetadata { get; set; }
  
@@ -103,18 +103,19 @@ namespace JassWeather.Models
         public JassBuilder builder;
         private JassWeatherContext db = new JassWeatherContext();
         public string AppDataFolder;
-        public string storageConnectionString = "StorageConnectionString";
+        public string storageConnectionString;
         DateTime startTotalTime = DateTime.UtcNow;
         DateTime endTotalTime = DateTime.UtcNow;
         TimeSpan spanTotalTime;
+        public static JassRGB[] colors = getColors();
 
-        public JassWeatherAPI(string appDataFolder){
+        public JassWeatherAPI(string appDataFolder, string storageConnectionStringIn){
 
-            storageConnectionString = "StorageConnectionString";
+            storageConnectionString = storageConnectionStringIn;
             AppDataFolder = appDataFolder;
           }
 
-        public JassRGB[] getColors()
+        public static JassRGB[] getColors()
         {
             JassRGB[] color = new JassRGB[1024];
 
@@ -136,6 +137,15 @@ namespace JassWeather.Models
             }
 
             return color;
+        }
+
+        public static JassRGB rgb(double value, double min, double max){
+
+            double indexDouble = (value - min) / (max - min) * 1023;
+            int index = Convert.ToInt16(indexDouble);
+
+            return colors[index]; 
+
         }
 
         public bool checkIfBlobExist(string fileName)
@@ -327,7 +337,24 @@ namespace JassWeather.Models
             return Message;
         }
 
-        public string processBuilder(JassBuilder builder, Boolean upload)
+        public string replaceUrlPlaceHolders(string url, int year, int month)
+        {
+            string yearString = "" + year;
+
+            url.Replace("$YYYY", yearString);
+
+            if (month != 0)
+            {
+                string monthString = "" + month;
+                if (month < 10) monthString = "0" + month;
+
+                url.Replace("$MM", monthString);
+            }
+            return url;
+
+        }
+
+        public string processBuilderAll(JassBuilder builder, Boolean upload)
         {
 
             string Message = "process builder sucessfuly";
@@ -339,6 +366,60 @@ namespace JassWeather.Models
             TimeSpan TotalDelay;
             JassBuilder jassbuilder = db.JassBuilders.Find(builder.JassBuilderID);
             DataSet dataset3=null;
+            try
+            {
+                if (builder.yearEnd == null) builder.yearEnd=builder.year;
+                if (builder.month == null) {
+                    builder.month = 0;
+                    builder.monthEnd = 0; }
+                if (builder.monthEnd == null) builder.monthEnd = builder.month;
+
+                for (int year = (int)builder.year; year < (int)builder.yearEnd + 1; year++)
+                {
+                    for (int month = (int)builder.month; month < (int)builder.monthEnd + 1; month++)
+                    {
+
+                        Message += "|" + year + "-" + month;
+
+                    }//END MONTH
+                }
+                //end YEAR
+
+            }
+
+            catch (Exception e)
+            {
+                if (dataset3 != null)
+                {
+                    dataset3.Dispose();
+                }
+                Message = e.Message;
+                DateTime EndTime = DateTime.Now;
+                TimeSpan TotalTime = EndTime - startTotalTime;
+                jassbuilder.startTotalTime = startTotalTime;
+                jassbuilder.endTotalTime = EndTime;
+                jassbuilder.OnDisk = false;
+                jassbuilder.spanTotalTime = TotalTime;
+                jassbuilder.Status = JassBuilderStatus.Failure;
+                jassbuilder.Message = e.Message;
+            }
+
+
+            return Message; 
+        }
+
+        public string processBuilder(JassBuilder builder, int year, int month, Boolean upload)
+        {
+
+            string Message = "process builder sucessfuly";
+            long StartingMemory;
+            DateTime StartingTime = DateTime.Now;
+            long AfterOpenMemory;
+            long AfterLoadMemory;
+            DateTime EndingTime = DateTime.Now;
+            TimeSpan TotalDelay;
+            JassBuilder jassbuilder = db.JassBuilders.Find(builder.JassBuilderID);
+            DataSet dataset3 = null;
             try
             {
                 //Let try to re-create the file...
@@ -557,7 +638,7 @@ namespace JassWeather.Models
             }
 
 
-            return Message; 
+            return Message;
         }
 
         public string cleanMetadataKey(string rawKey)
@@ -1824,14 +1905,12 @@ namespace JassWeather.Models
                 catch (Exception e) { 
                     var n = e; };
 
-                /*
                 try { FillValue = (Single)keyVariable.Metadata["FillValue"]; }
                 catch (Exception e) { 
                     var n = e; };
                 try { FillValue = (Single)keyVariable.Metadata["_FillValue"]; }
                 catch (Exception e) { 
-                    var n = e; };
-                 */ 
+                    var n = e; }; 
 
                 Single[] y = dataset1.GetData<Single[]>("y");
                 Single[] x = dataset1.GetData<Single[]>("x");
@@ -1856,9 +1935,12 @@ namespace JassWeather.Models
                             {
                                 for (int xx = 0; xx < x.Length; xx++)
                                 {
-                                    dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, ll, yy, xx];
-                                    if (values[tt, ll, yy, xx]> dayGridValues.measureMax){ dayGridValues.measureMax=values[tt, ll, yy, xx];}
-                                    if (values[tt, ll, yy, xx]< dayGridValues.measureMin){ dayGridValues.measureMin=values[tt, ll, yy, xx];}
+                                    if (values[tt, ll, yy, xx] != missing_value && values[tt, ll, yy, xx] != FillValue)
+                                    {
+                                        dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, ll, yy, xx];
+                                        if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax) { dayGridValues.measureMax = dayGridValues.measure[tt, ll, yy, xx]; }
+                                        if (dayGridValues.measure[tt, ll, yy, xx] < dayGridValues.measureMin) { dayGridValues.measureMin = dayGridValues.measure[tt, ll, yy, xx]; }
+                                    }
                                 }
                             }
                         }
@@ -1875,9 +1957,12 @@ namespace JassWeather.Models
                             {
                                 for (int xx = 0; xx < x.Length; xx++)
                                 {
-                                    dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, yy, xx];
-                                    if (values[tt, yy, xx] > dayGridValues.measureMax) { dayGridValues.measureMax = values[tt, yy, xx]; }
-                                    if (values[tt, yy, xx] < dayGridValues.measureMin) { dayGridValues.measureMin = values[tt, yy, xx]; }
+                                    if (values[tt, yy, xx] != missing_value && values[tt, yy, xx] != FillValue)
+                                    {
+                                        dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, yy, xx];
+                                        if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax) { dayGridValues.measureMax = dayGridValues.measure[tt, ll, yy, xx]; }
+                                        if (dayGridValues.measure[tt, ll, yy, xx] < dayGridValues.measureMin) { dayGridValues.measureMin = dayGridValues.measure[tt, ll, yy, xx]; }
+                                    }
                                 }
                             }
                         }

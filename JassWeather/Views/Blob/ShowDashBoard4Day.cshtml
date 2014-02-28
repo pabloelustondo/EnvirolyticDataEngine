@@ -1,4 +1,5 @@
 ﻿@model JassWeather.Models.JassGridValues
+@using JassWeather.Models
 
 @{
     ViewBag.Title = "Index";
@@ -9,10 +10,10 @@ table { table-layout: fixed; }
 th, td { width: 2px; font-size:xx-small}
 
 </style>
-JassGridValues
 
 <h2>Values on File @ViewBag.fileName for time==0 level==0</h2>
-MaxValue: @Model.measureMax   MinValue: @Model.measureMin   Range: @(Model.measureMax - Model.measureMin)
+Max Value:  @Math.Round(@Model.measureMax,0)  Min Value : @Math.Round(Model.measureMin,0)
+
 <table><tr>
 @foreach (var v in Model.variableMetadata)
 {
@@ -39,7 +40,9 @@ MaxValue: @Model.measureMax   MinValue: @Model.measureMin   Range: @(Model.measu
             @y
         </td>
            @for (int x = 0; x < Model.xLength; x++ ){
-        <td>
+               JassWeather.Models.JassRGB rgb = JassWeather.Models.JassWeatherAPI.rgb(Model.measure[0,0,y,x],Model.measureMin,Model.measureMax);
+               
+        <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b)">
             @Model.measure[0,0,y,x]
         </td>
             }

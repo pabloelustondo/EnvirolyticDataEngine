@@ -11,3 +11,9 @@ Users in the Envirolity group will be able to see also another dashboard for int
 
 Users in the Admin group will be able to see all this and also are able to add/updata sources, variables, start processes,.
 etc. 
+
+<p></p>
+
+<p>@if (!Request.IsAuthenticated){
+    <text>@Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })    </text>
+}</p>

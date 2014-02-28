@@ -30,6 +30,8 @@ namespace JassWeather.Models
         public int? y { get; set; }
         public int? year { get; set; }
         public int? month { get; set; }
+        public int? yearEnd { get; set; }
+        public int? monthEnd { get; set; }
         public int? day { get; set; }
         public int? hour3 { get; set; }
         public int? level { get; set; }

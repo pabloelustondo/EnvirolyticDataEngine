@@ -28,13 +28,16 @@ namespace JassWeather.Controllers
 
         public ActionResult ShowDashBoardExt()  //list container
         {
-            apiCaller.storageConnectionString = "StorageConnectionStringExt";
+            Session["StorageConnectionString"] = "StorageConnectionStringExt";
+            apiCaller = new JassWeatherAPI(HttpContext.Server.MapPath("~/App_Data"), (string)Session["StorageConnectionString"]);
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
             return View("ShowDashBoard",variableStatusModel);
         }
 
         public ActionResult ShowDashBoard()  //list container
         {
+            Session["StorageConnectionString"] = "StorageConnectionString";
+            apiCaller = new JassWeatherAPI(HttpContext.Server.MapPath("~/App_Data"), (string)Session["StorageConnectionString"]);
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
             return View(variableStatusModel);
         }

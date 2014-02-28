@@ -437,6 +437,10 @@
     <Compile Include="Migrations\201402251822108_whatwasthat.Designer.cs">
       <DependentUpon>201402251822108_whatwasthat.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201402280440353_builder-year-end.cs" />
+    <Compile Include="Migrations\201402280440353_builder-year-end.Designer.cs">
+      <DependentUpon>201402280440353_builder-year-end.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -525,6 +529,8 @@
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
+    <Content Include="Content\Quick guide to get historical environmental sample information into Matlab.pdf" />
+    <Content Include="Content\Quick guide to use Envirolytic dashboard to understand which information is available.pdf" />
     <None Include="Properties\PublishProfiles\Default Settings %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\Default Settings %283%29.pubxml" />
     <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
@@ -806,6 +812,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201402251822108_whatwasthat.resx">
       <DependentUpon>201402251822108_whatwasthat.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201402280440353_builder-year-end.resx">
+      <DependentUpon>201402280440353_builder-year-end.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

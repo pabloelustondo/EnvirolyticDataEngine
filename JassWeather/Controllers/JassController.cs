@@ -19,7 +19,22 @@ namespace JassWeather.Controllers
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            apiCaller = new JassWeatherAPI(HttpContext.Server.MapPath("~/App_Data"));
+            string storageConnectionString;
+            if (Session["StorageConnectionString"] == null)
+            {
+                if (User.IsInRole("Admin"))
+                {
+                    Session["StorageConnectionString"] = "StorageConnectionString";
+                }
+                else
+                {
+                    Session["StorageConnectionString"] = "StorageConnectionStringExt";
+                }
+
+            }
+
+            storageConnectionString = (string)Session["StorageConnectionString"];
+            apiCaller = new JassWeatherAPI(HttpContext.Server.MapPath("~/App_Data"),storageConnectionString);
 
             base.OnActionExecuting(filterContext);
         }

@@ -39,7 +39,7 @@ namespace JassWeather.Controllers
         public ActionResult ProcessBuilder(int id = 0)
         {
             JassBuilder jassbuilder = db.JassBuilders.Find(id);
-            var result = apiCaller.processBuilder(jassbuilder, false);
+            var result = apiCaller.processBuilder(jassbuilder, 0, 0,false);
 
             if (jassbuilder == null)
             {
@@ -67,7 +67,22 @@ namespace JassWeather.Controllers
         public ActionResult ProcessBuilderAndUpload(int id = 0)
         {
             JassBuilder jassbuilder = db.JassBuilders.Find(id);
-            var result = apiCaller.processBuilder(jassbuilder, true);
+            var result = apiCaller.processBuilder(jassbuilder, 0,0, true);
+
+            if (jassbuilder == null)
+            {
+                return HttpNotFound();
+            }
+            ViewBag.Message = result;
+
+            return View(jassbuilder);
+        }
+
+
+        public ActionResult ProcessBuilderAndUploadAll(int id = 0)
+        {
+            JassBuilder jassbuilder = db.JassBuilders.Find(id);
+            var result = apiCaller.processBuilderAll(jassbuilder, true);
 
             if (jassbuilder == null)
             {

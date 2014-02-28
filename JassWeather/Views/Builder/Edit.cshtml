@@ -88,6 +88,22 @@
         </div>
 
         <div class="editor-label">
+            @Html.LabelFor(model => model.yearEnd)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.yearEnd)
+            @Html.ValidationMessageFor(model => model.yearEnd)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.monthEnd)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.monthEnd)
+            @Html.ValidationMessageFor(model => model.month)
+        </div>
+
+        <div class="editor-label">
             @Html.LabelFor(model => model.day)
         </div>
         <div class="editor-field">
