@@ -1,0 +1,113 @@
+﻿@model JassWeather.Models.JassBuilderLog
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>JassBuilderLog</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.JassBuilder.Name)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.JassBuilder.Name)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.ParentJassBuilderLogID)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.ParentJassBuilderLogID)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.EventType)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.EventType)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Label)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Label)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Message)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Message)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Success)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Success)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.year)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.year)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.month)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.month)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.day)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.day)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.yearEnd)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.yearEnd)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.monthEnd)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.monthEnd)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.startTotalTime)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.startTotalTime)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.endTotalTime)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.endTotalTime)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.spanTotalTime)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.spanTotalTime)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.JassBuilderLogID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

@@ -12,7 +12,7 @@ th, td { width: 2px; font-size:xx-small}
 </style>
 
 <h2>Values on File @ViewBag.fileName for time==0 level==0</h2>
-Max Value:  @Math.Round(@Model.measureMax,0)  Min Value : @Math.Round(Model.measureMin,0)
+Max Value:  @Math.Round(@Model.measureMax[0],0)  Min Value : @Math.Round(Model.measureMin[0],0) MaxPosition Y:@Model.maxY[0] X:@Model.maxX[0]  MinPosition Y:@Model.minY[0] X:@Model.minX[0]
 
 <table><tr>
 @foreach (var v in Model.variableMetadata)
@@ -20,50 +20,17 @@ Max Value:  @Math.Round(@Model.measureMax,0)  Min Value : @Math.Round(Model.meas
     <td>@v.Key<text>:</text>@v.Value</td>
 }
 </tr></table>
-
-<table>
-    <tr>
-        <th>
-            Y
-        </th>
-        @for (int x = 0; x < Model.xLength; x++ ){
-        <th>
-            @x
-        </th>
-        }
-    </tr>
-
-@for (int y = 0; y < Model.yLength; y++ )
-{
-    <tr>
-        <td>
-            @y
-        </td>
-           @for (int x = 0; x < Model.xLength; x++ ){
-               JassWeather.Models.JassRGB rgb = JassWeather.Models.JassWeatherAPI.rgb(Model.measure[0,0,y,x],Model.measureMin,Model.measureMax);
-               
-        <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b)">
-            @Model.measure[0,0,y,x]
-        </td>
-            }
-    </tr>
-}
-
-</table>
-
-<p></p>
-<p>
 Color Scale
 
 <table><tr>
 @{
-    double range = Model.measureMax - Model.measureMin;
+    double range = Model.measureMax[0] - Model.measureMin[0];
     int start, end;
     
     if (range < 1024){
 
-        start = Convert.ToInt16(Model.measureMin);
-        end = Convert.ToInt16(Model.measureMax); 
+        start = Convert.ToInt16(Model.measureMin[0]);
+        end = Convert.ToInt16(Model.measureMax[0]); 
         
     } else {
 
@@ -83,3 +50,41 @@ Color Scale
     }
 </tr></table>
     </p>
+
+<table>
+    <tr>
+        <th>
+            Y
+        </th>
+        @for (int x = 0; x < Model.xLength; x++ ){
+        <th>
+            @x
+        </th>
+        }
+    </tr>
+
+@for (int y = Model.yLength-1; y >= 0 ; y--)
+{
+    <tr>
+        <td>
+            @y
+        </td>
+           @for (int x = 0; x < Model.xLength; x++ ){
+               JassWeather.Models.JassRGB rgb;
+               if (Model.measure[0, 0, y, x] != null)
+               {
+                    rgb = JassWeather.Models.JassWeatherAPI.rgb((double)Model.measure[0, 0, y, x], Model.measureMin[0], Model.measureMax[0]);
+               }
+               else
+               {
+                   rgb = new JassRGB(0,0,0);
+               }
+        <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b)">
+            @Model.measure[0,0,y,x]
+        </td>
+            }
+    </tr>
+}
+
+</table>
+

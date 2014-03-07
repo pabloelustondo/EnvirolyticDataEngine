@@ -163,7 +163,7 @@ namespace JassWeather.Controllers
 
                 //tas_WRFG_example_2014_2_3_11_10_31_322.nc
 
-                List<string> files = apiCaller.listFiles_in_AppData(HttpContext.Server.MapPath("~/App_Data"));
+                List<string> files = apiCaller.listFiles_in_AppData();
 
                 string inputFile3 = appDataFolder + "/envirolitic_air_" + dayString + ".nc";
                 var dataset3 = Microsoft.Research.Science.Data.DataSet.Open(inputFile3 + "?openMode=open");

@@ -1,0 +1,142 @@
+﻿@model JassWeather.Models.JassBuilderLog
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+@using (Html.BeginForm()) {
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>JassBuilderLog</legend>
+
+        @Html.HiddenFor(model => model.JassBuilderLogID)
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.JassBuilderID, "JassBuilder")
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("JassBuilderID", String.Empty)
+            @Html.ValidationMessageFor(model => model.JassBuilderID)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.ParentJassBuilderLogID)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.ParentJassBuilderLogID)
+            @Html.ValidationMessageFor(model => model.ParentJassBuilderLogID)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.EventType)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.EventType)
+            @Html.ValidationMessageFor(model => model.EventType)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Label)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Label)
+            @Html.ValidationMessageFor(model => model.Label)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Message)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Message)
+            @Html.ValidationMessageFor(model => model.Message)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Success)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Success)
+            @Html.ValidationMessageFor(model => model.Success)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.year)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.year)
+            @Html.ValidationMessageFor(model => model.year)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.month)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.month)
+            @Html.ValidationMessageFor(model => model.month)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.day)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.day)
+            @Html.ValidationMessageFor(model => model.day)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.yearEnd)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.yearEnd)
+            @Html.ValidationMessageFor(model => model.yearEnd)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.monthEnd)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.monthEnd)
+            @Html.ValidationMessageFor(model => model.monthEnd)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.startTotalTime)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.startTotalTime)
+            @Html.ValidationMessageFor(model => model.startTotalTime)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.endTotalTime)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.endTotalTime)
+            @Html.ValidationMessageFor(model => model.endTotalTime)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.spanTotalTime)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.spanTotalTime)
+            @Html.ValidationMessageFor(model => model.spanTotalTime)
+        </div>
+
+        <p>
+            <input type="submit" value="Save" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

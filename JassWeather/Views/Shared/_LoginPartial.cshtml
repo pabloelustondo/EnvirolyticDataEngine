@@ -10,10 +10,10 @@
             @Html.AntiForgeryToken()
 
     if(User.IsInRole("Admin") || User.IsInRole("Envirolytic")){
-        if (Session["StorageConnectionString"] == "StorageConnectionString"){
-        <text>InternalBufferOverflowException Storage </text>}
-        if (Session["StorageConnectionString"] == "StorageConnectionString"){
-        <text>InternalBufferOverflowException Storage </text>}                                                    
+        if (Session["StorageConnectionString"] == "StorageConnectionStringProd"){
+        <text>Production Storage </text>}
+        if (Session["StorageConnectionString"] == "StorageConnectionStringDev"){
+        <text>Dev/QA Storage </text>}                                                    
     }
             <a href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
         }

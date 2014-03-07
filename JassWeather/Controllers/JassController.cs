@@ -24,11 +24,11 @@ namespace JassWeather.Controllers
             {
                 if (User.IsInRole("Admin"))
                 {
-                    Session["StorageConnectionString"] = "StorageConnectionString";
+                    Session["StorageConnectionString"] = "StorageConnectionStringDev";
                 }
                 else
                 {
-                    Session["StorageConnectionString"] = "StorageConnectionStringExt";
+                    Session["StorageConnectionString"] = "StorageConnectionStringProd";
                 }
 
             }

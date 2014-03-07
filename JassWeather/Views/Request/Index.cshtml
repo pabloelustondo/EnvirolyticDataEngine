@@ -9,41 +9,17 @@
         <th>
             Name
         </th>
-        <th>
-            VarCons
+                <th>
+            Year
         </th>
-        <th>
-            VarNarr
+                <th>
+            Month
         </th>
-        <th>
-            Stat
+                        <th>
+            Schema
         </th>
-        <th>
-            Level
-        </th>
-        <th>
-            Type
-        </th>
-        <th>
-            Var/Dims
-        </th>
-        <th>
-            MBs
-        </th>
-        <th>
-            Delay2Disk
-        </th>
-        <th>
-            Delay2Table
-        </th>
-        <th>
-            OnD
-        </th>
-        <th>
-            OnB
-        </th>
-        <th>
-            OnT
+                        <th>
+            FileSize
         </th>
         <th></th>
     </tr>
@@ -53,51 +29,24 @@
         <td>
             @Html.DisplayFor(modelItem => item.name)
         </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.variableConsolidated)
-        </td>  
-         <td>
-            @Html.DisplayFor(modelItem => item.variable)
-        </td>  
-        <td>
-            @Html.DisplayFor(modelItem => item.statistic)
-        </td> 
-        <td>
-            @Html.DisplayFor(modelItem => item.level)
-        </td>    
-        <td>
-            @Html.DisplayFor(modelItem => item.type)
+                <td>
+            @Html.DisplayFor(modelItem => item.sampleYear)
         </td>
-         <td>
+                        <td>
+            @Html.DisplayFor(modelItem => item.sampleMonth)
+        </td>
+                                <td>
             @Html.DisplayFor(modelItem => item.schema)
         </td>
-        <td>
+                                <td>
             @Html.DisplayFor(modelItem => item.fileSize)
         </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.spanGetTime)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.spanLoadTime)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.onDisk)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.onBlob)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.onTable)
-        </td>
+     
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("G2B", "Download2Blob", new { id=item.Id }) |
-            @Html.ActionLink("G2D", "Download2Disk", new { id=item.Id }) |
-            @Html.ActionLink("S2T", "Add2Table", new { id=item.Id }) |
+            @Html.ActionLink("ProcessSource", "ProcessSource", new { id=item.Id }) |
             @Html.ActionLink("Insp", "AnalyzeFileDisk", new { id=item.Id }) |
             @Html.ActionLink("Del", "Delete", new { id=item.Id }) | 
-            @Html.ActionLink("B2D", "DownloadBlob", new { id=item.Id }) |
-            @Html.ActionLink("D2B", "UploadBlob", new { id=item.Id }) 
         </td>
     </tr>
 }

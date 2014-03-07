@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using JassWeather.Models;
 using Microsoft.WindowsAzure.Storage.Blob;
+using System.IO;
 
 namespace JassWeather.Controllers
 {
@@ -23,12 +24,13 @@ namespace JassWeather.Controllers
         {
 
             List<CloudBlockBlob> blobs = apiCaller.listBlobs(containerName);
+            ViewBag.containerName = containerName;
             return View(blobs);
         }
 
         public ActionResult ShowDashBoardExt()  //list container
         {
-            Session["StorageConnectionString"] = "StorageConnectionStringExt";
+            Session["StorageConnectionString"] = "StorageConnectionStringProd";
             apiCaller = new JassWeatherAPI(HttpContext.Server.MapPath("~/App_Data"), (string)Session["StorageConnectionString"]);
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
             return View("ShowDashBoard",variableStatusModel);
@@ -36,7 +38,7 @@ namespace JassWeather.Controllers
 
         public ActionResult ShowDashBoard()  //list container
         {
-            Session["StorageConnectionString"] = "StorageConnectionString";
+            Session["StorageConnectionString"] = "StorageConnectionStringDev";
             apiCaller = new JassWeatherAPI(HttpContext.Server.MapPath("~/App_Data"), (string)Session["StorageConnectionString"]);
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
             return View(variableStatusModel);
@@ -78,8 +80,16 @@ namespace JassWeather.Controllers
 
         public ActionResult ShowAppData()
         {
+            List<string> files = new List<string>();
+            try
+            {
+                files = apiCaller.listFiles_in_AppData();
+            }
+            catch (Exception e)
+            {
+                ViewBag.Message = e.Message;
 
-            List<string> files = apiCaller.listFiles_in_AppData(HttpContext.Server.MapPath("~/App_Data"));
+            }
             return View(files);
         }
 
@@ -113,6 +123,15 @@ namespace JassWeather.Controllers
             return View();
         }
 
+        public ActionResult DeleteBlob(string name, string containerName)
+        {
+
+            string result = apiCaller.deleteBlob(name, containerName);
+            ViewBag.Message = result;
+
+            return View();
+        }
+
         public ActionResult DeleteFromAppData(string fileName)
         {
             bool result = apiCaller.deleteFile_in_AppData(fileName);
@@ -122,8 +141,8 @@ namespace JassWeather.Controllers
 
         public ActionResult CleanAppData()
         {
-            bool result = apiCaller.deleteAll();
-            List<string> files = apiCaller.listFiles_in_AppData(HttpContext.Server.MapPath("~/App_Data"));
+            bool result = apiCaller.cleanAppData();
+            List<string> files = apiCaller.listFiles_in_AppData();
             return View(files);
         }
 

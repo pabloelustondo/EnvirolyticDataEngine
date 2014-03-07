@@ -30,5 +30,7 @@ namespace JassWeather.Models
 
         public DbSet<JassBuilder> JassBuilders { get; set; }
 
+        public DbSet<JassBuilderLog> JassBuilderLogs { get; set; }
+
     }
 }

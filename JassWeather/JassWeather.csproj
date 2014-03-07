@@ -239,8 +239,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\AdminAPIController.cs" />
     <Compile Include="Controllers\BlobController.cs" />
     <Compile Include="Controllers\BuilderController.cs" />
+    <Compile Include="Controllers\BuilderLogController.cs" />
     <Compile Include="Controllers\GridController.cs" />
     <Compile Include="Controllers\JassController.cs" />
     <Compile Include="Controllers\MeasureController.cs" />
@@ -441,10 +443,31 @@
     <Compile Include="Migrations\201402280440353_builder-year-end.Designer.cs">
       <DependentUpon>201402280440353_builder-year-end.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201403031438234_builder-log.cs" />
+    <Compile Include="Migrations\201403031438234_builder-log.Designer.cs">
+      <DependentUpon>201403031438234_builder-log.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403031637547_label.cs" />
+    <Compile Include="Migrations\201403031637547_label.Designer.cs">
+      <DependentUpon>201403031637547_label.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403031909212_urlTemplate.cs" />
+    <Compile Include="Migrations\201403031909212_urlTemplate.Designer.cs">
+      <DependentUpon>201403031909212_urlTemplate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403061559058_builder_log_has_optional_builder.cs" />
+    <Compile Include="Migrations\201403061559058_builder_log_has_optional_builder.Designer.cs">
+      <DependentUpon>201403061559058_builder_log_has_optional_builder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403061656257_sample-year.cs" />
+    <Compile Include="Migrations\201403061656257_sample-year.Designer.cs">
+      <DependentUpon>201403061656257_sample-year.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
     <Compile Include="Models\APIRequestSet.cs" />
+    <Compile Include="Models\JassBuilderLog.cs" />
     <Compile Include="Models\JassDashVariable.cs" />
     <Compile Include="Models\JassBuilder.cs" />
     <Compile Include="Models\JassGrid.cs" />
@@ -531,18 +554,16 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Quick guide to get historical environmental sample information into Matlab.pdf" />
     <Content Include="Content\Quick guide to use Envirolytic dashboard to understand which information is available.pdf" />
-    <None Include="Properties\PublishProfiles\Default Settings %282%29.pubxml" />
-    <None Include="Properties\PublishProfiles\Default Settings %283%29.pubxml" />
-    <None Include="Properties\PublishProfiles\Default Settings.pubxml" />
-    <None Include="Properties\PublishProfiles\envirojass - FTP.pubxml" />
-    <None Include="Properties\PublishProfiles\envirojass - Web Deploy.pubxml" />
-    <None Include="Properties\PublishProfiles\envirolytic - FTP %282%29.pubxml" />
-    <None Include="Properties\PublishProfiles\envirolytic - FTP %283%29.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - FTP.pubxml" />
-    <None Include="Properties\PublishProfiles\envirolytic - Web Deploy %282%29.pubxml" />
-    <None Include="Properties\PublishProfiles\envirolytic - Web Deploy %283%29.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - Web Deploy.pubxml" />
-    <None Include="Properties\PublishProfiles\locahost.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolytic1 - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolytic1 - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolytic2 - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolytic2 - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolytic3 - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolytic3 - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolytic4 - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolytic4 - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
     <Content Include="Images\POC Explanation.png" />
     <Content Include="Scripts\jquery-1.8.2.js" />
@@ -673,6 +694,15 @@
     <Content Include="Views\Home\AboutUsers.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Builder\TestBuilder.cshtml" />
+    <Content Include="Views\Builder\ProcessBuilderAndUploadAll.cshtml" />
+    <Content Include="Views\BuilderLog\Index.cshtml" />
+    <Content Include="Views\BuilderLog\Details.cshtml" />
+    <Content Include="Views\BuilderLog\Create.cshtml" />
+    <Content Include="Views\BuilderLog\Edit.cshtml" />
+    <Content Include="Views\BuilderLog\Delete.cshtml" />
+    <Content Include="Views\Blob\DeleteBlob.cshtml" />
+    <Content Include="Views\Request\ProcessSource.cshtml" />
+    <Content Include="Views\Grid\maccvsnarr.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -815,6 +845,21 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201402280440353_builder-year-end.resx">
       <DependentUpon>201402280440353_builder-year-end.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403031438234_builder-log.resx">
+      <DependentUpon>201403031438234_builder-log.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403031637547_label.resx">
+      <DependentUpon>201403031637547_label.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403031909212_urlTemplate.resx">
+      <DependentUpon>201403031909212_urlTemplate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403061559058_builder_log_has_optional_builder.resx">
+      <DependentUpon>201403061559058_builder_log_has_optional_builder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403061656257_sample-year.resx">
+      <DependentUpon>201403061656257_sample-year.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

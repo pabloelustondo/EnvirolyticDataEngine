@@ -39,7 +39,9 @@ namespace JassWeather.Controllers
         public ActionResult ProcessBuilder(int id = 0)
         {
             JassBuilder jassbuilder = db.JassBuilders.Find(id);
-            var result = apiCaller.processBuilder(jassbuilder, 0, 0,false);
+            JassBuilderLog builderLog = apiCaller.createBuilderLog(jassbuilder, "ProcessBuilder_Start", "Test", "Start", DateTime.Now - DateTime.Now, true);
+
+            var result = apiCaller.processBuilder(jassbuilder, 0, 0, false, builderLog);
 
             if (jassbuilder == null)
             {
@@ -67,7 +69,10 @@ namespace JassWeather.Controllers
         public ActionResult ProcessBuilderAndUpload(int id = 0)
         {
             JassBuilder jassbuilder = db.JassBuilders.Find(id);
-            var result = apiCaller.processBuilder(jassbuilder, 0,0, true);
+
+            JassBuilderLog builderLog = apiCaller.createBuilderLog(jassbuilder, "ProcessBuilderAndUpload_Start", "Test", "Start", DateTime.Now - DateTime.Now, true);
+
+            var result = apiCaller.processBuilder(jassbuilder, 0, 0, true, builderLog);
 
             if (jassbuilder == null)
             {

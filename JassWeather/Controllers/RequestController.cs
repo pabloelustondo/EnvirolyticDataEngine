@@ -46,6 +46,23 @@ namespace JassWeather.Controllers
         //
         // GET: /Request/Details/5
 
+        public ActionResult ProcessSource(int id = 0)
+        {
+
+            APIRequest apiRequest = db.APIRequests.Find(id);
+            JassBuilder tempJassBuilder = new JassBuilder();
+
+            tempJassBuilder.APIRequest = apiRequest;
+          
+            JassBuilderLog builderLog = apiCaller.createBuilderLog(tempJassBuilder, "ProcessBuilder_Start", "Manual from Request Controller", "Start", new TimeSpan(), true);
+
+            var result = apiCaller.processSource(tempJassBuilder, 0, 0, false, false, builderLog);
+
+            ViewBag.Message = result;
+
+            return View();
+        }
+
         public ActionResult Download(int id = 0)
         {
             APIRequest apiRequest = db.APIRequests.Find(id);

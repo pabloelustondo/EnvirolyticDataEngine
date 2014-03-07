@@ -1,0 +1,141 @@
+﻿@model JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo
+@{
+    ViewBag.Title = "Compare_MACC_NARR_Grids";
+}
+
+<h2>Compare_MACC_NARR_Grids</h2>
+
+MaccPoints around CNTower:
+43.875,280.125 
+43.875,281.25 
+
+<p>
+    Distance between Macc points
+            @JassWeather.Models.JassWeatherAPI.HaversineDistance(43.875, 280.125, 43.875,281.25 );
+</p>
+
+
+<p>Narr Schema:  @Model.narrSchema</p>
+<p>Macc Schema:  @Model.maccSchema</p>
+
+@{
+    double home_lat = 43.686673;
+    double home_lon = -79.296806; 
+    double bbc_lat  = 43.672172;    
+    double bbc_lon = -79.279359;
+
+    double cnt_lat = 43.642599;
+    double cnt_lon = -79.387094;
+
+    double maxDistance = 100;
+}
+
+Test Distance:
+<p>Home: @home_lat , @home_lon </p>
+<p>BBC: @bbc_lat , @bbc_lon </p>
+
+<p>Distance1: @JassWeather.Models.JassWeatherAPI.HaversineDistance(home_lat,home_lon,bbc_lat,bbc_lon)</p>
+
+<p>Distance2: @JassWeather.Models.JassWeatherAPI.GetDistanceBetweenPoints(home_lat,home_lon,bbc_lat,bbc_lon)</p>
+
+
+------POINTS AROUND CN Tower
+@{int countNarrPointsAroundCNTower = 0; int countMaccPointsAroundCNTower = 0; }
+----------------------------MACC
+<table>
+@for (int lat = 0; lat < 161; lat++)   //161
+{
+    for (int lon = 0; lon < 320; lon++)  //320
+    { 
+        double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.macc_lat[lat], Model.macc_lon[lon]);
+        if (distanceToCNT < maxDistance)
+        {
+            countMaccPointsAroundCNTower++;
+        <tr>
+        <td>@Model.macc_lat[lat]<span>,</span>@Model.macc_lon[lon]</td>
+        </tr>
+        }
+    }
+}
+</table>
+
+@countMaccPointsAroundCNTower<br />
+---------------------------------NARR
+<table>
+@for (int y = 0; y < 277; y++)
+{
+    for (int x = 0; x < 349; x++)
+    {
+        double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.narr_lat[y, x], Model.narr_lon[y, x]);
+        double distancePoint1 = JassWeather.Models.JassWeatherAPI.HaversineDistance(43.875, 280.125, Model.narr_lat[y, x], Model.narr_lon[y, x]);
+        double distancePoint2 = JassWeather.Models.JassWeatherAPI.HaversineDistance(43.875, 281.25, Model.narr_lat[y, x], Model.narr_lon[y, x]);
+        if (distanceToCNT < maxDistance)
+        {
+            countNarrPointsAroundCNTower++;
+        <tr>
+        <td>@Model.narr_lat[y,x]<span>,</span>@Model.narr_lon[y,x]</td>
+                    <td>@distancePoint1</td>
+                    <td>@distancePoint2</td>
+                    <td>@(distancePoint1+distancePoint1)</td>
+        </tr>}
+    }
+}
+</table>
+
+@countNarrPointsAroundCNTower++<br />
+
+----------------------------
+<table>
+@for (int lat = 0; lat < 90; lat+=5)   //161
+{
+    for (int lon = 180; lon < 280; lon+=5)  //320
+    {
+        <tr>
+        <td>@Model.macc_lat[lat]<span>,</span>@Model.macc_lon[lon]</td>
+        </tr>
+    }
+}
+</table>
+--------------------------------------------------
+<table>
+@for (int y = 0; y < 277; y+=20)
+{
+    for (int x = 0; x < 349; x+=20)
+    {
+        if(@Model.narr_lon[y,x] < 0){
+        <tr>
+        <td>@Model.narr_lat[y,x]<span>,</span>@Model.narr_lon[y,x]</td>
+        </tr>}
+    }
+}
+</table>
+
+
+--------------GRID MAPP
+
+@{
+        var gc = JassWeather.Models.JassWeatherAPI.MapNarr2MaccGrid(Model);   
+}
+
+<table>
+
+@for (int y = 0; y < 277; y++)
+{
+    for (int x = 0; x < 349; x++)
+    {
+       double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.narr_lat[y, x], Model.narr_lon[y, x]);
+        if (distanceToCNT < maxDistance){
+        <tr>
+        <td>y: @y<span>,</span>x: @x</td>
+        <td>@Model.narr_lat[y,x]<span>,</span>@Model.narr_lon[y,x]</td>
+        <td>@gc.map[y,x].latitud<span>,</span>@gc.map[y,x].longitud</td>       
+        <td>@gc.map[y,x].distance</td>
+                    <td>@gc.map2[y,x].latitud<span>,</span>@gc.map2[y,x].longitud</td>       
+        <td>@gc.map2[y,x].distance</td>
+                    <td>@gc.map3[y,x].latitud<span>,</span>@gc.map3[y,x].longitud</td>       
+        <td>@gc.map3[y,x].distance</td>
+        </tr>}
+             }
+    }
+}
+</table>

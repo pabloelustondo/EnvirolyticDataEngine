@@ -10,7 +10,7 @@ using JassWeather.Models;
 namespace JassWeather.Controllers
 {
     [Authorize]
-    public class GridController : Controller
+    public class GridController : JassController
     {
         private JassWeatherContext db = new JassWeatherContext();
 
@@ -22,6 +22,15 @@ namespace JassWeather.Controllers
             var jassgrids = db.JassGrids.Include(j => j.JassPartition);
             return View(jassgrids.ToList());
         }
+
+        [AllowAnonymous]
+        public ActionResult maccvsnarr()
+        {
+            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.compareMaccNarrGrids("netcdf-web238-20140306020857-10515-0608.nc",
+                "ftp___ftp.cdc.noaa.gov_Datasets_NARR_pressure_air.201201.nc");
+            return View(result);
+        }
+
 
         //
         // GET: /Grid/Details/5

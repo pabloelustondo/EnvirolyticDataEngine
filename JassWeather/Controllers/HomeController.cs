@@ -11,6 +11,7 @@ using System.Net;
 using Microsoft.Research.Science.Data;
 using Microsoft.Research.Science.Data.Imperative;
 using Microsoft.Research.Science.Data.Azure;
+using System.Reflection;
 
 namespace JassWeather.Controllers
 {
@@ -29,6 +30,7 @@ namespace JassWeather.Controllers
 
         public ActionResult Index()
         {
+            var versionNyumber = Assembly.GetAssembly(typeof(JassController)).GetName().Version;
             return View();
         }
 

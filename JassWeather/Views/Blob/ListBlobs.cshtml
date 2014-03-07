@@ -32,12 +32,10 @@
          <td>
             @item.Properties.LastModified
         </td>
+        @if(User.IsInRole("Admin")){
         <td>
-            @Html.ActionLink("Del", "Delete", new { name=item.Name })
-        </td>
-         <td>
-            @Html.ActionLink("Sample", "SampleNetCDF", new { fileName=item.Name })
-        </td>
+            @Html.ActionLink("Del", "DeleteBlob", new { name=item.Name, containerName=ViewBag.containerName })
+        </td>}
          <td>
             @Html.ActionLink("Inspect", "SampleNetCDF", new { fileName=item.Name })
         </td>

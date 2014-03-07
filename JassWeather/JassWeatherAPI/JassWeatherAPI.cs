@@ -41,9 +41,13 @@ namespace JassWeather.Models
         public int levelLength { get; set; }
         public int yLength { get; set; }
         public int xLength { get; set; }
-        public double[, , ,] measure { get; set; }
-        public double  measureMax { get; set; }
-        public double  measureMin { get; set; }
+        public double? [, , ,] measure { get; set; }
+        public double[]  measureMax { get; set; }
+        public double[]  measureMin { get; set; }
+        public int[] minX { get; set; }
+        public int[] maxX { get; set; }
+        public int[] minY { get; set; }
+        public int[] maxY { get; set; }
         public string VariableName { get; set; }
         public MetadataDictionary variableMetadata { get; set; }
  
@@ -52,13 +56,17 @@ namespace JassWeather.Models
         {
             VariableName = variableNameIn;
             variableMetadata = variableMetadataIn;
-            measureMax = 0;
-            measureMin = 0;
+            measureMax = new double[levelLengthIn];
+            measureMin = new double[levelLengthIn];
+            minX = new int[levelLengthIn];
+            minY = new int[levelLengthIn];
+            maxX = new int[levelLengthIn];
+            maxY = new int[levelLengthIn];
             timeLength = timeLengthIn;
             levelLength = levelLengthIn;
             yLength = yLengthIn;
             xLength = xLengthIn;
-            measure = new double[timeLengthIn, levelLengthIn, yLengthIn, xLengthIn];
+            measure = new double?[timeLengthIn, levelLengthIn, yLengthIn, xLengthIn];
         }
     }
 
@@ -100,7 +108,6 @@ namespace JassWeather.Models
 
     public class JassWeatherAPI
     {
-        public JassBuilder builder;
         private JassWeatherContext db = new JassWeatherContext();
         public string AppDataFolder;
         public string storageConnectionString;
@@ -148,18 +155,18 @@ namespace JassWeather.Models
 
         }
 
-        public bool checkIfBlobExist(string fileName)
+        public bool checkIfBlobExist(string container, string fileName)
         {
             string connectionString = ConfigurationManager.AppSettings[storageConnectionString];
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            var blob = blobClient.GetContainerReference("ftp").GetBlockBlobReference(fileName);
+            var blob = blobClient.GetContainerReference(container).GetBlockBlobReference(fileName);
             Boolean fileOnBlob = blob.Exists();
 
             return fileOnBlob;
         }
 
-        public string processSource(APIRequest source, Boolean upload, Boolean overWrite)
+        public string processSource(JassBuilder builder, int year, int month, Boolean upload, Boolean overWrite, JassBuilderLog builderAllLog)
         {
             //this method will be idempotent... if nothing to do does nothing.
             //this method is to help processBulder and will produce the file on disk
@@ -168,23 +175,26 @@ namespace JassWeather.Models
 
             //Check whether the file is on disk
 
-            string Message = "";
+                APIRequest source = builder.APIRequest;
+                string url = replaceUrlPlaceHolders(source.url, year, month);
 
-            try
-            {
-
-                string fileName = safeFileNameFromUrl(source.url);
+                string fileName = safeFileNameFromUrl(url);
                 string filePath = AppDataFolder + "/" + fileName;
                 Boolean fileOnDisk = File.Exists(filePath);
 
                 //check if the file is on storage
 
-                Boolean fileOnBlob = checkIfBlobExist(fileName);
+                Boolean fileOnBlob = checkIfBlobExist("ftp",fileName);
+
+                string LogMessage = "fileOnBlob: " + fileOnBlob + "fileOnDisk: " + fileOnDisk;
+                DateTime processSourceStartime = DateTime.Now;
+                JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderAllLog, builder, year, month, "processSource_AfterCheck", "Test", LogMessage, new TimeSpan(), true);
+
 
                 if (!fileOnDisk)
                 {
 
-                    //check if the file is on storage
+                    //check if the file is on blob storage
                     if (fileOnBlob)
                     {
                         DownloadFile2DiskIfNotThere(fileName, filePath);
@@ -194,7 +204,7 @@ namespace JassWeather.Models
                         //This is the case where we have to really download the file form the actual source
                         //For the moment I am assuming that this is FTP-netCDF... 
 
-                        get_big_NetCDF_by_ftp2(source.url, AppDataFolder);
+                        get_big_NetCDF_by_ftp2(url, AppDataFolder);
 
                     }
                 }
@@ -204,13 +214,169 @@ namespace JassWeather.Models
                 {
                     uploadBlob("ftp", fileName, filePath);
                 }
-            }
-            catch (Exception e)
+
+                JassBuilderLog childBuilderLog2 = createBuilderLogChild(builderAllLog, builder, year, month, "processSource_End", "Test", LogMessage, DateTime.Now - processSourceStartime, true);
+
+            return filePath; 
+        }
+
+
+
+        public static double HaversineDistance(double firstLat, double firstLong, double secondLat, double secondLong)
+        {
+            double dLat = toRadian(secondLat - firstLat);
+            double dLon = toRadian(secondLong - firstLong);
+            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+            Math.Cos(toRadian(firstLat)) * Math.Cos(toRadian(secondLat)) *
+            Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+            double c = 2 * Math.Asin(Math.Min(1, Math.Sqrt(a)));
+            double d = 6371 * 2 * Math.Asin(Math.Min(1, Math.Sqrt(a)));
+            return d; 
+	    }
+
+        public static double measureAtLocation(double firstLat, double firstLong){
+
+            //this function will return the value on the macc grid
+            return 0;
+
+        }
+
+        public class JassMaccNarrGridsCombo
+        {
+            public string narrSchema { get; set; }
+            public string maccSchema { get; set; }
+
+            //schema2string
+
+            public Single[] macc_lat { get; set; }
+            public Single[] macc_lon { get; set; }
+
+            public Single[,] narr_lon { get; set; }
+            public Single[,] narr_lat { get; set; }
+
+
+            public int narrXMax = 349;
+            public int narrYMax = 277;
+
+            public int maccLatMin = 0;
+            public int maccLatMax = 90;
+            public int maccLonMin = 180;
+            public int maccLonMax = 280;
+
+            public JassGridLocation[,] map = new JassGridLocation[277, 349];
+            public JassGridLocation[,] map2 = new JassGridLocation[277, 349];
+            public JassGridLocation[,] map3 = new JassGridLocation[277, 349];
+            public JassGridLocation[,] map4 = new JassGridLocation[277, 349];
+        }
+
+        public class JassGridLocation
+        {
+            public int lat { get; set; }
+            public int lon { get; set; }
+            public double latitud { get; set; }
+            public double longitud { get; set; }
+            public double distance { get; set; }
+        }
+
+        public static JassMaccNarrGridsCombo MapNarr2MaccGrid(JassMaccNarrGridsCombo gc)
+        {
+
+            double minDistance;
+            for (int y = 0; y < gc.narrYMax; y ++)
+            //for (int y = 130; y < 131; y++)
             {
-                Message = e.Message;
+                for (int x = 0; x < gc.narrXMax; x ++)
+                //for (int x = 240; x < 241; x++)
+                {
+                    minDistance = 200;
+                    for (int lat = gc.maccLatMin; lat < gc.maccLatMax; lat++)   //161
+                    {
+                         for (int lon = gc.maccLonMin; lon < gc.maccLonMax; lon++)  //320
+                         {
+                               double distance = HaversineDistance(gc.macc_lat[lat], gc.macc_lon[lon], gc.narr_lat[y, x], gc.narr_lon[y, x]);
+                               if (distance < minDistance) { 
+                                   minDistance = distance;
+                                   gc.map4[y, x] = gc.map3[y, x];
+                                   gc.map3[y, x] = gc.map2[y, x];
+                                   gc.map2[y, x] = gc.map[y, x];
+                                   gc.map[y, x] = new JassGridLocation();
+                                   gc.map[y, x].distance = distance;
+                                   gc.map[y, x].lat = lat;
+                                   gc.map[y, x].lon = lon;
+                                   gc.map[y, x].latitud = gc.macc_lat[lat];
+                                   gc.map[y, x].longitud = gc.macc_lon[lon];
+                               }
+                         }
+                    }
+                }
             }
 
-            return Message; 
+            return gc;
+        }
+
+        public static double GetDistanceBetweenPoints(double lat1, double long1, double lat2, double long2)
+        {
+            double distance = 0;
+
+            double dLat = (lat2 - lat1) / 180 * Math.PI;
+            double dLong = (long2 - long1) / 180 * Math.PI;
+
+            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2)
+                        + Math.Cos(lat2) * Math.Sin(dLong / 2) * Math.Sin(dLong / 2);
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+
+            //Calculate radius of earth
+            // For this you can assume any of the two points.
+            double radiusE = 6378135; // Equatorial radius, in metres
+            double radiusP = 6356750; // Polar Radius
+
+            //Numerator part of function
+            double nr = Math.Pow(radiusE * radiusP * Math.Cos(lat1 / 180 * Math.PI), 2);
+            //Denominator part of the function
+            double dr = Math.Pow(radiusE * Math.Cos(lat1 / 180 * Math.PI), 2)
+                            + Math.Pow(radiusP * Math.Sin(lat1 / 180 * Math.PI), 2);
+            double radius = Math.Sqrt(nr / dr);
+
+            //Calaculate distance in metres.
+            distance = radius * c;
+            return distance;
+        }
+
+        public static double toRadian(double val)
+        {
+            return (Math.PI / 180) * val;
+        }
+
+
+        public JassMaccNarrGridsCombo compareMaccNarrGrids(string fileNameMacc, string fileNameNarr)
+        {
+           
+            
+                JassMaccNarrGridsCombo viewModel = new JassMaccNarrGridsCombo();
+                string maccFile = AppDataFolder + "/" + fileNameMacc;
+                string narrFile = AppDataFolder + "/" + fileNameNarr;
+                using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open")){
+                using (var maccDataSet = DataSet.Open(maccFile + "?openMode=open")){
+
+                    var narrSchema = narrDataSet.GetSchema();                   
+                    var maccSchema = maccDataSet.GetSchema();
+
+                    viewModel.narrSchema = schema2string(narrSchema);
+                    viewModel.maccSchema = schema2string(maccSchema);
+
+                    double[] narr_time = narrDataSet.GetData<double[]>("time");
+                    Int32[] macc_time = maccDataSet.GetData<Int32[]>("time");
+
+                    viewModel.macc_lat = maccDataSet.GetData<Single[]>("latitude");
+                    viewModel.macc_lon = maccDataSet.GetData<Single[]>("longitude");
+
+                    viewModel.narr_lon = narrDataSet.GetData<Single[,]>("lon");
+                    viewModel.narr_lat = narrDataSet.GetData<Single[,]>("lat");        
+                
+                }
+                }
+
+                return viewModel;
         }
 
 
@@ -337,35 +503,86 @@ namespace JassWeather.Models
             return Message;
         }
 
-        public string replaceUrlPlaceHolders(string url, int year, int month)
+        public string replaceUrlPlaceHolders(string urlTemplate, int year, int month)
         {
             string yearString = "" + year;
+            string url = String.Copy(urlTemplate);
 
-            url.Replace("$YYYY", yearString);
+            url = url.Replace("$YYYY", yearString);
 
             if (month != 0)
             {
                 string monthString = "" + month;
                 if (month < 10) monthString = "0" + month;
 
-                url.Replace("$MM", monthString);
+                url = url.Replace("$MM", monthString);
             }
             return url;
 
         }
 
+        public JassBuilderLog createBuilderLog(JassBuilder builder, string eventType, string Label, string Message, TimeSpan span, Boolean success)
+        {
+            JassBuilderLog jassBuilderLog = new JassBuilderLog();
+
+            jassBuilderLog.JassBuilderID = (builder.JassBuilderID > 0) ? builder.JassBuilderID : (int?)null;
+            jassBuilderLog.EventType = eventType;
+            jassBuilderLog.Label = eventType;
+            jassBuilderLog.startTotalTime = DateTime.Now;
+            jassBuilderLog.Message = Message;
+            jassBuilderLog.spanTotalTime = span;
+            jassBuilderLog.Success = success;
+
+            db.JassBuilderLogs.Add(jassBuilderLog);
+            db.SaveChanges();
+
+            return jassBuilderLog;
+        }
+
+        public JassBuilderLog createBuilderLogChild(JassBuilderLog parentLog, JassBuilder builder, int year, int month, string eventType, string Label, string Message, TimeSpan span, Boolean success)
+        {
+            JassBuilderLog jassBuilderLog = new JassBuilderLog();
+
+            jassBuilderLog.JassBuilderID = (builder.JassBuilderID > 0) ? builder.JassBuilderID : (int?)null;
+            jassBuilderLog.ParentJassBuilderLogID = (int)parentLog.JassBuilderLogID;
+            jassBuilderLog.year = year;
+            jassBuilderLog.month = month;
+            jassBuilderLog.EventType = eventType;
+            jassBuilderLog.Label = eventType;
+            jassBuilderLog.startTotalTime = DateTime.Now;
+            jassBuilderLog.Message = Message;
+            jassBuilderLog.spanTotalTime = span;
+            jassBuilderLog.Success = success;
+
+
+            db.JassBuilderLogs.Add(jassBuilderLog);
+            db.SaveChanges();
+
+            return jassBuilderLog;
+        }
+
+
         public string processBuilderAll(JassBuilder builder, Boolean upload)
         {
+            JassBuilderLog builderLog = createBuilderLog(builder, "processBuilderAll_Start", "Test", "Start", DateTime.Now - DateTime.Now, true);
+
+            int yearLog = (builder.year != null)?(int)builder.year: 1800;
+            int monthLog = (builder.month != null) ? (int)builder.month : 0;
+
+            JassBuilderLog builderLog2 = createBuilderLogChild(builderLog, builder, yearLog, monthLog, "processBuilder_Start", "Test", "", new TimeSpan(), true);
+
 
             string Message = "process builder sucessfuly";
-            long StartingMemory;
+            string MessageBuilder = "";
             DateTime StartingTime = DateTime.Now;
-            long AfterOpenMemory;
-            long AfterLoadMemory;
             DateTime EndingTime = DateTime.Now;
-            TimeSpan TotalDelay;
             JassBuilder jassbuilder = db.JassBuilders.Find(builder.JassBuilderID);
             DataSet dataset3=null;
+
+            //here start the logs for the whole thing
+
+
+
             try
             {
                 if (builder.yearEnd == null) builder.yearEnd=builder.year;
@@ -378,17 +595,48 @@ namespace JassWeather.Models
                 {
                     for (int month = (int)builder.month; month < (int)builder.monthEnd + 1; month++)
                     {
+                        //here is where we start the real builder
+                        DateTime startedAt = DateTime.Now;
+                        JassBuilderLog childBuilderLog0 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_Start", "Test", "", startedAt - startedAt, true);
 
-                        Message += "|" + year + "-" + month;
+                        try
+                        {
+                            MessageBuilder = processBuilder(builder, year, month, upload, builderLog);
+
+
+                            JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_End", "Test", "", DateTime.Now -startedAt, true);
+
+                            Message += "  processBuilder(" + year + ",  " + month + ") =>" + MessageBuilder;
+                        }
+                        catch (Exception e)
+                        {
+
+                            JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_End", "Test", e.Message, DateTime.Now - startedAt, false);
+
+                        }
+                        finally
+                        {
+                            //clean disk
+                            cleanAppData();
+                            int filesInAppData = Directory.GetFiles(AppDataFolder).Count();
+                            JassBuilderLog childBuilderLog10 = createBuilderLogChild(builderLog, builder, year, month, "processBuilderAll_CleanAppData", "Test", "filesInAppData: " + filesInAppData, new TimeSpan(), true);
+
+                        }
 
                     }//END MONTH
                 }
                 //end YEAR
 
+                JassBuilderLog childBuilderLog3 = createBuilderLogChild(builderLog, builder, (int)builder.yearEnd + 1, (int)builder.monthEnd + 1, "processBuilder_End", "Test", "", DateTime.Now - StartingTime, true);
+
+
             }
 
             catch (Exception e)
             {
+                JassBuilderLog builderLogEx = createBuilderLog(builder, "processBuilderAll_Start", "Test", e.Message, DateTime.Now - StartingTime, false);
+
+
                 if (dataset3 != null)
                 {
                     dataset3.Dispose();
@@ -408,7 +656,7 @@ namespace JassWeather.Models
             return Message; 
         }
 
-        public string processBuilder(JassBuilder builder, int year, int month, Boolean upload)
+        public string processBuilder(JassBuilder builder, int year, int month, Boolean upload, JassBuilderLog builderAllLog)
         {
 
             string Message = "process builder sucessfuly";
@@ -420,6 +668,7 @@ namespace JassWeather.Models
             TimeSpan TotalDelay;
             JassBuilder jassbuilder = db.JassBuilders.Find(builder.JassBuilderID);
             DataSet dataset3 = null;
+
             try
             {
                 //Let try to re-create the file...
@@ -430,12 +679,20 @@ namespace JassWeather.Models
                 string timestamp = JassWeatherAPI.fileTimeStamp();
 
                 int entriesInDay = builder.JassGrid.Timesize;
-                processSource(builder.APIRequest, upload, false);
 
-                string url = builder.APIRequest.url;
-                string inputFile1 = AppDataFolder + "/" + safeFileNameFromUrl(url);
+                DateTime startTimeProcessSource = DateTime.Now;
+                JassBuilderLog childBuilderLog0 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_BeforeProcessSource", "Test", "", startTimeProcessSource - startTimeProcessSource, true);
+
+                string inputFile1 = processSource(builder, year, month, upload, false, builderAllLog);
+
+                JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterProcessSource", "Test", "", DateTime.Now - startTimeProcessSource, true);
+
                 using (var dataset1 = DataSet.Open(inputFile1 + "?openMode=open"))
                 {
+                    DateTime startTimeAfterOpenFile = DateTime.Now;
+                    JassBuilderLog childBuilderLog2 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterOpenFile", "Test", "", startTimeProcessSource - startTimeProcessSource, true);
+
+
                     var schema1 = dataset1.GetSchema();
                     MetadataDictionary metaDataSet = dataset1.Metadata;
 
@@ -472,8 +729,8 @@ namespace JassWeather.Models
 
 
                     string dayString;
-                    int in_year = (builder.year != null) ? (int)builder.year : DateTime.Now.Year;
-                    int in_month = (builder.month != null) ? (int)builder.month : 1;
+                    int in_year = (year != null) ? (int)year : DateTime.Now.Year;
+                    int in_month = (month != null) ? (int)month : 1;
                     int in_day = 1;
                     string variableName = builder.JassVariable.Name;
 
@@ -499,8 +756,12 @@ namespace JassWeather.Models
                         string outputFileName = fileNameBuilderByDay(variableName, in_year, in_month, in_day) + ".nc";
 
                         string outputFilePath = AppDataFolder + "/" + outputFileName;
+
+                        JassBuilderLog childBuilderLog3 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_BeforeOpenWrittingFile", "Test", dayString, startTimeProcessSource - startTimeProcessSource, true);
+
                         using (dataset3 = DataSet.Open(outputFilePath + "?openMode=create"))
                         {
+                            JassBuilderLog childBuilderLog4 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterOpenWrittingFile", "Test", dayString, startTimeProcessSource - startTimeProcessSource, true);
 
                             foreach (var attr in dataset1.Metadata)
                             {
@@ -613,15 +874,19 @@ namespace JassWeather.Models
                     jassbuilder.spanTotalTime = TotalTime;
                     jassbuilder.Status = JassBuilderStatus.Success;
 
-
                     db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
                     db.SaveChanges();
                     //end using
                 }
+
+                JassBuilderLog childBuilderLog10 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_End", "Test", "", DateTime.Now - startTimeProcessSource, true);
+
             }
 
             catch (Exception e)
             {
+                JassBuilderLog childBuilderLog9 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_Exception", "Test", e.Message, new TimeSpan(), true);
+
                 if (dataset3 != null)
                 {
                     dataset3.Dispose();
@@ -636,7 +901,6 @@ namespace JassWeather.Models
                 jassbuilder.Status = JassBuilderStatus.Failure;
                 jassbuilder.Message = e.Message;
             }
-
 
             return Message;
         }
@@ -928,19 +1192,21 @@ namespace JassWeather.Models
         request.Credentials = new NetworkCredential("anonymous", "pasword");
         FtpWebResponse response = (FtpWebResponse)request.GetResponse();
         Stream responseStream = response.GetResponseStream();
-        FileStream file = File.Create(downloadedFilePath);
-        byte[] buffer = new byte[32 * 1024];
-        int read;
-        //reader.Read(
-
-        while ((read = responseStream.Read(buffer, 0, buffer.Length)) > 0)
+        using (FileStream file = File.Create(downloadedFilePath))
         {
-            file.Write(buffer, 0, read);
-        }
+            byte[] buffer = new byte[32 * 1024];
+            int read;
+            //reader.Read(
 
-        file.Close();
-        responseStream.Close();
-        response.Close();
+            while ((read = responseStream.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                file.Write(buffer, 0, read);
+            }
+
+            file.Close();
+            responseStream.Close();
+            response.Close();
+        }
 
 
                 Message = "OK net CDF downloaded Variables in Schema: " + Message;
@@ -1656,7 +1922,7 @@ namespace JassWeather.Models
         }
 
 
-        public string deleteBlob_in_envirolytics(string blobName)
+        public string deleteBlob(string blobName, string containerName)
         {
 
 
@@ -1667,7 +1933,7 @@ namespace JassWeather.Models
 
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             // Retrieve a reference to a container. 
-            CloudBlobContainer container = blobClient.GetContainerReference("envirolytic");
+            CloudBlobContainer container = blobClient.GetContainerReference(containerName);
 
             CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
 
@@ -1741,12 +2007,12 @@ namespace JassWeather.Models
 
         #endregion Blob Operations
 
-        public List<string> listFiles_in_AppData(string appDataFolder)
+        public List<string> listFiles_in_AppData()
         {
             List<string> response = new List<string>();
 
 
-            string[] array1 = Directory.GetFiles(@appDataFolder);
+            string[] array1 = Directory.GetFiles(AppDataFolder);
 
             return array1.ToList();
         
@@ -1924,6 +2190,10 @@ namespace JassWeather.Models
 
                 string outPutString = schema2string(schema1);
 
+                for (int ll = 0; ll < level.Length; ll++) { 
+                    dayGridValues.measureMin[ll] = add_offset + scale_factor * 32768;
+                    dayGridValues.measureMax[ll] = add_offset + scale_factor * (-32768); }
+
                 if (hasLevel)
                 {
                     Int16[, , ,] values = dataset1.GetData<Int16[, , ,]>(keyVariable.Name);
@@ -1935,11 +2205,24 @@ namespace JassWeather.Models
                             {
                                 for (int xx = 0; xx < x.Length; xx++)
                                 {
-                                    if (values[tt, ll, yy, xx] != missing_value && values[tt, ll, yy, xx] != FillValue)
+                                    if (values[tt, ll, yy, xx] != missing_value && 
+                                        values[tt, ll, yy, xx] != FillValue &&
+                                        values[tt, ll, yy, xx] != 0)
                                     {
                                         dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, ll, yy, xx];
-                                        if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax) { dayGridValues.measureMax = dayGridValues.measure[tt, ll, yy, xx]; }
-                                        if (dayGridValues.measure[tt, ll, yy, xx] < dayGridValues.measureMin) { dayGridValues.measureMin = dayGridValues.measure[tt, ll, yy, xx]; }
+                                        if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax[ll]) { 
+                                            dayGridValues.measureMax[ll] = (double) dayGridValues.measure[tt, ll, yy, xx];
+                                            dayGridValues.maxX[ll] = xx; dayGridValues.maxY[ll] = yy; 
+                                        }
+                                        if (dayGridValues.measure[tt, ll, yy, xx] < dayGridValues.measureMin[ll]) { 
+                                            dayGridValues.measureMin[ll] = (double) dayGridValues.measure[tt, ll, yy, xx];
+                                            dayGridValues.minX[ll] = xx; dayGridValues.minY[ll] = yy; 
+                                        }
+                                    }
+
+                                    if (dayGridValues.measure[tt, ll, yy, xx] < 195)
+                                    {
+                                        var crap = 1;
                                     }
                                 }
                             }
@@ -1957,11 +2240,24 @@ namespace JassWeather.Models
                             {
                                 for (int xx = 0; xx < x.Length; xx++)
                                 {
-                                    if (values[tt, yy, xx] != missing_value && values[tt, yy, xx] != FillValue)
+                                    if (values[tt, yy, xx] != missing_value && 
+                                        values[tt, yy, xx] != FillValue &&
+                                        values[tt, yy, xx] != 0)
                                     {
                                         dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, yy, xx];
-                                        if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax) { dayGridValues.measureMax = dayGridValues.measure[tt, ll, yy, xx]; }
-                                        if (dayGridValues.measure[tt, ll, yy, xx] < dayGridValues.measureMin) { dayGridValues.measureMin = dayGridValues.measure[tt, ll, yy, xx]; }
+                                        if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax[ll]) { 
+                                            dayGridValues.measureMax[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
+                                            dayGridValues.maxX[ll] = xx; dayGridValues.maxY[ll] = yy; 
+                                        }
+                                        if (dayGridValues.measure[tt, ll, yy, xx] < dayGridValues.measureMin[ll]) { 
+                                            dayGridValues.measureMin[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
+                                            dayGridValues.minX[ll ]= xx; dayGridValues.minY[ll] = yy; 
+                                        }
+                                    }
+
+                                    if (dayGridValues.measure[tt, ll, yy, xx] < 195)
+                                    {
+                                        var crap = 1;
                                     }
                                 }
                             }
@@ -2019,7 +2315,7 @@ namespace JassWeather.Models
              return true;
         }
 
-        public bool deleteAll()
+        public bool cleanAppData()
         {
             foreach(string fileName in Directory.GetFiles(AppDataFolder)){
                 File.Delete(fileName);
@@ -2071,6 +2367,39 @@ namespace JassWeather.Models
 
             return true;
         }
+
+        #region External API
+
+
+
+        public class ENIResponse<T>
+        {
+            public T Data;
+            public Boolean Status;
+            public string Message;
+        }
+
+        public class ENIVariable
+        {
+            public string Name;           
+        }
+
+        public ENIResponse<List<ENIVariable>> ENIGetAllVariables()
+        {
+            List<CloudBlobContainer> listOfContainers = listContainers();
+
+            var response = new ENIResponse<List<ENIVariable>>();
+
+            foreach (var container in listOfContainers)
+            {
+                response.Data.Add(new ENIVariable { Name = container.Name });
+            }
+
+            return response;
+        }
+
+        #endregion
+
 
     }
 }

@@ -11,13 +11,19 @@ namespace JassWeather.Models
     {
         public int Id { get; set; }
         public int APIRequestSetId { get; set; }
-
-
         
         public virtual APIRequestSet APIRequestSet { get; set; }
 
         [DataType(DataType.MultilineText)]
         public string url { get; set; }
+
+        public int? sampleYear { get; set; }
+        public int? sampleMonth { get; set; }
+
+        [DataType(DataType.MultilineText)]
+        public string urlTemplate { get; set; }
+
+
         public string name { get; set; }
         public string status { get; set; }
 

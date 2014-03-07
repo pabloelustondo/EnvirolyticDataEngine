@@ -1,18 +1,28 @@
 ﻿<!DOCTYPE html>
+        @{
+            var versionNumber = System.Reflection.Assembly.GetAssembly(typeof(JassWeather.Controllers.JassController)).GetName().Version;
+            string serverNameURL = Request.Url.ToString();
+            int dotIndex = serverNameURL.IndexOf(".");
+            string serverName = (dotIndex>-1)?serverNameURL.Substring(0, dotIndex):"localhost";
+            serverName = serverName.Replace("http://", "");
+            string websiteTitle = "Envirolytic Data Engine Dashboard (" + serverName + ")";
+            
+         }
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>@ViewBag.Title - Envirolytic Data Engine Dashboard</title>
+        <title>@websiteTitle</title>
         <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <meta name="viewport" content="width=device-width" />
         @Styles.Render("~/Content/css")
         @Scripts.Render("~/bundles/modernizr")
     </head>
     <body>
+
         <header>
             <div class="content-wrapper">
                 <div class="float-left">
-                    <p class="site-title">@Html.ActionLink("Envirolytic Data Engine Dashboard", "Index", "Home")</p>
+                    <p class="site-title">@Html.ActionLink(websiteTitle, "maccvsnarr", "Grid")</p>
                 </div>
                 <div class="float-right">
                     <section id="login">
@@ -21,15 +31,18 @@
                     <nav>
                      
                         <ul id="menu">
-                            <li>@Html.ActionLink("About", "AboutUsers", "Home")</li> 
+                            @if(!Request.IsAuthenticated){
+                            <li>@Html.ActionLink("About", "AboutUsers", "Home")</li>
+                            } else {
+                                  <li>@Html.ActionLink("About", "Index", "Home")</li>
+                            } 
                             <li>@Html.ActionLink("Dashboard", "ShowDashBoardExt", "Blob")</li>   
    
                            
                                @if(User.IsInRole("Envirolytic")){  
-                            <li>@Html.ActionLink("Dashboard(Int)", "ShowDashBoard", "Blob")</li>   
+                            <li>@Html.ActionLink("Dashboard(Dev)", "ShowDashBoard", "Blob")</li>   
                                }
-                               @if(User.IsInRole("Admin")){  
-                            <li>@Html.ActionLink("About(Int)", "About", "Home")</li>                   
+                               @if(User.IsInRole("Admin")){                  
                             <li>@Html.ActionLink("Sources", "Index", "RequestSet")</li>
                             <li>@Html.ActionLink("Builders", "Index", "Builder")</li>
                             <li>@Html.ActionLink("Queries", "Index", "Measure")</li>
@@ -38,6 +51,7 @@
                             <li>@Html.ActionLink("Partitions", "Index", "Partition")</li>
                             <li>@Html.ActionLink("Blobs", "Index", "Blob")</li>
                             <li>@Html.ActionLink("Disk", "ShowAppData", "Blob")</li>
+                            <li>@Html.ActionLink("Logs", "Index", "BuilderLog")</li>
                             <li>@Html.ActionLink("Tests", "Index", "Test")</li>
                                }
                         </ul>
@@ -54,7 +68,7 @@
         <footer>
             <div class="content-wrapper">
                 <div class="float-left">
-                    <p>&copy; @DateTime.Now.Year - Envirolytic Data Engine Dashboard</p>
+                    <p>&copy; @DateTime.Now.Year - @websiteTitle  (@versionNumber)</p>
                 </div>
             </div>
         </footer>

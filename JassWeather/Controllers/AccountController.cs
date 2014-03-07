@@ -15,7 +15,7 @@ namespace JassWeather.Controllers
 {
     [Authorize]
     [InitializeSimpleMembership]
-    public class AccountController : Controller
+    public class AccountController : JassController
     {
         //
         // GET: /Account/Login
