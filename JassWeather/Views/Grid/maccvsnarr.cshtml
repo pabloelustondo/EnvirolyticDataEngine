@@ -3,20 +3,27 @@
     ViewBag.Title = "Compare_MACC_NARR_Grids";
 }
 
-<h2>Compare_MACC_NARR_Grids</h2>
+<h2>Testing the Map From Narr to Macc</h2>
 
-MaccPoints around CNTower:
-43.875,280.125 
-43.875,281.25 
-
-<p>
-    Distance between Macc points
-            @JassWeather.Models.JassWeatherAPI.HaversineDistance(43.875, 280.125, 43.875,281.25 );
+<p>This page is a test to verify our Narr to Macc mapping function. The is ideas is to use this function to calculate a value for each Narr grid 
+    point based on the value of the close points in the Macc grid. 
+   Technically, the function, called "MapNarr2MaccGrid", will take and return a structure of the class "MaccNarrGridsCombo"
+   that contains, at least, both Narr and Macc grid represented as arrays that map points (y,x) into (latitud,longitud). 
+   Those arrays come in the netCDF files.
+   The algorithm will create another array 'map(x,y)' that for each (x,y) in the Narr grid will give the closest points in the Macc grid.
+   Closeness is calculated using the Haversine method.
+   In order to allow other algorithms to calcuate interpolation the structure will also contain other 4 maps, map2, map3 and map4 that contains
+   the second, thirds and fourth closest points in the Macc grid. For references purposes I show the original schema of the Narr and Macc netCDf files bellow.
 </p>
+<p>Narr Grid Schema:  @Model.narrSchema</p>
+<p>Macc Grid Schema:  @Model.maccSchema</p>
+<p>Both to keep the test at a reasonable size and to allow visual inspection, this page will limit itself to the Narr points around a central point.
+   This point and area is easy to change and has been defined by default to be:
+</p>
+<p>Point: CN Tower 43.642599,-79.387094</p>
+<p>Area = points where distance < 100KM</p>
 
 
-<p>Narr Schema:  @Model.narrSchema</p>
-<p>Macc Schema:  @Model.maccSchema</p>
 
 @{
     double home_lat = 43.686673;
@@ -30,16 +37,10 @@ MaccPoints around CNTower:
     double maxDistance = 100;
 }
 
-Test Distance:
-<p>Home: @home_lat , @home_lon </p>
-<p>BBC: @bbc_lat , @bbc_lon </p>
+------Here are the points around our central point (by default CN Tower) that we found in the MACC grid.
+if you want to see these points in google maps you cna jsut cut and past from here and use thie page to show them
+<a href="http://www.darrinward.com/lat-long/">http://www.darrinward.com/lat-long/</a>
 
-<p>Distance1: @JassWeather.Models.JassWeatherAPI.HaversineDistance(home_lat,home_lon,bbc_lat,bbc_lon)</p>
-
-<p>Distance2: @JassWeather.Models.JassWeatherAPI.GetDistanceBetweenPoints(home_lat,home_lon,bbc_lat,bbc_lon)</p>
-
-
-------POINTS AROUND CN Tower
 @{int countNarrPointsAroundCNTower = 0; int countMaccPointsAroundCNTower = 0; }
 ----------------------------MACC
 <table>
@@ -60,8 +61,16 @@ Test Distance:
 </table>
 
 @countMaccPointsAroundCNTower<br />
----------------------------------NARR
+
+------Here are the points around our central point (by default CN Tower) that we found in the NARR grid.
+To help QA we show also the distance from this points to CN tower and to those found two points in the Macc grid.
 <table>
+            <tr>
+        <th>Narr y,x</th>
+        <th>Narr lat,lon</th>
+                    <th>Distance to Macc point 1</th>
+                    <th>Distance to Macc point 2</th>
+        </tr>}
 @for (int y = 0; y < 277; y++)
 {
     for (int x = 0; x < 349; x++)
@@ -73,10 +82,10 @@ Test Distance:
         {
             countNarrPointsAroundCNTower++;
         <tr>
+        <td>@y , @x</td>
         <td>@Model.narr_lat[y,x]<span>,</span>@Model.narr_lon[y,x]</td>
                     <td>@distancePoint1</td>
                     <td>@distancePoint2</td>
-                    <td>@(distancePoint1+distancePoint1)</td>
         </tr>}
     }
 }
@@ -84,32 +93,8 @@ Test Distance:
 
 @countNarrPointsAroundCNTower++<br />
 
-----------------------------
-<table>
-@for (int lat = 0; lat < 90; lat+=5)   //161
-{
-    for (int lon = 180; lon < 280; lon+=5)  //320
-    {
-        <tr>
-        <td>@Model.macc_lat[lat]<span>,</span>@Model.macc_lon[lon]</td>
-        </tr>
-    }
-}
-</table>
---------------------------------------------------
-<table>
-@for (int y = 0; y < 277; y+=20)
-{
-    for (int x = 0; x < 349; x+=20)
-    {
-        if(@Model.narr_lon[y,x] < 0){
-        <tr>
-        <td>@Model.narr_lat[y,x]<span>,</span>@Model.narr_lon[y,x]</td>
-        </tr>}
-    }
-}
-</table>
-
+Finally, here we show the map, for every point (x,y) in the NARR grid, we show the first and second points in the Macc grid with 
+the corresponding latitud/longitud and distance.
 
 --------------GRID MAPP
 
@@ -118,7 +103,19 @@ Test Distance:
 }
 
 <table>
+   <tr>
+        <th>Narr y,x</th>
+        <th>Narr lat, lon</th>
 
+        
+        <th>Macc y,x (1)</th>
+        <th>Macc lat, lon (1)</th>
+        <th>Distance (1)</th>
+  
+        <th>Macc y,x (2)</th>
+        <th>Macc lat, lon (2)</th>
+        <th>Distance (2)</th>
+   </tr>
 @for (int y = 0; y < 277; y++)
 {
     for (int x = 0; x < 349; x++)
@@ -128,13 +125,18 @@ Test Distance:
         <tr>
         <td>y: @y<span>,</span>x: @x</td>
         <td>@Model.narr_lat[y,x]<span>,</span>@Model.narr_lon[y,x]</td>
-        <td>@gc.map[y,x].latitud<span>,</span>@gc.map[y,x].longitud</td>       
+
+        
+        <td>@gc.map[y,x].lat<span>,</span>@gc.map[y,x].lon</td>
+        <td>@gc.map[y,x].latitud<span>,</span>@gc.map[y,x].longitud</td>
         <td>@gc.map[y,x].distance</td>
-                    <td>@gc.map2[y,x].latitud<span>,</span>@gc.map2[y,x].longitud</td>       
+
+        <td>@gc.map[y,x].lat<span>,</span>@gc.map[y,x].lon</td>
+        <td>@gc.map2[y,x].latitud<span>,</span>@gc.map2[y,x].longitud</td>       
         <td>@gc.map2[y,x].distance</td>
-                    <td>@gc.map3[y,x].latitud<span>,</span>@gc.map3[y,x].longitud</td>       
-        <td>@gc.map3[y,x].distance</td>
-        </tr>}
+            </tr>
+
+}
              }
     }
 }
