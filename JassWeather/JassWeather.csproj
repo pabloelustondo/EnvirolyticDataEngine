@@ -463,6 +463,10 @@
     <Compile Include="Migrations\201403061656257_sample-year.Designer.cs">
       <DependentUpon>201403061656257_sample-year.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201403101900334_ServerName.cs" />
+    <Compile Include="Migrations\201403101900334_ServerName.Designer.cs">
+      <DependentUpon>201403101900334_ServerName.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -860,6 +864,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201403061656257_sample-year.resx">
       <DependentUpon>201403061656257_sample-year.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403101900334_ServerName.resx">
+      <DependentUpon>201403101900334_ServerName.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

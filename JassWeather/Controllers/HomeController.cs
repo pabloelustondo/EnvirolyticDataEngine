@@ -16,7 +16,7 @@ using System.Reflection;
 namespace JassWeather.Controllers
 {
     [Authorize]
-    public class HomeController : Controller
+    public class HomeController : JassController
     {
 
         public ActionResult RedirectToNarr()

@@ -9,7 +9,7 @@ using JassWeather.Models;
 
 namespace JassWeather.Controllers
 {
-    public class BuilderLogController : Controller
+    public class BuilderLogController : JassController
     {
         private JassWeatherContext db = new JassWeatherContext();
 
@@ -18,7 +18,21 @@ namespace JassWeather.Controllers
 
         public ActionResult Index()
         {
-            var jassbuilderlogs = db.JassBuilderLogs.Include(j => j.JassBuilder).OrderByDescending(log=>log.ParentJassBuilderLogID).OrderByDescending(log=>log.startTotalTime).Take(1000);
+            var jassbuilderlogs = db.JassBuilderLogs.Where(jbl => jbl.ServerName==ServerName).Include(j => j.JassBuilder).OrderByDescending(log=>log.ParentJassBuilderLogID).OrderByDescending(log=>log.startTotalTime).Take(1000);
+            if (ServerName == "envirolytic")
+            {
+                jassbuilderlogs = db.JassBuilderLogs.Include(j => j.JassBuilder).OrderByDescending(log => log.ParentJassBuilderLogID).OrderByDescending(log => log.startTotalTime).Take(1000);
+            }
+            return View(jassbuilderlogs.ToList());
+        }
+
+        public ActionResult Index4Builder(int jassBuilderID)
+        {
+            var jassbuilderlogs = db.JassBuilderLogs.Where(jbl => jbl.ServerName == ServerName && jbl.JassBuilderID == jassBuilderID).Include(j => j.JassBuilder).OrderByDescending(log => log.ParentJassBuilderLogID).OrderByDescending(log => log.startTotalTime).Take(1000);
+            if (ServerName == "envirolytic")
+            {
+                jassbuilderlogs = db.JassBuilderLogs.Include(j => j.JassBuilder).OrderByDescending(log => log.ParentJassBuilderLogID).OrderByDescending(log => log.startTotalTime).Take(1000);
+            }
             return View(jassbuilderlogs.ToList());
         }
 

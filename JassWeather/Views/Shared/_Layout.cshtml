@@ -1,11 +1,7 @@
 ﻿<!DOCTYPE html>
         @{
             var versionNumber = System.Reflection.Assembly.GetAssembly(typeof(JassWeather.Controllers.JassController)).GetName().Version;
-            string serverNameURL = Request.Url.ToString();
-            int dotIndex = serverNameURL.IndexOf(".");
-            string serverName = (dotIndex>-1)?serverNameURL.Substring(0, dotIndex):"localhost";
-            serverName = serverName.Replace("http://", "");
-            string websiteTitle = "Envirolytic Data Engine Dashboard (" + serverName + ")";
+            string websiteTitle = "Envirolytic Data Engine Dashboard (" + ViewBag.ServerName + ")";
             
          }
 <html lang="en">

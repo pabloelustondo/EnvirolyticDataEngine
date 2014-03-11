@@ -11,6 +11,7 @@ namespace JassWeather.Models
 
         public int? JassBuilderID { get; set; }
         public virtual JassBuilder JassBuilder { get; set; }
+        public string ServerName { get; set; }
 
         public int? ParentJassBuilderLogID { get; set; }
         public virtual JassBuilderLog ParentJassBuilderLog { get; set; }

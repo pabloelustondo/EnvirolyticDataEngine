@@ -40,8 +40,9 @@ namespace JassWeather.Controllers
         {
             JassBuilder jassbuilder = db.JassBuilders.Find(id);
             JassBuilderLog builderLog = apiCaller.createBuilderLog(jassbuilder, "ProcessBuilder_Start", "Test", "Start", DateTime.Now - DateTime.Now, true);
-
-            var result = apiCaller.processBuilder(jassbuilder, 0, 0, false, builderLog);
+            int year = (jassbuilder.year == null) ? 0 : (int)jassbuilder.year;
+            int month = (jassbuilder.month == null) ? 0 : (int)jassbuilder.month;
+            var result = apiCaller.processBuilder(jassbuilder, year, month, false, builderLog);
 
             if (jassbuilder == null)
             {
@@ -71,8 +72,9 @@ namespace JassWeather.Controllers
             JassBuilder jassbuilder = db.JassBuilders.Find(id);
 
             JassBuilderLog builderLog = apiCaller.createBuilderLog(jassbuilder, "ProcessBuilderAndUpload_Start", "Test", "Start", DateTime.Now - DateTime.Now, true);
-
-            var result = apiCaller.processBuilder(jassbuilder, 0, 0, true, builderLog);
+            int year = (jassbuilder.year == null) ? 0 : (int)jassbuilder.year;
+            int month = (jassbuilder.month == null) ? 0 : (int)jassbuilder.month;
+            var result = apiCaller.processBuilder(jassbuilder, year, month, true, builderLog);
 
             if (jassbuilder == null)
             {

@@ -39,6 +39,9 @@
             Status
         </td>
         <td>
+            Server
+        </td>
+        <td>
             #TotalFiles
         </td>
         <td>
@@ -90,13 +93,13 @@
             @Html.DisplayFor(modelItem => item.Status)
         </td>
         <td>
+            @Html.DisplayFor(modelItem => item.ServerName)
+        </td>
+        <td>
             @Html.DisplayFor(modelItem => item.setTotalSize)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.setCurrentSize)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.OnDisk)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.startTotalTime)
@@ -110,6 +113,7 @@
         
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.JassBuilderID }) |
+            @Html.ActionLink("Logs4Builder", "Index4Builder", "BuilderLog",new { id=item.JassBuilderID }) |
             @Html.ActionLink("ProcessOnDisk", "ProcessBuilder", new { id=item.JassBuilderID }) |
             @Html.ActionLink("TestOnDisk", "TestBuilder", new { id=item.JassBuilderID }) |
             @Html.ActionLink("ProcessAndUpload", "ProcessBuilderAndUpload", new { id=item.JassBuilderID }) |

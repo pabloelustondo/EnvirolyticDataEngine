@@ -12,6 +12,7 @@ namespace JassWeather.Controllers
     {
 
         public JassWeatherAPI apiCaller;
+        public string ServerName;
 
         public JassController()
         { 
@@ -19,6 +20,13 @@ namespace JassWeather.Controllers
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
+
+            string serverNameURL = Request.Url.ToString();
+            int dotIndex = serverNameURL.IndexOf(".");
+            this.ServerName  = (dotIndex > -1) ? serverNameURL.Substring(0, dotIndex) : "localhost";
+            this.ServerName = this.ServerName.Replace("http://", "");
+            ViewBag.ServerName = ServerName;
+            
             string storageConnectionString;
             if (Session["StorageConnectionString"] == null)
             {
@@ -34,7 +42,7 @@ namespace JassWeather.Controllers
             }
 
             storageConnectionString = (string)Session["StorageConnectionString"];
-            apiCaller = new JassWeatherAPI(HttpContext.Server.MapPath("~/App_Data"),storageConnectionString);
+            apiCaller = new JassWeatherAPI(this.ServerName, HttpContext.Server.MapPath("~/App_Data"), storageConnectionString);
 
             base.OnActionExecuting(filterContext);
         }

@@ -26,6 +26,7 @@ namespace JassWeather.Models
         public int APIRequestId { get; set; }
         public virtual APIRequest APIRequest { get; set; }
         public string Source1VariableName { get; set; }
+        public string ServerName { get; set; }
         public int? x { get; set; }
         public int? y { get; set; }
         public int? year { get; set; }

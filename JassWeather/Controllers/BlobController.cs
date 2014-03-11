@@ -31,7 +31,7 @@ namespace JassWeather.Controllers
         public ActionResult ShowDashBoardExt()  //list container
         {
             Session["StorageConnectionString"] = "StorageConnectionStringProd";
-            apiCaller = new JassWeatherAPI(HttpContext.Server.MapPath("~/App_Data"), (string)Session["StorageConnectionString"]);
+            apiCaller = new JassWeatherAPI(ServerName, HttpContext.Server.MapPath("~/App_Data"), (string)Session["StorageConnectionString"]);
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
             return View("ShowDashBoard",variableStatusModel);
         }
@@ -39,7 +39,7 @@ namespace JassWeather.Controllers
         public ActionResult ShowDashBoard()  //list container
         {
             Session["StorageConnectionString"] = "StorageConnectionStringDev";
-            apiCaller = new JassWeatherAPI(HttpContext.Server.MapPath("~/App_Data"), (string)Session["StorageConnectionString"]);
+            apiCaller = new JassWeatherAPI(ServerName, HttpContext.Server.MapPath("~/App_Data"), (string)Session["StorageConnectionString"]);
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
             return View(variableStatusModel);
         }

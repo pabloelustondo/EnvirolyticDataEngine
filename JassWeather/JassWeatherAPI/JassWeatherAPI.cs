@@ -110,16 +110,16 @@ namespace JassWeather.Models
     {
         private JassWeatherContext db = new JassWeatherContext();
         public string AppDataFolder;
+        public string ServerNameJass;
         public string storageConnectionString;
         DateTime startTotalTime = DateTime.UtcNow;
         DateTime endTotalTime = DateTime.UtcNow;
-        TimeSpan spanTotalTime;
         public static JassRGB[] colors = getColors();
 
-        public JassWeatherAPI(string appDataFolder, string storageConnectionStringIn){
-
-            storageConnectionString = storageConnectionStringIn;
-            AppDataFolder = appDataFolder;
+        public JassWeatherAPI(string ServerNameIn, string appDataFolder, string storageConnectionStringIn){
+            this.storageConnectionString = storageConnectionStringIn;
+            this.AppDataFolder = appDataFolder;
+            this.ServerNameJass = ServerNameIn;
           }
 
         public static JassRGB[] getColors()
@@ -505,18 +505,21 @@ namespace JassWeather.Models
 
         public string replaceUrlPlaceHolders(string urlTemplate, int year, int month)
         {
-            string yearString = "" + year;
             string url = String.Copy(urlTemplate);
-
-            url = url.Replace("$YYYY", yearString);
-
+            if (year != 0)
+            {
+                string yearString = "" + year;
+                url = url.Replace("$YYYY", yearString);
+            }
             if (month != 0)
             {
                 string monthString = "" + month;
                 if (month < 10) monthString = "0" + month;
-
                 url = url.Replace("$MM", monthString);
             }
+
+            int index = url.IndexOf("$");
+            if (index > -1) throw new Exception("url still has template variables, forgot to put year or month?");
             return url;
 
         }
@@ -527,6 +530,7 @@ namespace JassWeather.Models
 
             jassBuilderLog.JassBuilderID = (builder.JassBuilderID > 0) ? builder.JassBuilderID : (int?)null;
             jassBuilderLog.EventType = eventType;
+            jassBuilderLog.ServerName = ServerNameJass;
             jassBuilderLog.Label = eventType;
             jassBuilderLog.startTotalTime = DateTime.Now;
             jassBuilderLog.Message = Message;
@@ -546,6 +550,7 @@ namespace JassWeather.Models
             jassBuilderLog.JassBuilderID = (builder.JassBuilderID > 0) ? builder.JassBuilderID : (int?)null;
             jassBuilderLog.ParentJassBuilderLogID = (int)parentLog.JassBuilderLogID;
             jassBuilderLog.year = year;
+            jassBuilderLog.ServerName = ServerNameJass;
             jassBuilderLog.month = month;
             jassBuilderLog.EventType = eventType;
             jassBuilderLog.Label = eventType;
@@ -564,12 +569,12 @@ namespace JassWeather.Models
 
         public string processBuilderAll(JassBuilder builder, Boolean upload)
         {
-            JassBuilderLog builderLog = createBuilderLog(builder, "processBuilderAll_Start", "Test", "Start", DateTime.Now - DateTime.Now, true);
+            JassBuilderLog builderLog = createBuilderLog(builder, "processBuilderAll_Start", builder.JassVariable.Name, "Start", DateTime.Now - DateTime.Now, true);
 
             int yearLog = (builder.year != null)?(int)builder.year: 1800;
             int monthLog = (builder.month != null) ? (int)builder.month : 0;
 
-            JassBuilderLog builderLog2 = createBuilderLogChild(builderLog, builder, yearLog, monthLog, "processBuilder_Start", "Test", "", new TimeSpan(), true);
+            JassBuilderLog builderLog2 = createBuilderLogChild(builderLog, builder, yearLog, monthLog, "processBuilder_Start", builder.JassVariable.Name, "", new TimeSpan(), true);
 
 
             string Message = "process builder sucessfuly";
@@ -597,21 +602,21 @@ namespace JassWeather.Models
                     {
                         //here is where we start the real builder
                         DateTime startedAt = DateTime.Now;
-                        JassBuilderLog childBuilderLog0 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_Start", "Test", "", startedAt - startedAt, true);
+                        JassBuilderLog childBuilderLog0 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_Start", builder.JassVariable.Name, "", new TimeSpan(), true);
 
                         try
                         {
                             MessageBuilder = processBuilder(builder, year, month, upload, builderLog);
 
 
-                            JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_End", "Test", "", DateTime.Now -startedAt, true);
+                            JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_End", builder.JassVariable.Name, "", new TimeSpan(), true);
 
                             Message += "  processBuilder(" + year + ",  " + month + ") =>" + MessageBuilder;
                         }
                         catch (Exception e)
                         {
 
-                            JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_End", "Test", e.Message, DateTime.Now - startedAt, false);
+                            JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_End", builder.JassVariable.Name, e.Message, DateTime.Now - startedAt, false);
 
                         }
                         finally
@@ -619,7 +624,7 @@ namespace JassWeather.Models
                             //clean disk
                             cleanAppData();
                             int filesInAppData = Directory.GetFiles(AppDataFolder).Count();
-                            JassBuilderLog childBuilderLog10 = createBuilderLogChild(builderLog, builder, year, month, "processBuilderAll_CleanAppData", "Test", "filesInAppData: " + filesInAppData, new TimeSpan(), true);
+                            JassBuilderLog childBuilderLog10 = createBuilderLogChild(builderLog, builder, year, month, "processBuilderAll_CleanAppData", builder.JassVariable.Name, "filesInAppData: " + filesInAppData, new TimeSpan(), true);
 
                         }
 
@@ -627,14 +632,14 @@ namespace JassWeather.Models
                 }
                 //end YEAR
 
-                JassBuilderLog childBuilderLog3 = createBuilderLogChild(builderLog, builder, (int)builder.yearEnd + 1, (int)builder.monthEnd + 1, "processBuilder_End", "Test", "", DateTime.Now - StartingTime, true);
+                JassBuilderLog childBuilderLog3 = createBuilderLogChild(builderLog, builder, (int)builder.yearEnd + 1, (int)builder.monthEnd + 1, "processBuilder_EndOk", builder.JassVariable.Name, "", DateTime.Now - StartingTime, true);
 
 
             }
 
             catch (Exception e)
             {
-                JassBuilderLog builderLogEx = createBuilderLog(builder, "processBuilderAll_Start", "Test", e.Message, DateTime.Now - StartingTime, false);
+                JassBuilderLog builderLogEx = createBuilderLog(builder, "processBuilderAll_EndError", builder.JassVariable.Name, e.Message, DateTime.Now - StartingTime, false);
 
 
                 if (dataset3 != null)
@@ -681,16 +686,16 @@ namespace JassWeather.Models
                 int entriesInDay = builder.JassGrid.Timesize;
 
                 DateTime startTimeProcessSource = DateTime.Now;
-                JassBuilderLog childBuilderLog0 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_BeforeProcessSource", "Test", "", startTimeProcessSource - startTimeProcessSource, true);
+                JassBuilderLog childBuilderLog0 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_BeforeProcessSource", builder.JassVariable.Name, "", startTimeProcessSource - startTimeProcessSource, true);
 
                 string inputFile1 = processSource(builder, year, month, upload, false, builderAllLog);
 
-                JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterProcessSource", "Test", "", DateTime.Now - startTimeProcessSource, true);
+                JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterProcessSource", builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, true);
 
                 using (var dataset1 = DataSet.Open(inputFile1 + "?openMode=open"))
                 {
                     DateTime startTimeAfterOpenFile = DateTime.Now;
-                    JassBuilderLog childBuilderLog2 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterOpenFile", "Test", "", startTimeProcessSource - startTimeProcessSource, true);
+                    JassBuilderLog childBuilderLog2 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterOpenFile", builder.JassVariable.Name, "", startTimeProcessSource - startTimeProcessSource, true);
 
 
                     var schema1 = dataset1.GetSchema();
@@ -729,8 +734,8 @@ namespace JassWeather.Models
 
 
                     string dayString;
-                    int in_year = (year != null) ? (int)year : DateTime.Now.Year;
-                    int in_month = (month != null) ? (int)month : 1;
+                    int in_year = (year != 0) ? (int)year : DateTime.Now.Year;
+                    int in_month = (month != 0) ? (int)month : 1;
                     int in_day = 1;
                     string variableName = builder.JassVariable.Name;
 
@@ -738,8 +743,10 @@ namespace JassWeather.Models
 
 
                     jassbuilder.Status = JassBuilderStatus.Processing;
+                    jassbuilder.ServerName = ServerNameJass;
                     jassbuilder.setTotalSize = time.Length / 8;
                     jassbuilder.setCurrentSize = 0;
+                    jassbuilder.Message = "";
                     db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
                     db.SaveChanges();
 
@@ -879,13 +886,13 @@ namespace JassWeather.Models
                     //end using
                 }
 
-                JassBuilderLog childBuilderLog10 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_End", "Test", "", DateTime.Now - startTimeProcessSource, true);
+                JassBuilderLog childBuilderLog10 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_EndOk", builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, true);
 
             }
 
             catch (Exception e)
             {
-                JassBuilderLog childBuilderLog9 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_Exception", "Test", e.Message, new TimeSpan(), true);
+                JassBuilderLog childBuilderLog9 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_EndException", builder.JassVariable.Name, e.Message, new TimeSpan(), true);
 
                 if (dataset3 != null)
                 {
@@ -900,6 +907,9 @@ namespace JassWeather.Models
                 jassbuilder.spanTotalTime = TotalTime;
                 jassbuilder.Status = JassBuilderStatus.Failure;
                 jassbuilder.Message = e.Message;
+
+                db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
+                db.SaveChanges();
             }
 
             return Message;
@@ -2207,9 +2217,11 @@ namespace JassWeather.Models
                                 {
                                     if (values[tt, ll, yy, xx] != missing_value && 
                                         values[tt, ll, yy, xx] != FillValue &&
-                                        values[tt, ll, yy, xx] != 0)
+                                        values[tt, ll, yy, xx] != 32767 &&
+                                        values[tt, ll, yy, xx] != 32766)
                                     {
                                         dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, ll, yy, xx];
+                                   
                                         if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax[ll]) { 
                                             dayGridValues.measureMax[ll] = (double) dayGridValues.measure[tt, ll, yy, xx];
                                             dayGridValues.maxX[ll] = xx; dayGridValues.maxY[ll] = yy; 
@@ -2218,11 +2230,6 @@ namespace JassWeather.Models
                                             dayGridValues.measureMin[ll] = (double) dayGridValues.measure[tt, ll, yy, xx];
                                             dayGridValues.minX[ll] = xx; dayGridValues.minY[ll] = yy; 
                                         }
-                                    }
-
-                                    if (dayGridValues.measure[tt, ll, yy, xx] < 195)
-                                    {
-                                        var crap = 1;
                                     }
                                 }
                             }
@@ -2242,9 +2249,13 @@ namespace JassWeather.Models
                                 {
                                     if (values[tt, yy, xx] != missing_value && 
                                         values[tt, yy, xx] != FillValue &&
-                                        values[tt, yy, xx] != 0)
+                                        values[tt, yy, xx] != 32767 &&
+                                        values[tt, yy, xx] != 32766)
                                     {
                                         dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, yy, xx];
+                                        //0.0500015563699208
+
+
                                         if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax[ll]) { 
                                             dayGridValues.measureMax[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
                                             dayGridValues.maxX[ll] = xx; dayGridValues.maxY[ll] = yy; 
@@ -2253,11 +2264,6 @@ namespace JassWeather.Models
                                             dayGridValues.measureMin[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
                                             dayGridValues.minX[ll ]= xx; dayGridValues.minY[ll] = yy; 
                                         }
-                                    }
-
-                                    if (dayGridValues.measure[tt, ll, yy, xx] < 195)
-                                    {
-                                        var crap = 1;
                                     }
                                 }
                             }
