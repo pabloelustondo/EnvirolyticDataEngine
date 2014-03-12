@@ -110,6 +110,7 @@ namespace JassWeather.Models
     {
         private JassWeatherContext db = new JassWeatherContext();
         public string AppDataFolder;
+        public string AppFilesFolder;
         public string ServerNameJass;
         public string storageConnectionString;
         DateTime startTotalTime = DateTime.UtcNow;
@@ -119,6 +120,7 @@ namespace JassWeather.Models
         public JassWeatherAPI(string ServerNameIn, string appDataFolder, string storageConnectionStringIn){
             this.storageConnectionString = storageConnectionStringIn;
             this.AppDataFolder = appDataFolder;
+            this.AppFilesFolder = appDataFolder + "\\..\\App_Files";
             this.ServerNameJass = ServerNameIn;
           }
 
@@ -388,7 +390,7 @@ namespace JassWeather.Models
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
             string maccFile = AppDataFolder + "/" + fileNameMacc;
             string narrFile = AppDataFolder + "/" + fileNameNarr;
-            string mapFile = AppDataFolder + "/mapGridNarr2Macc.nc";
+            string mapFile = AppFilesFolder + "/mapGridNarr2Macc.nc";
             int MissingValue = 999999;
 
             using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
@@ -419,12 +421,73 @@ namespace JassWeather.Models
                         gc.narrLon = narrDataSet.GetData<Single[,]>("lon");
                         gc.narrLat = narrDataSet.GetData<Single[,]>("lat");
 
+
+                        var mapDistance = mapDataSet.GetData<double[,]>("mapDistance");
+                        var mapLatY = mapDataSet.GetData<int[,]>("mapLatY");
+                        var mapLonX = mapDataSet.GetData<int[,]>("mapLonX");
+
+
+                        var map2Distance = mapDataSet.GetData<double[,]>("map2Distance");
+                        var map2LatY = mapDataSet.GetData<int[,]>("map2LatY");
+                        var map2LonX = mapDataSet.GetData<int[,]>("map2LonX");
+
+
+                        var map3Distance = mapDataSet.GetData<double[,]>("map3Distance");
+                        var map3LatY = mapDataSet.GetData<int[,]>("map3LatY");
+                        var map3LonX = mapDataSet.GetData<int[,]>("map3LonX");
+
+
+                        var map4Distance = mapDataSet.GetData<double[,]>("map4Distance");
+                        var map4LatY = mapDataSet.GetData<int[,]>("map4LatY");
+                        var map4LonX = mapDataSet.GetData<int[,]>("map4LonX");
+
                         //mapp the grids
 
                        // gc = JassWeather.Models.JassWeatherAPI.MapGridNarr2Macc(gc);
 
+                        
+                            for (int y = 0; y < gc.narrYMax; y++)
+                            {
+                                for (int x = 0; x < gc.narrXMax; x++)
+                                {
+                                    try{
 
+                                        gc.map[y, x] = new JassGridLocation();
+                                        gc.map[y, x].distance = mapDistance[y,x];
+                                        gc.map[y, x].lat = mapLatY[y,x];
+                                        gc.map[y, x].lon = mapLonX[y,x];
+                                        gc.map[y, x].latitud = gc.maccLat[gc.map[y, x].lat];
+                                        gc.map[y, x].longitud = gc.maccLon[gc.map[y, x].lon];
 
+                                        gc.map2[y, x] = new JassGridLocation();
+                                        gc.map2[y, x].distance = map2Distance[y, x];
+                                        gc.map2[y, x].lat = map2LatY[y, x];
+                                        gc.map2[y, x].lon = map2LonX[y, x];
+                                        gc.map2[y, x].latitud = gc.maccLat[gc.map2[y, x].lat];
+                                        gc.map2[y, x].longitud = gc.maccLon[gc.map2[y, x].lon];
+
+                                        gc.map3[y, x] = new JassGridLocation();
+                                        gc.map3[y, x].distance = map3Distance[y, x];
+                                        gc.map3[y, x].lat = map3LatY[y, x];
+                                        gc.map3[y, x].lon = map3LonX[y, x];
+                                        gc.map3[y, x].latitud = gc.maccLat[gc.map3[y, x].lat];
+                                        gc.map3[y, x].longitud = gc.maccLon[gc.map3[y, x].lon];
+ 
+                                        gc.map4[y, x] = new JassGridLocation();
+                                        gc.map4[y, x].distance = map4Distance[y, x];
+                                        gc.map4[y, x].lat = map4LatY[y, x];
+                                        gc.map4[y, x].lon = map4LonX[y, x];
+                                        gc.map4[y, x].latitud = gc.maccLat[gc.map4[y, x].lat];
+                                        gc.map4[y, x].longitud = gc.maccLon[gc.map4[y, x].lon];
+                                    
+                                    }catch (Exception e){
+
+                                        var v = "crap";
+                                    
+                                    }
+
+                                }
+                            }
                     }
                 }
             }

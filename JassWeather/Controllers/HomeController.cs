@@ -42,7 +42,7 @@ namespace JassWeather.Controllers
             return View();
         }
 
-        public ActionResult Tools()
+        public ActionResult Tests()
         {
             ViewBag.Message = "Your app description page.";
 
