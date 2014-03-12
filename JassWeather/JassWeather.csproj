@@ -706,7 +706,8 @@
     <Content Include="Views\BuilderLog\Delete.cshtml" />
     <Content Include="Views\Blob\DeleteBlob.cshtml" />
     <Content Include="Views\Request\ProcessSource.cshtml" />
-    <Content Include="Views\Grid\maccvsnarr.cshtml" />
+    <Content Include="Views\Grid\MapMacc2NarrTest1.cshtml" />
+    <Content Include="Views\Home\Tools.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

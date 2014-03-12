@@ -5,7 +5,7 @@
 
 <h2>Testing the Map From Narr to Macc</h2>
 
-<p>This page is a test to verify our Narr to Macc mapping function. The is ideas is to use this function to calculate a value for each Narr grid 
+<p>This page is a test to verify our Narr to Macc mapping function. The idea is to use this function to calculate a value for each Narr grid 
     point based on the value of the close points in the Macc grid. 
    Technically, the function, called "MapNarr2MaccGrid", will take and return a structure of the class "MaccNarrGridsCombo"
    that contains, at least, both Narr and Macc grid represented as arrays that map points (y,x) into (latitud,longitud). 
@@ -48,12 +48,12 @@ if you want to see these points in google maps you cna jsut cut and past from he
 {
     for (int lon = 0; lon < 320; lon++)  //320
     { 
-        double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.macc_lat[lat], Model.macc_lon[lon]);
+        double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.maccLat[lat], Model.maccLon[lon]);
         if (distanceToCNT < maxDistance)
         {
             countMaccPointsAroundCNTower++;
         <tr>
-        <td>@Model.macc_lat[lat]<span>,</span>@Model.macc_lon[lon]</td>
+        <td>@Model.maccLat[lat]<span>,</span>@Model.maccLon[lon]</td>
         </tr>
         }
     }
@@ -75,15 +75,15 @@ To help QA we show also the distance from this points to CN tower and to those f
 {
     for (int x = 0; x < 349; x++)
     {
-        double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.narr_lat[y, x], Model.narr_lon[y, x]);
-        double distancePoint1 = JassWeather.Models.JassWeatherAPI.HaversineDistance(43.875, 280.125, Model.narr_lat[y, x], Model.narr_lon[y, x]);
-        double distancePoint2 = JassWeather.Models.JassWeatherAPI.HaversineDistance(43.875, 281.25, Model.narr_lat[y, x], Model.narr_lon[y, x]);
+        double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.narrLat[y, x], Model.narrLon[y, x]);
+        double distancePoint1 = JassWeather.Models.JassWeatherAPI.HaversineDistance(43.875, 280.125, Model.narrLat[y, x], Model.narrLon[y, x]);
+        double distancePoint2 = JassWeather.Models.JassWeatherAPI.HaversineDistance(43.875, 281.25, Model.narrLat[y, x], Model.narrLon[y, x]);
         if (distanceToCNT < maxDistance)
         {
             countNarrPointsAroundCNTower++;
         <tr>
         <td>@y , @x</td>
-        <td>@Model.narr_lat[y,x]<span>,</span>@Model.narr_lon[y,x]</td>
+        <td>@Model.narrLat[y,x]<span>,</span>@Model.narrLon[y,x]</td>
                     <td>@distancePoint1</td>
                     <td>@distancePoint2</td>
         </tr>}
@@ -97,10 +97,6 @@ Finally, here we show the map, for every point (x,y) in the NARR grid, we show t
 the corresponding latitud/longitud and distance.
 
 --------------GRID MAPP
-
-@{
-        var gc = JassWeather.Models.JassWeatherAPI.MapNarr2MaccGrid(Model);   
-}
 
 <table>
    <tr>
@@ -120,20 +116,20 @@ the corresponding latitud/longitud and distance.
 {
     for (int x = 0; x < 349; x++)
     {
-       double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.narr_lat[y, x], Model.narr_lon[y, x]);
+       double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.narrLat[y, x], Model.narrLon[y, x]);
         if (distanceToCNT < maxDistance){
         <tr>
         <td>y: @y<span>,</span>x: @x</td>
-        <td>@Model.narr_lat[y,x]<span>,</span>@Model.narr_lon[y,x]</td>
+        <td>@Model.narrLat[y,x]<span>,</span>@Model.narrLon[y,x]</td>
 
         
-        <td>@gc.map[y,x].lat<span>,</span>@gc.map[y,x].lon</td>
-        <td>@gc.map[y,x].latitud<span>,</span>@gc.map[y,x].longitud</td>
-        <td>@gc.map[y,x].distance</td>
+        <td>@Model.map[y,x].lat<span>,</span>@Model.map[y,x].lon</td>
+        <td>@Model.map[y,x].latitud<span>,</span>@Model.map[y,x].longitud</td>
+        <td>@Model.map[y,x].distance</td>
 
-        <td>@gc.map[y,x].lat<span>,</span>@gc.map[y,x].lon</td>
-        <td>@gc.map2[y,x].latitud<span>,</span>@gc.map2[y,x].longitud</td>       
-        <td>@gc.map2[y,x].distance</td>
+        <td>@Model.map[y,x].lat<span>,</span>@Model.map[y,x].lon</td>
+        <td>@Model.map2[y,x].latitud<span>,</span>@Model.map2[y,x].longitud</td>       
+        <td>@Model.map2[y,x].distance</td>
             </tr>
 
 }

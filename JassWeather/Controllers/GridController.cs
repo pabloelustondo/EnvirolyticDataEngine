@@ -24,13 +24,23 @@ namespace JassWeather.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult maccvsnarr()
+        public ActionResult MapMacc2NarrTest1()
         {
-            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.compareMaccNarrGrids("netcdf-web238-20140306020857-10515-0608.nc",
+            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2MaccFromFile(
+                "netcdf-web238-20140306020857-10515-0608.nc",
                 "ftp___ftp.cdc.noaa.gov_Datasets_NARR_pressure_air.201201.nc");
             return View(result);
         }
 
+        [AllowAnonymous]
+        public ActionResult MapMacc2NarrTest2()
+        {
+            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.TestMapGridNarr2Macc(
+                "netcdf-web238-20140306020857-10515-0608.nc",
+                "ftp___ftp.cdc.noaa.gov_Datasets_NARR_pressure_air.201201.nc");
+
+            return View("MapMacc2NarrTest1",result);
+        }
 
         //
         // GET: /Grid/Details/5

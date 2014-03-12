@@ -248,11 +248,11 @@ namespace JassWeather.Models
 
             //schema2string
 
-            public Single[] macc_lat { get; set; }
-            public Single[] macc_lon { get; set; }
+            public Single[] maccLat { get; set; }
+            public Single[] maccLon { get; set; }
 
-            public Single[,] narr_lon { get; set; }
-            public Single[,] narr_lat { get; set; }
+            public Single[,] narrLon { get; set; }
+            public Single[,] narrLat { get; set; }
 
 
             public int narrXMax = 349;
@@ -260,8 +260,8 @@ namespace JassWeather.Models
 
             public int maccLatMin = 0;
             public int maccLatMax = 90;
-            public int maccLonMin = 180;
-            public int maccLonMax = 280;
+            public int maccLonMin = 0;
+            public int maccLonMax = 320;
 
             public JassGridLocation[,] map = new JassGridLocation[277, 349];
             public JassGridLocation[,] map2 = new JassGridLocation[277, 349];
@@ -278,22 +278,22 @@ namespace JassWeather.Models
             public double distance { get; set; }
         }
 
-        public static JassMaccNarrGridsCombo MapNarr2MaccGrid(JassMaccNarrGridsCombo gc)
+        public static JassMaccNarrGridsCombo MapGridNarr2Macc(JassMaccNarrGridsCombo gc)
         {
 
-            double minDistance;
+            double minDistance, minDistance2, minDistance3, minDistance4;
             for (int y = 0; y < gc.narrYMax; y ++)
-            //for (int y = 130; y < 131; y++)
+            //for (int y = 5; y < 7; y++)
             {
                 for (int x = 0; x < gc.narrXMax; x ++)
-                //for (int x = 240; x < 241; x++)
+                //for (int x = 5; x < 7; x++)
                 {
-                    minDistance = 200;
+                    minDistance = 2000; minDistance2 = 2000; minDistance3 = 2000; minDistance4 = 2000;
                     for (int lat = gc.maccLatMin; lat < gc.maccLatMax; lat++)   //161
                     {
                          for (int lon = gc.maccLonMin; lon < gc.maccLonMax; lon++)  //320
                          {
-                               double distance = HaversineDistance(gc.macc_lat[lat], gc.macc_lon[lon], gc.narr_lat[y, x], gc.narr_lon[y, x]);
+                               double distance = HaversineDistance(gc.maccLat[lat], gc.maccLon[lon], gc.narrLat[y, x], gc.narrLon[y, x]);
                                if (distance < minDistance) { 
                                    minDistance = distance;
                                    gc.map4[y, x] = gc.map3[y, x];
@@ -303,9 +303,43 @@ namespace JassWeather.Models
                                    gc.map[y, x].distance = distance;
                                    gc.map[y, x].lat = lat;
                                    gc.map[y, x].lon = lon;
-                                   gc.map[y, x].latitud = gc.macc_lat[lat];
-                                   gc.map[y, x].longitud = gc.macc_lon[lon];
-                               }
+                                   gc.map[y, x].latitud = gc.maccLat[lat];
+                                   gc.map[y, x].longitud = gc.maccLon[lon];
+                               } else
+                                   if (distance < minDistance2)
+                                   {
+                                       minDistance2 = distance;
+                                       gc.map4[y, x] = gc.map3[y, x];
+                                       gc.map3[y, x] = gc.map2[y, x];
+                                       gc.map2[y, x] = new JassGridLocation();
+                                       gc.map2[y, x].distance = distance;
+                                       gc.map2[y, x].lat = lat;
+                                       gc.map2[y, x].lon = lon;
+                                       gc.map2[y, x].latitud = gc.maccLat[lat];
+                                       gc.map2[y, x].longitud = gc.maccLon[lon];
+                                   } else
+                                   if (distance < minDistance3)
+                                   {
+                                       minDistance3 = distance;
+                                       gc.map4[y, x] = gc.map3[y, x];
+                                       gc.map3[y, x] = new JassGridLocation();
+                                       gc.map3[y, x].distance = distance;
+                                       gc.map3[y, x].lat = lat;
+                                       gc.map3[y, x].lon = lon;
+                                       gc.map3[y, x].latitud = gc.maccLat[lat];
+                                       gc.map3[y, x].longitud = gc.maccLon[lon];
+                                   }
+                                   else
+                                       if (distance < minDistance4)
+                                       {
+                                           minDistance4 = distance;
+                                           gc.map4[y, x] = new JassGridLocation();
+                                           gc.map4[y, x].distance = distance;
+                                           gc.map4[y, x].lat = lat;
+                                           gc.map4[y, x].lon = lon;
+                                           gc.map4[y, x].latitud = gc.maccLat[lat];
+                                           gc.map4[y, x].longitud = gc.maccLon[lon];
+                                       }
                          }
                     }
                 }
@@ -347,36 +381,223 @@ namespace JassWeather.Models
             return (Math.PI / 180) * val;
         }
 
+        public JassMaccNarrGridsCombo TestMapGridNarr2Macc(string fileNameMacc, string fileNameNarr)
+        {
 
-        public JassMaccNarrGridsCombo compareMaccNarrGrids(string fileNameMacc, string fileNameNarr)
+
+            JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
+            string maccFile = AppDataFolder + "/" + fileNameMacc;
+            string narrFile = AppDataFolder + "/" + fileNameNarr;
+            string mapFile = AppDataFolder + "/mapGridNarr2Macc.nc";
+            int MissingValue = 999999;
+
+            using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
+            {
+                Dictionary<string, MetadataDictionary> narrVars = new Dictionary<string, MetadataDictionary>();
+                foreach (var v in narrDataSet.Variables) { narrVars.Add(v.Name, v.Metadata); }
+
+                Single[] narrY = narrDataSet.GetData<Single[]>("y");
+                Single[] narrX = narrDataSet.GetData<Single[]>("x");
+
+                using (var maccDataSet = DataSet.Open(maccFile + "?openMode=open"))
+                {
+                    Dictionary<string, MetadataDictionary> maccVars = new Dictionary<string, MetadataDictionary>();
+                    foreach (var v in maccDataSet.Variables) { maccVars.Add(v.Name, v.Metadata); }
+
+                    using (var mapDataSet = DataSet.Open(mapFile + "?openMode=open"))
+                    {
+
+                        var narrSchema = narrDataSet.GetSchema();
+                        var maccSchema = maccDataSet.GetSchema();
+
+                        gc.narrSchema = schema2string(narrSchema);
+                        gc.maccSchema = schema2string(maccSchema);
+
+                        gc.maccLat = maccDataSet.GetData<Single[]>("latitude");
+                        gc.maccLon = maccDataSet.GetData<Single[]>("longitude");
+
+                        gc.narrLon = narrDataSet.GetData<Single[,]>("lon");
+                        gc.narrLat = narrDataSet.GetData<Single[,]>("lat");
+
+                        //mapp the grids
+
+                       // gc = JassWeather.Models.JassWeatherAPI.MapGridNarr2Macc(gc);
+
+
+
+                    }
+                }
+            }
+
+            return gc;
+        }
+
+        public JassMaccNarrGridsCombo MapGridNarr2MaccFromFile(string fileNameMacc, string fileNameNarr)
         {
            
             
-                JassMaccNarrGridsCombo viewModel = new JassMaccNarrGridsCombo();
+                JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
                 string maccFile = AppDataFolder + "/" + fileNameMacc;
                 string narrFile = AppDataFolder + "/" + fileNameNarr;
-                using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open")){
-                using (var maccDataSet = DataSet.Open(maccFile + "?openMode=open")){
+                string mapFile = AppDataFolder + "/mapGridNarr2Macc.nc";
+                int MissingValue = 999999;
 
-                    var narrSchema = narrDataSet.GetSchema();                   
-                    var maccSchema = maccDataSet.GetSchema();
+                using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
+                {
+                    Dictionary<string, MetadataDictionary> narrVars = new Dictionary<string, MetadataDictionary>();
+                    foreach (var v in narrDataSet.Variables){narrVars.Add(v.Name, v.Metadata);}
 
-                    viewModel.narrSchema = schema2string(narrSchema);
-                    viewModel.maccSchema = schema2string(maccSchema);
+                    Single[] narrY = narrDataSet.GetData<Single[]>("y");
+                    Single[] narrX = narrDataSet.GetData<Single[]>("x");
 
-                    double[] narr_time = narrDataSet.GetData<double[]>("time");
-                    Int32[] macc_time = maccDataSet.GetData<Int32[]>("time");
+                    using (var maccDataSet = DataSet.Open(maccFile + "?openMode=open"))
+                    {
+                        Dictionary<string, MetadataDictionary> maccVars = new Dictionary<string, MetadataDictionary>();
+                        foreach (var v in maccDataSet.Variables) { maccVars.Add(v.Name, v.Metadata); }
 
-                    viewModel.macc_lat = maccDataSet.GetData<Single[]>("latitude");
-                    viewModel.macc_lon = maccDataSet.GetData<Single[]>("longitude");
+                        using (var mapDataSet = DataSet.Open(mapFile + "?openMode=create"))
+                        {
 
-                    viewModel.narr_lon = narrDataSet.GetData<Single[,]>("lon");
-                    viewModel.narr_lat = narrDataSet.GetData<Single[,]>("lat");        
-                
+                            var narrSchema = narrDataSet.GetSchema();
+                            var maccSchema = maccDataSet.GetSchema();
+
+                            gc.narrSchema = schema2string(narrSchema);
+                            gc.maccSchema = schema2string(maccSchema);
+
+                            gc.maccLat = maccDataSet.GetData<Single[]>("latitude");
+                            gc.maccLon = maccDataSet.GetData<Single[]>("longitude");
+
+                            gc.narrLon = narrDataSet.GetData<Single[,]>("lon");
+                            gc.narrLat = narrDataSet.GetData<Single[,]>("lat");
+
+                            //mapp the grids
+
+                            gc = JassWeather.Models.JassWeatherAPI.MapGridNarr2Macc(gc);
+
+                            //build the resulting dataset
+                            //dataset3.Add<double[]>("time", timeday, "time");
+
+                            //and then we want the maps, map(x,y)/
+                            //but I cannot return a pair..so map(x,y) will ne mapX(x,y) mapY(x,y).
+
+                            int[,] mapLonX = new int[gc.narrYMax, gc.narrXMax];
+                            int[,] mapLatY = new int[gc.narrYMax, gc.narrXMax];
+                            double[,] mapDistance = new double[gc.narrYMax, gc.narrXMax];
+
+          
+                            /////////////////
+                            int[,] map2LonX = new int[gc.narrYMax, gc.narrXMax];
+                            int[,] map2LatY = new int[gc.narrYMax, gc.narrXMax];
+                            double[,] map2Distance = new double[gc.narrYMax, gc.narrXMax];
+
+
+                            /////////////////
+                            int[,] map3LonX = new int[gc.narrYMax, gc.narrXMax];
+                            int[,] map3LatY = new int[gc.narrYMax, gc.narrXMax];
+                            double[,] map3Distance = new double[gc.narrYMax, gc.narrXMax];
+
+                            //////////////////////
+
+                            int[,] map4LonX = new int[gc.narrYMax, gc.narrXMax];
+                            int[,] map4LatY = new int[gc.narrYMax, gc.narrXMax];
+                            double[,] map4Distance = new double[gc.narrYMax, gc.narrXMax];
+
+                             for (int y = 0; y < gc.narrYMax; y++)
+                             //for (int y = 5; y < 7; y++)
+                            {
+                                for (int x = 0; x < gc.narrXMax; x++)
+                                //for (int x = 5; x < 7; x++)
+                                {
+                                    try
+                                    {
+                                    mapLatY[y, x] = gc.map[y, x].lat;
+                                    mapLonX[y,x] = gc.map[y, x].lon;
+                                    mapDistance[y, x] = gc.map[y, x].distance;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        mapLatY[y, x] = MissingValue;
+                                        mapLonX[y, x] = MissingValue;
+                                        mapDistance[y, x] = MissingValue;
+                                    }
+                                    try
+                                    {
+                                        map2LatY[y, x] = gc.map2[y, x].lat;
+                                        map2LonX[y, x] = gc.map2[y, x].lon;
+                                        map2Distance[y, x] = gc.map2[y, x].distance;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        map2LatY[y, x] = MissingValue;
+                                        map2LonX[y, x] = MissingValue;
+                                        map2Distance[y, x] = MissingValue;
+                                    }
+
+                                    try
+                                    {
+                                        map3LatY[y, x] = gc.map3[y, x].lat;
+                                        map3LonX[y, x] = gc.map3[y, x].lon;
+                                        map3Distance[y, x] = gc.map3[y, x].distance;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        map3LatY[y, x] = MissingValue;
+                                        map3LonX[y, x] = MissingValue;
+                                        map3Distance[y, x] = MissingValue;
+
+                                    }
+
+                                    try
+                                    {
+                                        map4LatY[y, x] = gc.map4[y, x].lat;
+                                        map4LonX[y, x] = gc.map4[y, x].lon;
+                                        map4Distance[y, x] = gc.map4[y, x].distance;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        map4LatY[y, x] = MissingValue;
+                                        map4LonX[y, x] = MissingValue;
+                                        map4Distance[y, x] = MissingValue;
+                                    }
+                                }
+                            }
+
+                            //narr  we want narrX, narrY, narrLon, narrLat
+
+                            mapDataSet.Add<Single[]>("narrX", narrX, "narrX");
+                            mapDataSet.Add<Single[]>("narrY", narrY, "narrY");
+
+                            mapDataSet.Add<Single[,]>("narrLon", gc.narrLon, "narrY","narrX");
+                            mapDataSet.Add<Single[,]>("narrLat", gc.narrLat, "narrY", "narrX");
+
+                            //mac  we want macLon, macLat
+
+                            mapDataSet.Add<Single[]>("maccLon", gc.maccLon, "maccLon");
+                            mapDataSet.Add<Single[]>("maccLat", gc.maccLat, "maccLat");
+
+                            mapDataSet.Add<int[,]>("mapLonX", mapLonX, "narrY", "narrX");
+                            mapDataSet.Add<int[,]>("mapLatY", mapLatY, "narrY", "narrX");
+                            mapDataSet.Add<double[,]>("mapDistance", mapDistance, "narrY", "narrX");
+
+                            mapDataSet.Add<int[,]>("map2LonX", map2LonX, "narrY", "narrX");
+                            mapDataSet.Add<int[,]>("map2LatY", map2LatY, "narrY", "narrX");
+                            mapDataSet.Add<double[,]>("map2Distance", map2Distance, "narrY", "narrX");
+
+                            mapDataSet.Add<int[,]>("map3LonX", map3LonX, "narrY", "narrX");
+                            mapDataSet.Add<int[,]>("map3LatY", map3LatY, "narrY", "narrX");
+                            mapDataSet.Add<double[,]>("map3Distance", map3Distance, "narrY", "narrX");
+
+                            mapDataSet.Add<int[,]>("map4LonX", map4LonX, "narrY", "narrX");
+                            mapDataSet.Add<int[,]>("map4LatY", map4LatY, "narrY", "narrX");
+                            mapDataSet.Add<double[,]>("map4Distance", map4Distance, "narrY", "narrX");
+
+                            //add metadata
+
+                        }
+                    }
                 }
-                }
 
-                return viewModel;
+                return gc;
         }
 
 
