@@ -393,6 +393,12 @@ namespace JassWeather.Models
             string mapFile = AppFilesFolder + "/mapGridNarr2Macc.nc";
             int MissingValue = 999999;
 
+            string VariableName = null;
+            Dictionary<string, MetadataDictionary> vars =
+                        new Dictionary<string, MetadataDictionary>();
+
+
+
             using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
             {
                 Dictionary<string, MetadataDictionary> narrVars = new Dictionary<string, MetadataDictionary>();
@@ -400,11 +406,34 @@ namespace JassWeather.Models
 
                 Single[] narrY = narrDataSet.GetData<Single[]>("y");
                 Single[] narrX = narrDataSet.GetData<Single[]>("x");
+                double[] narrTime = narrDataSet.GetData<double[]>("time");
 
                 using (var maccDataSet = DataSet.Open(maccFile + "?openMode=open"))
                 {
                     Dictionary<string, MetadataDictionary> maccVars = new Dictionary<string, MetadataDictionary>();
-                    foreach (var v in maccDataSet.Variables) { maccVars.Add(v.Name, v.Metadata); }
+                    foreach (var v in maccDataSet.Variables) { 
+                        maccVars.Add(v.Name, v.Metadata);
+                        if (v.Dimensions.Count > 2 && VariableName == null) { VariableName = v.Name; };
+                    }
+
+                    Int32[] maccTime = maccDataSet.GetData<Int32[]>("time");
+                    Int32[] maccTime2 = new Int32[maccTime.Length];
+
+                    DateTime day1900 = DateTime.Parse("1900-01-01 00:00:00");
+                    DateTime day1800 = DateTime.Parse("1800-01-01 00:00:00");
+
+                    TimeSpan diff19001800 = day1900 - day1800;
+
+                    int hours19001800 = (int)diff19001800.TotalHours;
+
+                    DateTime maccDay;
+                    DateTime narrDay;
+
+                    for (int t = 0; t < narrTime.Length; t++)
+                    {
+                         maccDay = day1900.AddHours(maccTime[t]);
+                         narrDay = day1800.AddHours(narrTime[t]);
+                    }
 
                     using (var mapDataSet = DataSet.Open(mapFile + "?openMode=open"))
                     {
@@ -488,11 +517,91 @@ namespace JassWeather.Models
 
                                 }
                             }
+
+
+                        //Ok, now let's process the file converting from Macc to Narr at the measure level.
+
+                            int thinking = 1;//
+
+
+                        ////////  getting all the dimensions from Narr
+                        /* this was before
+                            Single[] narrY = narrDataSet.GetData<Single[]>("y");
+                            Single[] narrX = narrDataSet.GetData<Single[]>("x");
+                            double[] narrTime = narrDataSet.GetData<double[]>("time");
+                         */ 
+                        Int16[, ,] maccVariable = maccDataSet.GetData<Int16[, ,]>(VariableName,
+                                DataSet.FromToEnd(0),
+                                DataSet.FromToEnd(0),
+                                DataSet.FromToEnd(0));
+
+                        ////filling up the array
+                            Int16[, ,] outputDataSet = new Int16[narrTime.Length, narrY.Length, narrX.Length];
+
+                            for (int t = 0; t < narrTime.Length; t++)
+                            {
+                                for (int y = 0; y < narrY.Length; y++)
+                                {
+                                    for (int x = 0; x < narrX.Length; x++)
+                                    {
+                                        try
+                                        {
+                                            outputDataSet[t, y, x] = (Int16)interpolateValue(t,y,x,maccVariable, gc);
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            var dosomething = 1;
+                                        }
+                                    }
+                                }
+                            }
+                       /////// Writting results into file
+                       //   dataset3.Add<Int16[, ,]>(builder.JassVariable.Name, dataset, "time", "y", "x");
+ 
+
+
                     }
                 }
             }
 
             return gc;
+        }
+
+        public double interpolateValue(int t, int y, int x, Int16[,,] maccValues, JassMaccNarrGridsCombo gc)
+        {
+
+            /*
+             *  
+              v(mp1) / d(np, mp1)  + v(mp2) / d(np, mp2) + v(mp3) / d(np, mp3)        
+v(np)  =   ------------------------------------------------------------------------------------
+               1 / d(np, mp1)  + 1 / d(np, mp2) + 1 / d(np, mp3)
+             */
+
+            Int16 v_mp1 = maccValues[t, gc.map[y, x].lat, gc.map[y, x].lon];
+            double d_np_mp1 = gc.map[y, x].distance;
+
+            Int16 v_mp2 = maccValues[t, gc.map2[y, x].lat, gc.map2[y, x].lon];
+            double d_np_mp2 = gc.map2[y, x].distance;
+
+            Int16 v_mp3 = maccValues[t, gc.map3[y, x].lat, gc.map3[y, x].lon];
+            double d_np_mp3 = gc.map3[y, x].distance;
+
+            Int16 v_mp4 = maccValues[t, gc.map4[y, x].lat, gc.map4[y, x].lon];
+            double d_np_mp4 = gc.map4[y, x].distance;
+
+            double value;
+
+            if (d_np_mp1 < 10)
+
+                { value = v_mp1;}
+            else 
+                {
+                    value = (v_mp1 / d_np_mp1 + v_mp2 / d_np_mp2 + v_mp3 / d_np_mp3 + v_mp4 / d_np_mp4) /
+                            (1 / d_np_mp1 + 1 / d_np_mp2 + 1 / d_np_mp3 + 1 / d_np_mp4);
+                };
+
+            return value;
+
         }
 
         public JassMaccNarrGridsCombo MapGridNarr2MaccFromFile(string fileNameMacc, string fileNameNarr)
