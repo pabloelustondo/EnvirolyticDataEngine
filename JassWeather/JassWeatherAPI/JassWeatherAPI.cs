@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -383,7 +384,7 @@ namespace JassWeather.Models
             return (Math.PI / 180) * val;
         }
 
-        public JassMaccNarrGridsCombo TestMapGridNarr2Macc(string fileNameMacc, string fileNameNarr)
+        public JassMaccNarrGridsCombo TestMapGridNarr2Macc(int year, int month, string fileNameMacc, string fileNameNarr)
         {
 
 
@@ -391,7 +392,8 @@ namespace JassWeather.Models
             string maccFile = AppDataFolder + "/" + fileNameMacc;
             string narrFile = AppDataFolder + "/" + fileNameNarr;
             string mapFile = AppFilesFolder + "/mapGridNarr2Macc.nc";
-            int MissingValue = 999999;
+            Int16 missingValue = -32767;
+            Int16 fillValue = -32767;
 
             string VariableName = null;
             Dictionary<string, MetadataDictionary> vars =
@@ -407,13 +409,22 @@ namespace JassWeather.Models
                 Single[] narrY = narrDataSet.GetData<Single[]>("y");
                 Single[] narrX = narrDataSet.GetData<Single[]>("x");
                 double[] narrTime = narrDataSet.GetData<double[]>("time");
-
+     
                 using (var maccDataSet = DataSet.Open(maccFile + "?openMode=open"))
                 {
                     Dictionary<string, MetadataDictionary> maccVars = new Dictionary<string, MetadataDictionary>();
                     foreach (var v in maccDataSet.Variables) { 
                         maccVars.Add(v.Name, v.Metadata);
-                        if (v.Dimensions.Count > 2 && VariableName == null) { VariableName = v.Name; };
+                        if (v.Dimensions.Count > 2 && VariableName == null) { 
+                            
+                            VariableName = v.Name;
+                            try
+                            {
+                                missingValue = (Int16)v.Metadata["missing_value"];
+                                fillValue = (Int16)v.Metadata["_FillValue"];
+                            }
+                            catch (Exception) { };
+                        };
                     }
 
                     Int32[] maccTime = maccDataSet.GetData<Int32[]>("time");
@@ -536,7 +547,7 @@ namespace JassWeather.Models
                                 DataSet.FromToEnd(0));
 
                         ////filling up the array
-                            Int16[, ,] outputDataSet = new Int16[narrTime.Length, narrY.Length, narrX.Length];
+                            Int16[, ,] outputVariable = new Int16[narrTime.Length, narrY.Length, narrX.Length];
 
                             for (int t = 0; t < narrTime.Length; t++)
                             {
@@ -546,7 +557,7 @@ namespace JassWeather.Models
                                     {
                                         try
                                         {
-                                            outputDataSet[t, y, x] = (Int16)interpolateValue(t,y,x,maccVariable, gc);
+                                            outputVariable[t, y, x] = (Int16)interpolateValue(t,y,x,maccVariable, gc, missingValue, fillValue);
                                         }
                                         catch (Exception e)
                                         {
@@ -557,7 +568,57 @@ namespace JassWeather.Models
                             }
                        /////// Writting results into file
                        //   dataset3.Add<Int16[, ,]>(builder.JassVariable.Name, dataset, "time", "y", "x");
- 
+
+                            //we will enter year/month as parameter
+                            string smonth = (month < 10) ? "0" + month : ""+ month;
+                            string outputFilePath = AppDataFolder + "\\macc2narr_" + VariableName + "_" + year + "_" + smonth + ".nc";
+                            using (var outputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
+                            {
+                                /*
+                                 * 
+                Single[] narrY = narrDataSet.GetData<Single[]>("y");
+                Single[] narrX = narrDataSet.GetData<Single[]>("x");
+                double[] narrTime = narrDataSet.GetData<double[]>("time");
+                                 */
+
+
+                                outputDataSet.Add<double[]>("time", narrTime, "time");
+                                foreach (var attr in narrVars["time"]) { if (attr.Key != "Name") outputDataSet.PutAttr("time", attr.Key, attr.Value); }
+                                outputDataSet.Add<Single[]>("y", narrY, "y");
+                                foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("y", attr.Key, attr.Value); }
+                                outputDataSet.Add<Single[]>("x", narrX, "x");
+                                foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("x", attr.Key, attr.Value); }
+                                outputDataSet.Add<Int16[, ,]>(VariableName, outputVariable, "time", "y", "x");
+                                foreach (var attr in maccVars[VariableName]) {
+                                    if (attr.Key != "Name") {
+                                        if (attr.Key != "_FillValue")
+                                        {
+                                            outputDataSet.PutAttr(VariableName, attr.Key, attr.Value);
+                                        }
+                                        else
+                                        {
+                                            outputDataSet.PutAttr(VariableName, "FillValue", attr.Value);
+                                        }
+                                    }
+                                }
+                     
+                            }
+
+
+                        //now let's test 
+                            using (var testDataSet = DataSet.Open(outputFilePath + "?openMode=open"))
+                            {
+
+                                Int16[, ,] testVariable = testDataSet.GetData<Int16[, ,]>(VariableName,
+                                        DataSet.FromToEnd(0),
+                                        DataSet.FromToEnd(0),
+                                        DataSet.FromToEnd(0));
+
+                                Single[] testY = testDataSet.GetData<Single[]>("y");
+                                Single[] testX = testDataSet.GetData<Single[]>("x");
+                                double[] testTime = testDataSet.GetData<double[]>("time");
+                         
+                            }
 
 
                     }
@@ -567,7 +628,7 @@ namespace JassWeather.Models
             return gc;
         }
 
-        public double interpolateValue(int t, int y, int x, Int16[,,] maccValues, JassMaccNarrGridsCombo gc)
+        public double interpolateValue(int t, int y, int x, Int16[,,] maccValues, JassMaccNarrGridsCombo gc, Int16 missValue, Int16 fillValue)
         {
 
             /*
@@ -579,15 +640,19 @@ v(np)  =   ---------------------------------------------------------------------
 
             Int16 v_mp1 = maccValues[t, gc.map[y, x].lat, gc.map[y, x].lon];
             double d_np_mp1 = gc.map[y, x].distance;
+            int go1 = (v_mp1 == missValue || v_mp1 == missValue) ? 0 : 1; 
 
             Int16 v_mp2 = maccValues[t, gc.map2[y, x].lat, gc.map2[y, x].lon];
             double d_np_mp2 = gc.map2[y, x].distance;
+            int go2 = (v_mp2 == missValue || v_mp2 == missValue) ? 0 : 1; 
 
             Int16 v_mp3 = maccValues[t, gc.map3[y, x].lat, gc.map3[y, x].lon];
             double d_np_mp3 = gc.map3[y, x].distance;
+            int go3 = (v_mp3 == missValue || v_mp3 == missValue) ? 0 : 1; 
 
             Int16 v_mp4 = maccValues[t, gc.map4[y, x].lat, gc.map4[y, x].lon];
             double d_np_mp4 = gc.map4[y, x].distance;
+            int go4 = (v_mp4 == missValue || v_mp4 == missValue) ? 0 : 1; 
 
             double value;
 
@@ -596,8 +661,15 @@ v(np)  =   ---------------------------------------------------------------------
                 { value = v_mp1;}
             else 
                 {
-                    value = (v_mp1 / d_np_mp1 + v_mp2 / d_np_mp2 + v_mp3 / d_np_mp3 + v_mp4 / d_np_mp4) /
-                            (1 / d_np_mp1 + 1 / d_np_mp2 + 1 / d_np_mp3 + 1 / d_np_mp4);
+                    value = (go1 * v_mp1 / d_np_mp1 + 
+                             go2 * v_mp2 / d_np_mp2 + 
+                             go3 * v_mp3 / d_np_mp3 + 
+                             go4 * v_mp4 / d_np_mp4) /
+                            
+                            (go1 / d_np_mp1 + 
+                             go2 / d_np_mp2 + 
+                             go3 / d_np_mp3 + 
+                             go4 / d_np_mp4);
                 };
 
             return value;
