@@ -35,10 +35,10 @@ namespace JassWeather.Controllers
         [AllowAnonymous]
         public ActionResult MapMacc2NarrTest2()
         {
-            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.TestMapGridNarr2Macc(
+            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapFromMaccToNarr(
                 2012,1,
-                "netcdf-web239-20140312202339-28508-12103.nc",
-                "ftp___ftp.cdc.noaa.gov_Datasets_NARR_pressure_air.201201.nc");
+                "uvb_macc_$YYYY_$MM.nc",
+                "ftp___ftp.cdc.noaa.gov_Datasets_NARR_pressure_air.$YYYY$MM.nc");
 
             return View("MapMacc2NarrTest1",result);
         }

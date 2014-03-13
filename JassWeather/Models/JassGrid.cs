@@ -9,6 +9,7 @@ namespace JassWeather.Models
     {
         public int JassGridID { get; set; }
         public string Name { get; set; }
+        public string Type { get; set; }
         public int Xsize { get; set; }
         public int Ysize { get; set; }
         public int Levelsize { get; set; }

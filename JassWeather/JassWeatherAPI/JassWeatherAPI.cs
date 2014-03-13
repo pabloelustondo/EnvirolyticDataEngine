@@ -179,7 +179,7 @@ namespace JassWeather.Models
             //Check whether the file is on disk
 
                 APIRequest source = builder.APIRequest;
-                string url = replaceUrlPlaceHolders(source.url, year, month);
+                string url = replaceURIPlaceHolders(source.url, year, month);
 
                 string fileName = safeFileNameFromUrl(url);
                 string filePath = AppDataFolder + "/" + fileName;
@@ -384,13 +384,14 @@ namespace JassWeather.Models
             return (Math.PI / 180) * val;
         }
 
-        public JassMaccNarrGridsCombo TestMapGridNarr2Macc(int year, int month, string fileNameMacc, string fileNameNarr)
+        public JassMaccNarrGridsCombo MapFromMaccToNarr(int year, int month, string fileNameMaccTemp, string fileNameNarrTemp)
         {
-
+            string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month);
+            string fileNameNarr = replaceURIPlaceHolders(fileNameNarrTemp, year, month);
 
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
             string maccFile = AppDataFolder + "/" + fileNameMacc;
-            string narrFile = AppDataFolder + "/" + fileNameNarr;
+            string narrFile = AppFilesFolder + "/" + fileNameNarr;
             string mapFile = AppFilesFolder + "/mapGridNarr2Macc.nc";
             Int16 missingValue = -32767;
             Int16 fillValue = -32767;
@@ -968,7 +969,7 @@ v(np)  =   ---------------------------------------------------------------------
             return Message;
         }
 
-        public string replaceUrlPlaceHolders(string urlTemplate, int year, int month)
+        public string replaceURIPlaceHolders(string urlTemplate, int year, int month)
         {
             string url = String.Copy(urlTemplate);
             if (year != 0)

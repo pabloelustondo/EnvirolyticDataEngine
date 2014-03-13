@@ -56,7 +56,7 @@ namespace JassWeather.Controllers
           
             JassBuilderLog builderLog = apiCaller.createBuilderLog(tempJassBuilder, "ProcessBuilder_Start", "Manual from Request Controller", "Start", new TimeSpan(), true);
 
-            var result = apiCaller.processSource(tempJassBuilder, 0, 0, false, false, builderLog);
+            var result = apiCaller.processSource(tempJassBuilder, (int)apiRequest.sampleYear, (int)apiRequest.sampleMonth,  true, false, builderLog);
 
             ViewBag.Message = result;
 
@@ -506,16 +506,17 @@ namespace JassWeather.Controllers
         }
 
         //
-        // GET: /Request/Create
+        // GET: /Default1/Create
 
         public ActionResult Create()
         {
-            ViewBag.APIRequestSetId = new SelectList(db.APIRequestSets, "Id", "name", CurrentRequestSetID);
+            ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name");
+            ViewBag.APIRequestSetId = new SelectList(db.APIRequestSets, "Id", "name");
             return View();
         }
 
         //
-        // POST: /Request/Create
+        // POST: /Default1/Create
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -528,12 +529,13 @@ namespace JassWeather.Controllers
                 return RedirectToAction("Index");
             }
 
+            ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", apirequest.JassGridID);
             ViewBag.APIRequestSetId = new SelectList(db.APIRequestSets, "Id", "name", apirequest.APIRequestSetId);
             return View(apirequest);
         }
 
         //
-        // GET: /Request/Edit/5
+        // GET: /Default1/Edit/5
 
         public ActionResult Edit(int id = 0)
         {
@@ -542,12 +544,13 @@ namespace JassWeather.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", apirequest.JassGridID);
             ViewBag.APIRequestSetId = new SelectList(db.APIRequestSets, "Id", "name", apirequest.APIRequestSetId);
             return View(apirequest);
         }
 
         //
-        // POST: /Request/Edit/5
+        // POST: /Default1/Edit/5
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -559,10 +562,10 @@ namespace JassWeather.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
+            ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", apirequest.JassGridID);
             ViewBag.APIRequestSetId = new SelectList(db.APIRequestSets, "Id", "name", apirequest.APIRequestSetId);
             return View(apirequest);
         }
-
         //
         // GET: /Request/Delete/5
 

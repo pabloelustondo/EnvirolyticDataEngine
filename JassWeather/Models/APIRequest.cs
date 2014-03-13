@@ -11,6 +11,10 @@ namespace JassWeather.Models
     {
         public int Id { get; set; }
         public int APIRequestSetId { get; set; }
+
+        public int? JassGridID { get; set; }
+        public virtual JassGrid JassGrid { get; set; }
+
         
         public virtual APIRequestSet APIRequestSet { get; set; }
 

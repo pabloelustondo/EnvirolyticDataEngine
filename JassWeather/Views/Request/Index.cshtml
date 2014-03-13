@@ -9,6 +9,9 @@
         <th>
             Name
         </th>
+        <th>
+            GridName
+        </th>
                 <th>
             Year
         </th>
@@ -28,6 +31,9 @@
     <tr>
         <td>
             @Html.DisplayFor(modelItem => item.name)
+        </td>
+         <td>
+            @Html.DisplayFor(modelItem => item.JassGrid.Name)
         </td>
                 <td>
             @Html.DisplayFor(modelItem => item.sampleYear)
