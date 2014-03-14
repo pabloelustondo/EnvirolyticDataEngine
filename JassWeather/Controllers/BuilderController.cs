@@ -99,6 +99,19 @@ namespace JassWeather.Controllers
 
             return View(jassbuilder);
         }
+        public ActionResult ProcessBuilderAllLocally(int id = 0)
+        {
+            JassBuilder jassbuilder = db.JassBuilders.Find(id);
+            var result = apiCaller.processBuilderAll(jassbuilder, false);
+
+            if (jassbuilder == null)
+            {
+                return HttpNotFound();
+            }
+            ViewBag.Message = result;
+
+            return View(jassbuilder);
+        }
 
         public ActionResult CheckBuilderOnDisk(int id = 0)
         {

@@ -187,7 +187,11 @@ namespace JassWeather.Models
 
                 //check if the file is on storage
 
-                Boolean fileOnBlob = checkIfBlobExist("ftp",fileName);
+                Boolean fileOnBlob = false;
+                Boolean blobAccess = true;
+
+                try { checkIfBlobExist("ftp", fileName); }
+                catch (Exception) { blobAccess = false; };
 
                 string LogMessage = "fileOnBlob: " + fileOnBlob + "fileOnDisk: " + fileOnDisk;
                 DateTime processSourceStartime = DateTime.Now;
@@ -213,7 +217,7 @@ namespace JassWeather.Models
                 }
 
                 //so, here we know the file is on dis for sure (unless there is an error)
-                if (upload)
+                if (upload && blobAccess)
                 {
                     uploadBlob("ftp", fileName, filePath);
                 }
@@ -384,15 +388,22 @@ namespace JassWeather.Models
             return (Math.PI / 180) * val;
         }
 
-        public JassMaccNarrGridsCombo MapFromMaccToNarr(int year, int month, string fileNameMaccTemp, string fileNameNarrTemp)
+       // public JassMaccNarrGridsCombo MapFromMaccToNarr(int year, int month, string fileNameMaccTemp, string fileNameNarrTemp)
+       // JassBuilder builder, int year, int month, Boolean upload, Boolean overWrite, JassBuilderLog builderAllLog
+        public string processGridMappingMaccToNarr(int year, int month, string fileNameMaccTemp)
         {
             string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month);
-            string fileNameNarr = replaceURIPlaceHolders(fileNameNarrTemp, year, month);
+            string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month);
 
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
             string maccFile = AppDataFolder + "/" + fileNameMacc;
             string narrFile = AppFilesFolder + "/" + fileNameNarr;
-            string mapFile = AppFilesFolder + "/mapGridNarr2Macc.nc";
+            string mapFile = AppFilesFolder + "/Narr_2_Macc_Grid_Mapper.nc";
+
+            string smonth = (month < 10) ? "0" + month : "" + month;
+            string outputFileName=null;
+            string outputFilePath =null;
+
             Int16 missingValue = -32767;
             Int16 fillValue = -32767;
 
@@ -428,8 +439,11 @@ namespace JassWeather.Models
                         };
                     }
 
+                    outputFileName = VariableName + "_macc2narr_" + year + "_" + smonth + ".nc";
+                    outputFilePath = AppDataFolder + "\\" + outputFileName;
+
                     Int32[] maccTime = maccDataSet.GetData<Int32[]>("time");
-                    Int32[] maccTime2 = new Int32[maccTime.Length];
+                    double[] maccNarrTime = new double[maccTime.Length];
 
                     DateTime day1900 = DateTime.Parse("1900-01-01 00:00:00");
                     DateTime day1800 = DateTime.Parse("1800-01-01 00:00:00");
@@ -440,12 +454,35 @@ namespace JassWeather.Models
 
                     DateTime maccDay;
                     DateTime narrDay;
+                    double narrNumber;
 
-                    for (int t = 0; t < narrTime.Length; t++)
+                    DateTime maccDayStart = day1900.AddHours(maccTime[0]);
+                    DateTime narrDayStart = new DateTime(maccDayStart.Year, maccDayStart.Month, maccDayStart.Day);
+
+                    if (maccDayStart.Year != year || maccDayStart.Month != month)
                     {
-                         maccDay = day1900.AddHours(maccTime[t]);
-                         narrDay = day1800.AddHours(narrTime[t]);
+                        throw new Exception("maccDayStart.Year != year || maccDayStart.Month != month");
                     }
+
+                    double narrDayStartHours = (narrDayStart - day1800).TotalHours;
+
+                    double narrDayHours = narrDayStartHours;
+                    for (int t = 0; t < maccTime.Length; t++)
+                    {
+                         maccNarrTime[t] = narrDayHours;
+                         narrDayHours += 3; 
+                    }
+
+                    for (int t = 0; t < maccTime.Length; t++)
+                    {
+                        if (maccNarrTime[t] != narrTime[t])
+                        {
+                            var crap = 1;
+                        }
+                    }
+
+                    //At this point we have the time dimension in the variable maccNarrTime
+                    //we do not need the time dimension from narr anymore.
 
                     using (var mapDataSet = DataSet.Open(mapFile + "?openMode=open"))
                     {
@@ -548,9 +585,9 @@ namespace JassWeather.Models
                                 DataSet.FromToEnd(0));
 
                         ////filling up the array
-                            Int16[, ,] outputVariable = new Int16[narrTime.Length, narrY.Length, narrX.Length];
+                            Int16[, ,] outputVariable = new Int16[maccNarrTime.Length, narrY.Length, narrX.Length];
 
-                            for (int t = 0; t < narrTime.Length; t++)
+                            for (int t = 0; t < maccNarrTime.Length; t++)
                             {
                                 for (int y = 0; y < narrY.Length; y++)
                                 {
@@ -571,8 +608,7 @@ namespace JassWeather.Models
                        //   dataset3.Add<Int16[, ,]>(builder.JassVariable.Name, dataset, "time", "y", "x");
 
                             //we will enter year/month as parameter
-                            string smonth = (month < 10) ? "0" + month : ""+ month;
-                            string outputFilePath = AppDataFolder + "\\macc2narr_" + VariableName + "_" + year + "_" + smonth + ".nc";
+                           
                             using (var outputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
                             {
                                 /*
@@ -583,7 +619,7 @@ namespace JassWeather.Models
                                  */
 
 
-                                outputDataSet.Add<double[]>("time", narrTime, "time");
+                                outputDataSet.Add<double[]>("time", maccNarrTime, "time");
                                 foreach (var attr in narrVars["time"]) { if (attr.Key != "Name") outputDataSet.PutAttr("time", attr.Key, attr.Value); }
                                 outputDataSet.Add<Single[]>("y", narrY, "y");
                                 foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("y", attr.Key, attr.Value); }
@@ -626,7 +662,8 @@ namespace JassWeather.Models
                 }
             }
 
-            return gc;
+            //return gc;
+            return outputFilePath;
         }
 
         public double interpolateValue(int t, int y, int x, Int16[,,] maccValues, JassMaccNarrGridsCombo gc, Int16 missValue, Int16 fillValue)
@@ -1088,7 +1125,7 @@ v(np)  =   ---------------------------------------------------------------------
                         finally
                         {
                             //clean disk
-                            cleanAppData();
+                            if (upload) cleanAppData();
                             int filesInAppData = Directory.GetFiles(AppDataFolder).Count();
                             JassBuilderLog childBuilderLog10 = createBuilderLogChild(builderLog, builder, year, month, "processBuilderAll_CleanAppData", builder.JassVariable.Name, "filesInAppData: " + filesInAppData, new TimeSpan(), true);
 
@@ -1157,6 +1194,38 @@ v(np)  =   ---------------------------------------------------------------------
                 string inputFile1 = processSource(builder, year, month, upload, false, builderAllLog);
 
                 JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterProcessSource", builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, true);
+
+                //here we transform the grid if the original grid is different
+
+                Boolean input_Grid_Is_Different = (builder.APIRequest.JassGrid.Type != "NARR");
+
+                if (input_Grid_Is_Different)
+                {
+                    if (builder.APIRequest.JassGrid.Type != "MACC") throw new Exception("We do not how to process this grid type: " + builder.APIRequest.JassGrid.Type);
+                    //in the future we wil lhave more grid transformations... for the moment here is where we call
+
+                     //ok, so for now, we only have one case, let call the Macc to Narr transformer
+                    string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
+                    try
+                    {
+                        inputFile1 = processGridMappingMaccToNarr(
+                                       year, month,
+                                       inputFileTemplateBeforeTransformation);
+                    }
+                    catch (Exception e)
+                    {
+
+                        JassBuilderLog childBuilderLog122 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterTransformingGridERROR", builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, false);
+                        return "error";
+                    }
+
+                    //so, theoretically, at this point we should have a nice file created in the App_Data folder.
+                    // WeakReference just need to ChangesetSource the name
+
+                }
+
+                JassBuilderLog childBuilderLog11 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterTransformingGrid", builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, true);
+
 
                 using (var dataset1 = DataSet.Open(inputFile1 + "?openMode=open"))
                 {
