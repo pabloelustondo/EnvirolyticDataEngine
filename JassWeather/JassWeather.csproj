@@ -713,6 +713,7 @@
     <Content Include="Views\Grid\MapMacc2NarrTest1.cshtml" />
     <Content Include="Views\Home\Tests.cshtml" />
     <Content Include="Views\Builder\ProcessBuilderAllLocally.cshtml" />
+    <Content Include="Views\Builder\ProcessBuilderAndUploadAllClean.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

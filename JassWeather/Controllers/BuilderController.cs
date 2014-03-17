@@ -85,11 +85,24 @@ namespace JassWeather.Controllers
             return View(jassbuilder);
         }
 
+        public ActionResult ProcessBuilderAndUploadAllClean(int id = 0)
+        {
+            JassBuilder jassbuilder = db.JassBuilders.Find(id);
+            var result = apiCaller.processBuilderAll(jassbuilder, true, true);
+
+            if (jassbuilder == null)
+            {
+                return HttpNotFound();
+            }
+            ViewBag.Message = result;
+
+            return View(jassbuilder);
+        }
 
         public ActionResult ProcessBuilderAndUploadAll(int id = 0)
         {
             JassBuilder jassbuilder = db.JassBuilders.Find(id);
-            var result = apiCaller.processBuilderAll(jassbuilder, true);
+            var result = apiCaller.processBuilderAll(jassbuilder, true, false);
 
             if (jassbuilder == null)
             {
@@ -102,7 +115,7 @@ namespace JassWeather.Controllers
         public ActionResult ProcessBuilderAllLocally(int id = 0)
         {
             JassBuilder jassbuilder = db.JassBuilders.Find(id);
-            var result = apiCaller.processBuilderAll(jassbuilder, false);
+            var result = apiCaller.processBuilderAll(jassbuilder, false, false);
 
             if (jassbuilder == null)
             {

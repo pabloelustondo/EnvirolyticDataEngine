@@ -63,19 +63,52 @@ namespace JassWeather.Controllers
             return View(variableStatusModel);
         }
 
-        public ActionResult ShowDashBoard4Day(string variableName, int yearIndex, int monthIndex, int dayIndex)  //list container
+        public class ShowDashBoard4DayViewModel
+        {
+            public int year { get; set; }
+            public int yearIndex { get; set; }
+            public int monthIndex { get; set; }
+            public int dayIndex { get; set; }
+            public int stepIndex { get; set; }
+            public int levelIndex { get; set; }
+            public int numberOfDays { get; set; }
+            public string fileName { get; set; }
+            public string variableName { get; set; }
+            public JassGridValues gridValues  { get; set; }
+
+        }
+        public ActionResult ShowDashBoard4Day(string variableName, int yearIndex, int monthIndex, int dayIndex, int stepIndex, int levelIndex)  //list container
         {
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
-            ViewBag.year = yearIndex + (DateTime.Now.Year - 9);
-            ViewBag.yearIndex = yearIndex;
-            ViewBag.monthIndex = monthIndex;
-            ViewBag.dayIndex = dayIndex;
-            ViewBag.numberOfDays = variableStatusModel[0].StatusDayLevel[yearIndex][monthIndex].Count;
-            string fileName = apiCaller.fileNameBuilderByDay(variableName, ViewBag.year, monthIndex+1, dayIndex+1) + ".nc";
-            JassGridValues rows = apiCaller.GetDayValues(fileName);
-            ViewBag.FileName = fileName;
 
-            return View(rows);
+            ShowDashBoard4DayViewModel Model = new ShowDashBoard4DayViewModel();
+            Model.year = yearIndex + (DateTime.Now.Year - 9);
+            Model.yearIndex = yearIndex;
+            Model.monthIndex = monthIndex;
+            Model.dayIndex = dayIndex;
+            Model.stepIndex = stepIndex;
+            Model.levelIndex = levelIndex;
+            Model.numberOfDays = variableStatusModel[0].StatusDayLevel[yearIndex][monthIndex].Count;
+            string fileName = apiCaller.fileNameBuilderByDay(variableName, Model.year, monthIndex + 1, dayIndex + 1) + ".nc";
+            Model.gridValues = apiCaller.GetDayValues(fileName);
+            Model.fileName = fileName;
+            Model.variableName = variableName;
+
+            return View(Model);
+        }
+
+        public ActionResult ShowDashBoard4DayForm()  //list container
+        {
+            List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
+            ShowDashBoard4DayViewModel Model = new ShowDashBoard4DayViewModel();
+            return View(Model);
+        }
+
+        public ActionResult ShowDashBoard4DayForm(ShowDashBoard4DayViewModel Model)  //list container
+        {
+            List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
+            Model.gridValues = apiCaller.GetDayValues(Model.fileName);
+            return View(Model);
         }
 
         public ActionResult ShowAppData()

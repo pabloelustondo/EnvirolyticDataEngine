@@ -49,6 +49,8 @@ namespace JassWeather.Models
         public int[] maxX { get; set; }
         public int[] minY { get; set; }
         public int[] maxY { get; set; }
+        public int[] minT { get; set; }
+        public int[] maxT { get; set; }
         public string VariableName { get; set; }
         public MetadataDictionary variableMetadata { get; set; }
  
@@ -63,6 +65,8 @@ namespace JassWeather.Models
             minY = new int[levelLengthIn];
             maxX = new int[levelLengthIn];
             maxY = new int[levelLengthIn];
+            minT = new int[levelLengthIn];
+            maxT = new int[levelLengthIn];
             timeLength = timeLengthIn;
             levelLength = levelLengthIn;
             yLength = yLengthIn;
@@ -190,7 +194,7 @@ namespace JassWeather.Models
                 Boolean fileOnBlob = false;
                 Boolean blobAccess = true;
 
-                try { checkIfBlobExist("ftp", fileName); }
+                try { fileOnBlob = checkIfBlobExist("ftp", fileName); }
                 catch (Exception) { blobAccess = false; };
 
                 string LogMessage = "fileOnBlob: " + fileOnBlob + "fileOnDisk: " + fileOnDisk;
@@ -1070,7 +1074,7 @@ v(np)  =   ---------------------------------------------------------------------
         }
 
 
-        public string processBuilderAll(JassBuilder builder, Boolean upload)
+        public string processBuilderAll(JassBuilder builder, Boolean upload, Boolean clean)
         {
             JassBuilderLog builderLog = createBuilderLog(builder, "processBuilderAll_Start", builder.JassVariable.Name, "Start", DateTime.Now - DateTime.Now, true);
 
@@ -1125,7 +1129,7 @@ v(np)  =   ---------------------------------------------------------------------
                         finally
                         {
                             //clean disk
-                            if (upload) cleanAppData();
+                            if (clean) cleanAppData();
                             int filesInAppData = Directory.GetFiles(AppDataFolder).Count();
                             JassBuilderLog childBuilderLog10 = createBuilderLogChild(builderLog, builder, year, month, "processBuilderAll_CleanAppData", builder.JassVariable.Name, "filesInAppData: " + filesInAppData, new TimeSpan(), true);
 
@@ -2489,9 +2493,10 @@ v(np)  =   ---------------------------------------------------------------------
 
         }
 
-        public string uploadBlob(string blobContainer, string blobName, string filePath)
+        public string uploadBlob(string blobContainerIn, string blobName, string filePath)
         {
             DateTime Start = DateTime.Now;
+            string blobContainer = blobContainerIn.ToLower();
             // Retrieve storage account from connection string.
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
                 CloudConfigurationManager.GetSetting(storageConnectionString));
@@ -2701,25 +2706,25 @@ v(np)  =   ---------------------------------------------------------------------
                     }
                 }
 
-                Single scale_factor = 1;
-                Single add_offset = 0;
-                Single missing_value = 32766;
-                Single FillValue = 32766;
+                double scale_factor = 1;
+                double add_offset = 0;
+                double missing_value = 32766;
+                double FillValue = 32766;
 
-                try { scale_factor = (Single)keyVariable.Metadata["scale_factor"]; }
+                try { scale_factor = (double)keyVariable.Metadata["scale_factor"]; }
                 catch (Exception e) {
                     var n = e; };
-                try { add_offset = (Single)keyVariable.Metadata["add_offset"]; }
+                try { add_offset = (double)keyVariable.Metadata["add_offset"]; }
                 catch (Exception e) { 
                     var n = e; };
-                try { missing_value = (Single)keyVariable.Metadata["missing_value"]; }
+                try { missing_value = (double)keyVariable.Metadata["missing_value"]; }
                 catch (Exception e) { 
                     var n = e; };
 
-                try { FillValue = (Single)keyVariable.Metadata["FillValue"]; }
+                try { FillValue = (double)keyVariable.Metadata["FillValue"]; }
                 catch (Exception e) { 
                     var n = e; };
-                try { FillValue = (Single)keyVariable.Metadata["_FillValue"]; }
+                try { FillValue = (double)keyVariable.Metadata["_FillValue"]; }
                 catch (Exception e) { 
                     var n = e; }; 
 
@@ -2751,19 +2756,17 @@ v(np)  =   ---------------------------------------------------------------------
                                 for (int xx = 0; xx < x.Length; xx++)
                                 {
                                     if (values[tt, ll, yy, xx] != missing_value && 
-                                        values[tt, ll, yy, xx] != FillValue &&
-                                        values[tt, ll, yy, xx] != 32767 &&
-                                        values[tt, ll, yy, xx] != 32766)
+                                        values[tt, ll, yy, xx] != FillValue)
                                     {
                                         dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, ll, yy, xx];
                                    
                                         if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax[ll]) { 
                                             dayGridValues.measureMax[ll] = (double) dayGridValues.measure[tt, ll, yy, xx];
-                                            dayGridValues.maxX[ll] = xx; dayGridValues.maxY[ll] = yy; 
+                                            dayGridValues.maxX[ll] = xx; dayGridValues.maxY[ll] = yy; dayGridValues.maxT[ll] = tt; 
                                         }
                                         if (dayGridValues.measure[tt, ll, yy, xx] < dayGridValues.measureMin[ll]) { 
                                             dayGridValues.measureMin[ll] = (double) dayGridValues.measure[tt, ll, yy, xx];
-                                            dayGridValues.minX[ll] = xx; dayGridValues.minY[ll] = yy; 
+                                            dayGridValues.minX[ll] = xx; dayGridValues.minY[ll] = yy; dayGridValues.minT[ll] = tt;
                                         }
                                     }
                                 }
@@ -2783,9 +2786,7 @@ v(np)  =   ---------------------------------------------------------------------
                                 for (int xx = 0; xx < x.Length; xx++)
                                 {
                                     if (values[tt, yy, xx] != missing_value && 
-                                        values[tt, yy, xx] != FillValue &&
-                                        values[tt, yy, xx] != 32767 &&
-                                        values[tt, yy, xx] != 32766)
+                                        values[tt, yy, xx] != FillValue)
                                     {
                                         dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, yy, xx];
                                         //0.0500015563699208
@@ -2793,11 +2794,11 @@ v(np)  =   ---------------------------------------------------------------------
 
                                         if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax[ll]) { 
                                             dayGridValues.measureMax[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
-                                            dayGridValues.maxX[ll] = xx; dayGridValues.maxY[ll] = yy; 
+                                            dayGridValues.maxX[ll] = xx; dayGridValues.maxY[ll] = yy; dayGridValues.maxT[ll] = tt; 
                                         }
                                         if (dayGridValues.measure[tt, ll, yy, xx] < dayGridValues.measureMin[ll]) { 
                                             dayGridValues.measureMin[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
-                                            dayGridValues.minX[ll ]= xx; dayGridValues.minY[ll] = yy; 
+                                            dayGridValues.minX[ll] = xx; dayGridValues.minY[ll] = yy; dayGridValues.minT[ll] = tt;
                                         }
                                     }
                                 }

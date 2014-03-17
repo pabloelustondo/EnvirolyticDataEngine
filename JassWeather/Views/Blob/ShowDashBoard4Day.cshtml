@@ -1,9 +1,5 @@
-﻿@model JassWeather.Models.JassGridValues
+﻿@model JassWeather.Controllers.BlobController.ShowDashBoard4DayViewModel
 @using JassWeather.Models
-
-@{
-    ViewBag.Title = "Index";
-}
 <style>
 
 table { table-layout: fixed; }
@@ -11,11 +7,23 @@ th, td { width: 2px; font-size:xx-small}
 
 </style>
 
-<h2>Values on File @ViewBag.fileName for time==0 level==0</h2>
-Max Value:  @Model.measureMax[0]  Min Value : @Model.measureMin[0] MaxPosition Y:@Model.maxY[0] X:@Model.maxX[0]  MinPosition Y:@Model.minY[0] X:@Model.minX[0]
+<h2>Values for @Model.fileName for time step=@Model.stepIndex</h2>
+Click here for other time steps: 
+@for(int i=0;i<Model.gridValues.timeLength;i++){
+ @Html.ActionLink(""+i, "ShowDashBoard4Day", new { variableName=@Model.variableName, yearIndex=@Model.yearIndex, monthIndex=@Model.monthIndex, dayIndex=@Model.dayIndex, stepIndex=i, levelIndex=Model.levelIndex })    
+}
+@if(Model.gridValues.levelLength>1){    
+<text>Click here for other level steps: </text>
+    for(int i=0;i<Model.gridValues.levelLength;i++){
+        Html.ActionLink("" + i, "ShowDashBoard4Day", new { variableName = @Model.variableName, yearIndex = @Model.yearIndex, monthIndex = @Model.monthIndex, dayIndex = @Model.dayIndex, stepIndex = Model.stepIndex, levelIndex = i });    
+}}
+     <br />
+Max Value:  @Model.gridValues.measureMax[0]  Min Value : @Model.gridValues.measureMin[0] 
+<br />MaxPosition Y:@Model.gridValues.maxY[0] X:@Model.gridValues.maxX[0] T:@Model.gridValues.maxT[0] 
+<br />MinPosition Y:@Model.gridValues.minY[0] X:@Model.gridValues.minX[0] T:@Model.gridValues.minT[0]
 
 <table><tr>
-@foreach (var v in Model.variableMetadata)
+@foreach (var v in Model.gridValues.variableMetadata)
 {
     <td>@v.Key<text>:</text>@v.Value</td>
 }
@@ -24,7 +32,7 @@ Color Scale
 
 <table><tr>
 @{
-    double range = Model.measureMax[0] - Model.measureMin[0];
+    double range = Model.gridValues.measureMax[0] - Model.gridValues.measureMin[0];
     double myfactor = (range>0)? (1024 / range):1;
     int start, end;
 
@@ -38,9 +46,7 @@ Color Scale
     @for (var c = start; c < end; c++ )
     {JassRGB rgb = JassWeatherAPI.rgb(c,start,end);
     <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b)">
-        @(c*range/1024 + Model.measureMin[0])</td>
-    }
-
+        @(c*range/1024 + Model.gridValues.measureMin[0])</td>
     }
 </tr></table>
 
@@ -49,24 +55,24 @@ Color Scale
         <th>
             Y
         </th>
-        @for (int x = 0; x < Model.xLength; x++ ){
+        @for (int x = 0; x < Model.gridValues.xLength; x++ ){
         <th>
             @x
         </th>
         }
     </tr>
 
-@for (int y = Model.yLength-1; y >= 0 ; y--)
+@for (int y = Model.gridValues.yLength-1; y >= 0 ; y--)
 {
     <tr>
         <td>
             @y
         </td>
-           @for (int x = 0; x < Model.xLength; x++ ){
+           @for (int x = 0; x < Model.gridValues.xLength; x++ ){
                JassWeather.Models.JassRGB rgb;
-               if (Model.measure[0, 0, y, x] != null)
+               if (Model.gridValues.measure[0, 0, y, x] != null)
                {
-                   double scaledValue = ((double)Model.measure[0, 0, y, x] - Model.measureMin[0]) * myfactor;
+                   double scaledValue = ((double)Model.gridValues.measure[Model.stepIndex, 0, y, x] - Model.gridValues.measureMin[0]) * myfactor;
                    rgb = JassWeather.Models.JassWeatherAPI.rgb(scaledValue, 0, 1024);
                }
                else
@@ -74,7 +80,7 @@ Color Scale
                    rgb = new JassRGB(0,0,0);
                }
         <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b)">
-            @Model.measure[0,0,y,x]
+            @Model.gridValues.measure[Model.stepIndex,0,y,x]
         </td>
             }
     </tr>

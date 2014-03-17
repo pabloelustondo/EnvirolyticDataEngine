@@ -50,7 +50,7 @@
             if (item.StatusDayLevel[ViewBag.yearIndex][ViewBag.monthIndex][y] == 100) { color = "green"; }
             if (item.StatusDayLevel[ViewBag.yearIndex][ViewBag.monthIndex][y] > 0 && item.StatusDayLevel[ViewBag.yearIndex][ViewBag.monthIndex][y] < 100) { color = "yellow"; }
             <td class="@color"> 
-                 @Html.ActionLink(value, "ShowDashBoard4Day", new { variableName=item.VariableName, yearIndex=ViewBag.yearIndex, monthIndex=ViewBag.monthIndex, dayIndex=y })                
+                 @Html.ActionLink(value, "ShowDashBoard4Day", new { variableName=item.VariableName, yearIndex=ViewBag.yearIndex, monthIndex=ViewBag.monthIndex, dayIndex=y, stepIndex=0, levelIndex=0 })                
             </td>
         }
     </tr>
