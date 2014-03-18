@@ -20,7 +20,7 @@
             @Html.EditorFor(model => model.Name)
             @Html.ValidationMessageFor(model => model.Name)
         </div>
-                <div class="editor-label">
+        <div class="editor-label">
             @Html.LabelFor(model => model.Type)
         </div>
         <div class="editor-field">
@@ -28,12 +28,36 @@
             @Html.ValidationMessageFor(model => model.Type)
         </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.Xsize)
+                <div class="editor-label">
+            @Html.LabelFor(model => model.Timesize)
         </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.Xsize)
-            @Html.ValidationMessageFor(model => model.Xsize)
+            @Html.EditorFor(model => model.Timesize)
+            @Html.ValidationMessageFor(model => model.Timesize)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Timename)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Timename)
+            @Html.ValidationMessageFor(model => model.Timename)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Levelsize)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Levelsize)
+            @Html.ValidationMessageFor(model => model.Levelsize)
+        </div>
+
+       <div class="editor-label">
+            @Html.LabelFor(model => model.Levelname)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Levelname)
+            @Html.ValidationMessageFor(model => model.Levelname)
         </div>
 
         <div class="editor-label">
@@ -45,19 +69,28 @@
         </div>
 
         <div class="editor-label">
-            @Html.LabelFor(model => model.Levelsize)
+            @Html.LabelFor(model => model.Yname)
         </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.Levelsize)
-            @Html.ValidationMessageFor(model => model.Levelsize)
+            @Html.EditorFor(model => model.Yname)
+            @Html.ValidationMessageFor(model => model.Yname)
+        </div>
+
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Xsize)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Xsize)
+            @Html.ValidationMessageFor(model => model.Xsize)
         </div>
 
         <div class="editor-label">
-            @Html.LabelFor(model => model.Timesize)
+            @Html.LabelFor(model => model.Xname)
         </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.Timesize)
-            @Html.ValidationMessageFor(model => model.Timesize)
+            @Html.EditorFor(model => model.Xname)
+            @Html.ValidationMessageFor(model => model.Xname)
         </div>
 
         <div class="editor-label">

@@ -12,6 +12,8 @@ namespace JassWeather.Controllers
     [Authorize]
     public class BlobController : JassController
     {
+        private JassWeatherContext db = new JassWeatherContext();
+
 
         // GET: /Blob/
         public ActionResult Index()  //list container
@@ -65,14 +67,17 @@ namespace JassWeather.Controllers
 
         public class ShowDashBoard4DayViewModel
         {
+            public string fileName { get; set; }
+            public string schema { get; set; } 
+            public JassGrid JassGrid { get; set; }
+            public int? JassGridID { get; set; }
             public int year { get; set; }
             public int yearIndex { get; set; }
             public int monthIndex { get; set; }
             public int dayIndex { get; set; }
             public int stepIndex { get; set; }
             public int levelIndex { get; set; }
-            public int numberOfDays { get; set; }
-            public string fileName { get; set; }
+            public int numberOfDays { get; set; }           
             public string variableName { get; set; }
             public JassGridValues gridValues  { get; set; }
 
@@ -95,6 +100,50 @@ namespace JassWeather.Controllers
             Model.variableName = variableName;
 
             return View(Model);
+        }
+
+        public ActionResult ShowDashBoard4DayFromFile()  //list container
+        {
+            ShowDashBoard4DayViewModel Model = new ShowDashBoard4DayViewModel(); 
+            ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", Model.JassGridID);
+            //hack for now:
+            Model.fileName = "pgbhnl.gdas.20101211-20101215.grb2.nc";
+            return View("ShowDashBoard4DayFromFileFirst", Model);
+        }
+
+        [HttpPost]
+        public ActionResult ShowDashBoard4DayFromFile(ShowDashBoard4DayViewModel Model)  //list container
+        {
+            if (Model.JassGridID != null)
+            {
+                /*
+Model.year = yearIndex + (DateTime.Now.Year - 9);
+Model.yearIndex = yearIndex;
+Model.monthIndex = monthIndex;
+Model.dayIndex = dayIndex;
+Model.stepIndex = stepIndex;
+Model.levelIndex = levelIndex;
+Model.numberOfDays = variableStatusModel[0].StatusDayLevel[yearIndex][monthIndex].Count;
+string fileName = apiCaller.fileNameBuilderByDay(variableName, Model.year, monthIndex + 1, dayIndex + 1) + ".nc";
+Model.gridValues = apiCaller.GetDayValues(fileName);
+Model.variableName = variableName;
+*/
+
+                Model.JassGrid = db.JassGrids.Find(Model.JassGridID);
+                Model.gridValues = apiCaller.GetDayValues(Model.JassGrid, Model.fileName);
+                return View(Model);
+            }
+            else
+            {
+                //inspect file schema
+                string filePath = apiCaller.AppDataFolder + "\\" + Model.fileName;
+                string schema = apiCaller.AnalyzeFileDisk(filePath);
+                Model.schema = schema;
+
+
+                ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", Model.JassGridID);
+                return View("ShowDashBoard4DayFromFileFirst", Model);
+            }
         }
 
         public ActionResult ShowDashBoard4DayForm()  //list container

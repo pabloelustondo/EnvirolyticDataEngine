@@ -2022,29 +2022,31 @@ v(np)  =   ---------------------------------------------------------------------
             try
             {
 
-               var dataset = DataSet.Open(downloadedFilePath);
+                using (var dataset = DataSet.Open(downloadedFilePath))
+                {
 
-               var schema = dataset.GetSchema();
+                    var schema = dataset.GetSchema();
 
-               foreach (var v in schema.Variables)
-               {
-                   if (v.Name != "" && v.Dimensions.Count > 1)
-                   {
-                       schemaString += v.Name;
-                       dimensionsString = "  ";
-                       foreach (var d in v.Dimensions)
-                       {
-                           dimensionsString += "(" + d.Name + "," + d.Length + ")";
-                       }
-                       schemaString += dimensionsString;
-                   }
-               }
+                    foreach (var v in schema.Variables)
+                    {
+                        if (v.Name != "" && v.Dimensions.Count > 1)
+                        {
+                            schemaString += v.Name;
+                            dimensionsString = "  ";
+                            foreach (var d in v.Dimensions)
+                            {
+                                dimensionsString += "(" + d.Name + "," + d.Length + ")";
+                            }
+                            schemaString += dimensionsString;
+                        }
+                    }//for each var
+                }//using
 
-            }
+            }//try
             catch (Exception e)
             {
                 return "Error: " + e.Message;
-            }
+            }//catch
             return schemaString;
         }
 
@@ -2592,7 +2594,7 @@ v(np)  =   ---------------------------------------------------------------------
         public void DownloadFile2DiskIfNotThere(string fileName, string filePath)
         {
 
-            Boolean fileOnDisk = File.Exists(fileName);
+            Boolean fileOnDisk = File.Exists(filePath);
 
             if (!fileOnDisk)
             {
@@ -2680,7 +2682,193 @@ v(np)  =   ---------------------------------------------------------------------
             return listOfValues;
         }
 
-        public JassGridValues GetDayValues(string fileName)
+        public JassGridValues GetDayValues(JassGrid grid, string fileName)
+        {
+            //HERE
+
+            //IMPORTANT: The good thing about this function is that is generic... but the bad thing is that is to sample.
+            //So, we are reducing the time and level dimension to only read the first 'Timesize" points and only 3 levels
+
+            JassGridValues dayGridValues;
+            string filePath = AppDataFolder + "/" + fileName;
+            DownloadFile2DiskIfNotThere(fileName, filePath);
+            using (var dataset1 = DataSet.Open(filePath + "?openMode=open"))
+            {
+                var schema1 = dataset1.GetSchema();
+
+                //first let's select the key variable by having various dimensions
+                VariableSchema keyVariable = null;
+                Boolean hasLevel = false;
+
+                foreach (var v in schema1.Variables)
+                {
+                    if (v.Dimensions.Count > 2)
+                    {
+                        keyVariable = v;
+                    }
+                    if (v.Name == grid.Levelname)
+                    {
+                        hasLevel = true;
+                    }
+                }
+
+                double scale_factor = 1;
+                double add_offset = 0;
+                double missing_value = 32766;
+                double FillValue = 32766;
+
+                try { scale_factor = Convert.ToDouble(keyVariable.Metadata["scale_factor"]); }
+                catch (Exception e)
+                {
+                    var n = e;
+                };
+                try { add_offset = Convert.ToDouble(keyVariable.Metadata["add_offset"]); }
+                catch (Exception e)
+                {
+                    var n = e;
+                };
+                try { missing_value = Convert.ToDouble(keyVariable.Metadata["missing_value"]); }
+                catch (Exception e)
+                {
+                    var n = e;
+                };
+
+                try { FillValue = Convert.ToDouble(keyVariable.Metadata["FillValue"]); }
+                catch (Exception e)
+                {
+                    var n = e;
+                };
+                try { FillValue = Convert.ToDouble(keyVariable.Metadata["_FillValue"]); }
+                catch (Exception e)
+                {
+                    var n = e;
+                }; 
+
+                Single[] y = dataset1.GetData<Single[]>(grid.Yname);
+                Single[] x = dataset1.GetData<Single[]>(grid.Xname);
+                double[] time = new double[grid.Timesize];
+
+                Single[] level = new Single[1];
+
+                //IMPORTANT WE ARE SAMPLING ONLY 3 LEVELS OF PRESSURE
+                if (hasLevel) level = new Single[3];
+
+                dayGridValues = new JassGridValues(keyVariable.Metadata, keyVariable.Name, time.Length, level.Length, y.Length, x.Length);
+
+                //how to get the scale/factor value.
+
+                string outPutString = schema2string(schema1);
+
+                for (int ll = 0; ll < level.Length; ll++)
+                {
+                    dayGridValues.measureMin[ll] = add_offset + scale_factor * 32768;
+                    dayGridValues.measureMax[ll] = add_offset + scale_factor * (-32768);
+                }
+
+                if (hasLevel)
+                {
+                    dynamic values;
+                    try
+                    {
+                        values = dataset1.GetData<Int16[, , ,]>(keyVariable.Name,
+                                 DataSet.Range(0, time.Length-1),
+                                 DataSet.Range(0, level.Length-1),
+                                 DataSet.Range(0, y.Length-1),
+                                 DataSet.Range(0, x.Length-1) );
+                    }
+                    catch (Exception)
+                    {
+                        values = dataset1.GetData<Single[, , ,]>(keyVariable.Name,
+                                 DataSet.Range(0, time.Length-1),
+                                 DataSet.Range(0, level.Length-1),
+                                 DataSet.Range(0, y.Length-1),
+                                 DataSet.Range(0, x.Length-1) );
+                    }
+                    for (int tt = 0; tt < time.Length; tt++)
+                    {
+                        for (int ll = 0; ll < level.Length; ll++)
+                        {
+                            for (int yy = 0; yy < y.Length; yy++)
+                            {
+                                for (int xx = 0; xx < x.Length; xx++)
+                                {
+                                    if (values[tt, ll, yy, xx] != missing_value &&
+                                        values[tt, ll, yy, xx] != FillValue)
+                                    {
+                                        dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, ll, yy, xx];
+
+                                        if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax[ll])
+                                        {
+                                            dayGridValues.measureMax[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
+                                            dayGridValues.maxX[ll] = xx; dayGridValues.maxY[ll] = yy; dayGridValues.maxT[ll] = tt;
+                                        }
+                                        if (dayGridValues.measure[tt, ll, yy, xx] < dayGridValues.measureMin[ll])
+                                        {
+                                            dayGridValues.measureMin[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
+                                            dayGridValues.minX[ll] = xx; dayGridValues.minY[ll] = yy; dayGridValues.minT[ll] = tt;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    dynamic values;
+                    try
+                    {
+                        values = dataset1.GetData<Int16[, ,]>(keyVariable.Name,
+                                 DataSet.Range(0, time.Length - 1),
+                                 DataSet.Range(0, y.Length - 1),
+                                 DataSet.Range(0, x.Length - 1));
+                    }
+                    catch (Exception)
+                    {
+                        values = dataset1.GetData<Single[, ,]>(keyVariable.Name,
+                                 DataSet.Range(0, time.Length - 1),
+                                 DataSet.Range(0, y.Length - 1),
+                                 DataSet.Range(0, x.Length - 1));
+                    }
+                    for (int tt = 0; tt < time.Length; tt++)
+                    {
+                        for (int ll = 0; ll < 1; ll++)
+                        {
+                            for (int yy = 0; yy < y.Length; yy++)
+                            {
+                                for (int xx = 0; xx < x.Length; xx++)
+                                {
+                                    if (values[tt, yy, xx] != missing_value &&
+                                        values[tt, yy, xx] != FillValue)
+                                    {
+                                        dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, yy, xx];
+                                        //0.0500015563699208
+
+
+                                        if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax[ll])
+                                        {
+                                            dayGridValues.measureMax[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
+                                            dayGridValues.maxX[ll] = xx; dayGridValues.maxY[ll] = yy; dayGridValues.maxT[ll] = tt;
+                                        }
+                                        if (dayGridValues.measure[tt, ll, yy, xx] < dayGridValues.measureMin[ll])
+                                        {
+                                            dayGridValues.measureMin[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
+                                            dayGridValues.minX[ll] = xx; dayGridValues.minY[ll] = yy; dayGridValues.minT[ll] = tt;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            return dayGridValues;
+        }
+
+        public JassGridValues GetDayValues(string fileName) 
+            //this method is old and may become obsolete. It assumes our data is formated with our own grid.
         {
             //HERE
             JassGridValues dayGridValues;
@@ -2711,20 +2899,20 @@ v(np)  =   ---------------------------------------------------------------------
                 double missing_value = 32766;
                 double FillValue = 32766;
 
-                try { scale_factor = (double)keyVariable.Metadata["scale_factor"]; }
+                try { scale_factor = Convert.ToDouble(keyVariable.Metadata["scale_factor"]); }
                 catch (Exception e) {
                     var n = e; };
-                try { add_offset = (double)keyVariable.Metadata["add_offset"]; }
+                try { add_offset = Convert.ToDouble(keyVariable.Metadata["add_offset"]); }
                 catch (Exception e) { 
                     var n = e; };
-                try { missing_value = (double)keyVariable.Metadata["missing_value"]; }
+                try { missing_value = Convert.ToDouble(keyVariable.Metadata["missing_value"]); }
                 catch (Exception e) { 
                     var n = e; };
 
-                try { FillValue = (double)keyVariable.Metadata["FillValue"]; }
+                try { FillValue = Convert.ToDouble(keyVariable.Metadata["FillValue"]); }
                 catch (Exception e) { 
                     var n = e; };
-                try { FillValue = (double)keyVariable.Metadata["_FillValue"]; }
+                try { FillValue = Convert.ToDouble(keyVariable.Metadata["_FillValue"]); }
                 catch (Exception e) { 
                     var n = e; }; 
 

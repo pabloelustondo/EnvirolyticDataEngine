@@ -471,6 +471,10 @@
     <Compile Include="Migrations\201403131710588_grind-on-source.Designer.cs">
       <DependentUpon>201403131710588_grind-on-source.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201403181536574_grids-dimension-names.cs" />
+    <Compile Include="Migrations\201403181536574_grids-dimension-names.Designer.cs">
+      <DependentUpon>201403181536574_grids-dimension-names.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -714,6 +718,8 @@
     <Content Include="Views\Home\Tests.cshtml" />
     <Content Include="Views\Builder\ProcessBuilderAllLocally.cshtml" />
     <Content Include="Views\Builder\ProcessBuilderAndUploadAllClean.cshtml" />
+    <Content Include="Views\Blob\ShowDashBoard4DayFromFile.cshtml" />
+    <Content Include="Views\Blob\ShowDashBoard4DayFromFileFirst.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -878,6 +884,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201403131710588_grind-on-source.resx">
       <DependentUpon>201403131710588_grind-on-source.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403181536574_grids-dimension-names.resx">
+      <DependentUpon>201403181536574_grids-dimension-names.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

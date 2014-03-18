@@ -21,10 +21,22 @@
             @Html.DisplayNameFor(model => model.Xsize)
         </th>
         <th>
+            @Html.DisplayNameFor(model => model.Xname)
+        </th>
+        <th>
             @Html.DisplayNameFor(model => model.Ysize)
         </th>
         <th>
+            @Html.DisplayNameFor(model => model.Yname)
+        </th>
+        <th>
             @Html.DisplayNameFor(model => model.Levelsize)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Levelname)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Timesize)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Timesize)
@@ -46,14 +58,26 @@
         <td>
             @Html.DisplayFor(modelItem => item.Xsize)
         </td>
+         <td>
+            @Html.DisplayFor(modelItem => item.Xname)
+        </td>
         <td>
             @Html.DisplayFor(modelItem => item.Ysize)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Yname)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Levelsize)
         </td>
         <td>
+            @Html.DisplayFor(modelItem => item.Levelname)
+        </td>
+        <td>
             @Html.DisplayFor(modelItem => item.Timesize)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Timename)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.JassPartition.Name)
