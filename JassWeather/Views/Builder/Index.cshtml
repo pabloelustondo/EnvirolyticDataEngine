@@ -29,11 +29,17 @@
         <th>
             @Html.DisplayNameFor(model => model.month)
         </th>
+        <th>
+            @Html.DisplayNameFor(model => model.weeky)
+        </th>
          <th>
             @Html.DisplayNameFor(model => model.yearEnd)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.monthEnd)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.weekyEnd)
         </th>
         <td>
             Status
@@ -84,10 +90,16 @@
             @Html.DisplayFor(modelItem => item.month)
         </td>
         <td>
+            @Html.DisplayFor(modelItem => item.weeky)
+        </td>
+        <td>
             @Html.DisplayFor(modelItem => item.yearEnd)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.monthEnd)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.weekyEnd)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Status)

@@ -475,6 +475,10 @@
     <Compile Include="Migrations\201403181536574_grids-dimension-names.Designer.cs">
       <DependentUpon>201403181536574_grids-dimension-names.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201403191313585_weeky.cs" />
+    <Compile Include="Migrations\201403191313585_weeky.Designer.cs">
+      <DependentUpon>201403191313585_weeky.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -714,8 +718,8 @@
     <Content Include="Views\BuilderLog\Delete.cshtml" />
     <Content Include="Views\Blob\DeleteBlob.cshtml" />
     <Content Include="Views\Request\ProcessSource.cshtml" />
-    <Content Include="Views\Grid\MapMacc2NarrTest1.cshtml" />
-    <Content Include="Views\Home\Tests.cshtml" />
+    <Content Include="Views\Grid\MapGrid2NarrTest.cshtml" />
+    <Content Include="Views\Home\Tools.cshtml" />
     <Content Include="Views\Builder\ProcessBuilderAllLocally.cshtml" />
     <Content Include="Views\Builder\ProcessBuilderAndUploadAllClean.cshtml" />
     <Content Include="Views\Blob\ShowDashBoard4DayFromFile.cshtml" />
@@ -887,6 +891,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201403181536574_grids-dimension-names.resx">
       <DependentUpon>201403181536574_grids-dimension-names.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403191313585_weeky.resx">
+      <DependentUpon>201403191313585_weeky.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

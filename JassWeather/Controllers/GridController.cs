@@ -24,27 +24,37 @@ namespace JassWeather.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult MapMacc2NarrTest1()
+        public ActionResult MapMacc2NarrTest()
         {
             JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2MaccFromFile(
                 "netcdf-web238-20140306020857-10515-0608.nc",
                 "ftp___ftp.cdc.noaa.gov_Datasets_NARR_pressure_air.201201.nc");
-            return View(result);
+            return View("MapGrid2NarrTest",result);
+        }
+        [AllowAnonymous]
+        public ActionResult MapCFSR2NarrTest()
+        {
+            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
+                "pgbhnl.gdas.20101211-20101215.grb2.nc",
+                "lat",
+                "lon",
+                "Narr_Grid.nc",
+                "Narr_2_CFSR_Grid_Mapper.nc", true);
+            return View("MapGrid2NarrTest",result);
         }
 
         [AllowAnonymous]
-        public ActionResult MapMacc2NarrTest2()
+        public ActionResult MapCFSR2NarrReal()
         {
-            /*
-            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapFromMaccToNarr(
-                2012,1,
-                "uvb_macc_$YYYY_$MM.nc",
-                "Narr_Grid.nc");
-
-            return View("MapMacc2NarrTest1",result);
-             */
-            return View("MapMacc2NarrTest1", null);
+            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
+                "pgbhnl.gdas.20101211-20101215.grb2.nc",
+                "lat",
+                "lon",
+                "Narr_Grid.nc",
+                "Narr_2_CFSR_Grid_Mapper.nc", false);
+            return View("MapGrid2NarrTest", result);
         }
+
 
         //
         // GET: /Grid/Details/5
