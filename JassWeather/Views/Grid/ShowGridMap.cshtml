@@ -1,0 +1,71 @@
+﻿@model JassWeather.Models.JassWeatherAPI.SmartGridMap
+@{
+    ViewBag.Title = "Compare_MACC_NARR_Grids";
+}
+
+<h2>Show Map Grid</h2>
+
+Color Scale
+
+<table><tr>
+@{
+   double range = 0;
+
+    for (int y = 136-1; y >= 128 ; y--){
+        for (int x = 230; x < 250; x++)
+        {
+                if (Model.mapDistance[y, x] != null && Model.mapDistance[y, x] > range)   {
+                    range = Model.mapDistance[y, x];
+                }     
+        }
+    }
+    
+
+    double myfactor = (range>0)? (1024 / range):1;
+    int start, end;
+
+        start = 0;
+        end = 1024;
+    }
+
+
+
+
+    @for (var c = start; c < end; c++ )
+    {
+        JassWeather.Models.JassRGB rgb = JassWeather.Models.JassWeatherAPI.rgb(c,start,end);
+    <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b)">
+        @(c*range/1024)</td>
+    }
+</tr></table>
+
+<table>
+@for (int y = 136-1; y >= 128 ; y--)
+{
+    <tr>
+        <td>
+            @y
+        </td>
+           @for (int x = 230; x < 250; x++ ){
+               JassWeather.Models.JassRGB rgb;
+               if (Model.mapDistance[y, x] != null && Model.mapDistance[y, x] <= range)
+               {
+                   double scaledValue = (double)Model.mapDistance[y, x] * myfactor;
+                   rgb = JassWeather.Models.JassWeatherAPI.rgb(scaledValue, 0, 1024);
+               }
+               else
+               {
+                   rgb = new JassWeather.Models.JassRGB(0,0,0);
+               }
+        <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b)">
+            @y,@x:
+            @if (Model.mapDistance[y, x] != null && Model.mapDistance[y, x] < range){
+            @Model.mapDistance[y,x]
+            @Model.mapLatY[y,x]
+            @Model.mapLonX[y,x]
+            }
+        </td>
+            }
+    </tr>
+}
+    </table>
