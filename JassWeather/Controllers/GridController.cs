@@ -35,7 +35,7 @@ namespace JassWeather.Controllers
         public ActionResult MapCFSR2NarrTest()
         {
             JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
-                "pgbhnl.gdas.20101211-20101215.grb2.nc",
+                "pgbhnl.gdas.20101201-20101205.grb2.nc",
                 "lat",
                 "lon",
                 "Narr_Grid.nc",
@@ -47,7 +47,7 @@ namespace JassWeather.Controllers
         public ActionResult MapCFSR2NarrReal()
         {
             JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
-                "pgbhnl.gdas.20101211-20101215.grb2.nc",
+                "pgbhnl.gdas.20101201-20101205.grb2.nc",
                 "lat",
                 "lon",
                 "Narr_Grid.nc",
