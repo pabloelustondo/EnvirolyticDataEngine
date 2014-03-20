@@ -293,10 +293,16 @@ namespace JassWeather.Models
 
         public static JassMaccNarrGridsCombo MapGridNarr2Macc(JassMaccNarrGridsCombo gc)
         {
+            JassBuilder builder = new JassBuilder();
+            DateTime start = DateTime.Now;
+            JassWeatherAPI apiCaller2 = new JassWeatherAPI("","","");
+            JassBuilderLog builderLog = apiCaller2.createBuilderLog(builder, "mapGridStart", "", "", new TimeSpan(), true);
 
             double minDistance, minDistance2, minDistance3, minDistance4;
             for (int y = gc.narrYMin; y < gc.narrYMax; y++)
             {
+                JassBuilderLog builderLog2 = apiCaller2.createBuilderLog(builder, "mapGridY:" + y, "", "", DateTime.Now - start , true);
+                start = DateTime.Now;
                 for (int x = gc.narrXMin; x < gc.narrXMax; x++)
                 {
                     minDistance = 2000; minDistance2 = 2000; minDistance3 = 2000; minDistance4 = 2000;
@@ -1069,6 +1075,10 @@ v(np)  =   ---------------------------------------------------------------------
 
         public JassMaccNarrGridsCombo MapGridNarr2GridFromFile(string fileNameInputGrid, string gridLatName, string gridLonName, string fileNameNarr, string fileNameMapper, bool testAroundToronto)
         {
+            JassBuilder builder = new JassBuilder();
+            DateTime start = DateTime.Now;
+            JassBuilderLog builderLog = createBuilderLog(builder, "mapGridStart", "", "", new TimeSpan(), true);
+    
 
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
             string maccFile = AppDataFolder + "/" + fileNameInputGrid;
@@ -1127,6 +1137,7 @@ v(np)  =   ---------------------------------------------------------------------
 
                         gc = JassWeather.Models.JassWeatherAPI.MapGridNarr2Macc(gc);
 
+                        JassBuilderLog builderLog2 = createBuilderLog(builder, "mapGridAfterGC", "", "", DateTime.Now - start, true);
 
                         gc.narrYMin = 0;
                         gc.narrYMax = narrY.Length;
@@ -1233,6 +1244,9 @@ v(np)  =   ---------------------------------------------------------------------
 
                         //narr  we want narrX, narrY, narrLon, narrLat
 
+                        JassBuilderLog builderLog3 = createBuilderLog(builder, "mapGridBeforeCreatingnetCDFGC", "", "", DateTime.Now - start, true);
+
+
                         var autocommit = mapDataSet.IsAutocommitEnabled;
 
                         mapDataSet.Add<Single[]>("narrX", narrX, "narrX");
@@ -1279,6 +1293,8 @@ v(np)  =   ---------------------------------------------------------------------
                     }
                 }
             }
+
+            JassBuilderLog builderLog4 = createBuilderLog(builder, "mapGridDone", "", "", DateTime.Now - start, true);
 
             return gc;
         }
