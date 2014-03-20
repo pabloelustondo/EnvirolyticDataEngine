@@ -1045,10 +1045,11 @@ v(np)  =   ---------------------------------------------------------------------
                         gc.narrLon = narrDataSet.GetData<Single[,]>("lon");
                         gc.narrLat = narrDataSet.GetData<Single[,]>("lat");
 
+
                         gc.narrYMin = 0;
-                        gc.narrYMax = gc.narrLat.Length;
+                        gc.narrYMax = narrY.Length;
                         gc.narrXMin = 0;
-                        gc.narrXMax = gc.narrLon.Length;
+                        gc.narrXMax = narrX.Length;
 
                         if (testAroundToronto){
                         gc.narrYMin = 128;
