@@ -955,6 +955,70 @@ namespace JassWeather.Models
             return outputFilePath;
         }
 
+
+        public class SmartGridMap
+        {
+            public double[,] mapDistance;
+            public int[,] mapLatY;
+            public int[,] mapLonX;
+
+            public double[,] map2Distance;
+            public int[,] map2LatY;
+            public int[,] map2LonX;
+
+            public double[,] map3Distance;
+            public int[,] map3LatY;
+            public int[,] map3LonX;
+
+            public double[,] map4Distance;
+            public int[,] map4LatY;
+            public int[,] map4LonX;
+        }
+
+        public SmartGridMap getMapComboFromMapFile(string mapfile)
+        {
+            string mapFilePath = AppFilesFolder + "/" + mapfile;
+            SmartGridMap sgm = new SmartGridMap();
+
+            using (var mapDataSet = DataSet.Open(mapFilePath + "?openMode=open"))
+            {
+
+                sgm.mapDistance = mapDataSet.GetData<double[,]>("mapDistance");
+                sgm.mapLatY = mapDataSet.GetData<int[,]>("mapLatY");
+                sgm.mapLonX = mapDataSet.GetData<int[,]>("mapLonX");
+
+
+                sgm.map2Distance = mapDataSet.GetData<double[,]>("map2Distance");
+                sgm.map2LatY = mapDataSet.GetData<int[,]>("map2LatY");
+                sgm.map2LonX = mapDataSet.GetData<int[,]>("map2LonX");
+
+
+                sgm.map3Distance = mapDataSet.GetData<double[,]>("map3Distance");
+                sgm.map3LatY = mapDataSet.GetData<int[,]>("map3LatY");
+                sgm.map3LonX = mapDataSet.GetData<int[,]>("map3LonX");
+
+
+                sgm.map4Distance = mapDataSet.GetData<double[,]>("map4Distance");
+                sgm.map4LatY = mapDataSet.GetData<int[,]>("map4LatY");
+                sgm.map4LonX = mapDataSet.GetData<int[,]>("map4LonX");
+
+
+                for (int y = 128; y < 136; y++)
+                {
+                    for (int x = 230; x < 250; x++)
+                    {
+                        var mapDistance = sgm.mapDistance[y,x];
+                        var mapLatY = sgm.mapLatY[y, x];
+                        var mapLonX = sgm.mapLonX[y, x];
+                    }
+                }
+
+
+            }//using file
+
+            return sgm;
+      }//end function
+
         public double interpolateValue(int t, int y, int x, Int16[,,] maccValues, JassMaccNarrGridsCombo gc, Int16 missValue, Int16 fillValue)
         {
 
@@ -1063,6 +1127,12 @@ v(np)  =   ---------------------------------------------------------------------
 
                         gc = JassWeather.Models.JassWeatherAPI.MapGridNarr2Macc(gc);
 
+
+                        gc.narrYMin = 0;
+                        gc.narrYMax = narrY.Length;
+                        gc.narrXMin = 0;
+                        gc.narrXMax = narrX.Length;
+
                         //build the resulting dataset
                         //dataset3.Add<double[]>("time", timeday, "time");
 
@@ -1091,67 +1161,79 @@ v(np)  =   ---------------------------------------------------------------------
                         int[,] map4LatY = new int[gc.narrYMax, gc.narrXMax];
                         double[,] map4Distance = new double[gc.narrYMax, gc.narrXMax];
 
+
                         for (int y = gc.narrYMin; y < gc.narrYMax; y++)
-                        //for (int y = 5; y < 7; y++)
                         {
                             for (int x = gc.narrXMin; x < gc.narrXMax; x++)
-                            //for (int x = 5; x < 7; x++)
                             {
-                                try
+                                if (gc.map[y, x] != null)
                                 {
-                                    mapLatY[y, x] = gc.map[y, x].lat;
-                                    mapLonX[y, x] = gc.map[y, x].lon;
-                                    mapDistance[y, x] = gc.map[y, x].distance;
+                                    try
+                                    {
+                                        mapLatY[y, x] = gc.map[y, x].lat;
+                                        mapLonX[y, x] = gc.map[y, x].lon;
+                                        mapDistance[y, x] = gc.map[y, x].distance;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        mapLatY[y, x] = MissingValue;
+                                        mapLonX[y, x] = MissingValue;
+                                        mapDistance[y, x] = MissingValue;
+                                    }
                                 }
-                                catch (Exception)
+                                if (gc.map2[y, x] != null)
                                 {
-                                    mapLatY[y, x] = MissingValue;
-                                    mapLonX[y, x] = MissingValue;
-                                    mapDistance[y, x] = MissingValue;
+                                    try
+                                    {
+                                        map2LatY[y, x] = gc.map2[y, x].lat;
+                                        map2LonX[y, x] = gc.map2[y, x].lon;
+                                        map2Distance[y, x] = gc.map2[y, x].distance;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        map2LatY[y, x] = MissingValue;
+                                        map2LonX[y, x] = MissingValue;
+                                        map2Distance[y, x] = MissingValue;
+                                    }
                                 }
-                                try
+                                if (gc.map3[y, x] != null)
                                 {
-                                    map2LatY[y, x] = gc.map2[y, x].lat;
-                                    map2LonX[y, x] = gc.map2[y, x].lon;
-                                    map2Distance[y, x] = gc.map2[y, x].distance;
-                                }
-                                catch (Exception)
-                                {
-                                    map2LatY[y, x] = MissingValue;
-                                    map2LonX[y, x] = MissingValue;
-                                    map2Distance[y, x] = MissingValue;
+                                    try
+                                    {
+                                        map3LatY[y, x] = gc.map3[y, x].lat;
+                                        map3LonX[y, x] = gc.map3[y, x].lon;
+                                        map3Distance[y, x] = gc.map3[y, x].distance;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        map3LatY[y, x] = MissingValue;
+                                        map3LonX[y, x] = MissingValue;
+                                        map3Distance[y, x] = MissingValue;
+
+                                    }
                                 }
 
-                                try
+                                if (gc.map4[y, x] != null)
                                 {
-                                    map3LatY[y, x] = gc.map3[y, x].lat;
-                                    map3LonX[y, x] = gc.map3[y, x].lon;
-                                    map3Distance[y, x] = gc.map3[y, x].distance;
-                                }
-                                catch (Exception)
-                                {
-                                    map3LatY[y, x] = MissingValue;
-                                    map3LonX[y, x] = MissingValue;
-                                    map3Distance[y, x] = MissingValue;
-
-                                }
-
-                                try
-                                {
-                                    map4LatY[y, x] = gc.map4[y, x].lat;
-                                    map4LonX[y, x] = gc.map4[y, x].lon;
-                                    map4Distance[y, x] = gc.map4[y, x].distance;
-                                }
-                                catch (Exception)
-                                {
-                                    map4LatY[y, x] = MissingValue;
-                                    map4LonX[y, x] = MissingValue;
-                                    map4Distance[y, x] = MissingValue;
+                                    try
+                                    {
+                                        map4LatY[y, x] = gc.map4[y, x].lat;
+                                        map4LonX[y, x] = gc.map4[y, x].lon;
+                                        map4Distance[y, x] = gc.map4[y, x].distance;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        map4LatY[y, x] = MissingValue;
+                                        map4LonX[y, x] = MissingValue;
+                                        map4Distance[y, x] = MissingValue;
+                                    }
                                 }
                             }
                         }
 
                         //narr  we want narrX, narrY, narrLon, narrLat
+
+                        var autocommit = mapDataSet.IsAutocommitEnabled;
 
                         mapDataSet.Add<Single[]>("narrX", narrX, "narrX");
                         mapDataSet.Add<Single[]>("narrY", narrY, "narrY");
@@ -1180,7 +1262,19 @@ v(np)  =   ---------------------------------------------------------------------
                         mapDataSet.Add<int[,]>("map4LatY", map4LatY, "narrY", "narrX");
                         mapDataSet.Add<double[,]>("map4Distance", map4Distance, "narrY", "narrX");
 
+                        mapDataSet.Commit();
                         //add metadata
+
+                        for (int y = 128; y < 136; y++)
+                        {
+                            for (int x = 230; x < 250; x++)
+                            {
+                                var mapDistanceValue = mapDistance[y, x];
+                                var mapLatYValue = mapLatY[y, x];
+                                var mapLonXvalue = mapLonX[y, x];
+                            }
+                        }
+
 
                     }
                 }

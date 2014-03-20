@@ -56,15 +56,10 @@ namespace JassWeather.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult ShowCFSRMap()
+        public ActionResult ShowGridMap()
         {
-            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
-                "pgbhnl.gdas.20101201-20101205.grb2.nc",
-                "lat",
-                "lon",
-                "Narr_Grid.nc",
-                "Narr_2_CFSR_Grid_Mapper.nc", true);
-            return View("MapGrid2NarrTest", result);
+            JassWeather.Models.JassWeatherAPI.SmartGridMap result = apiCaller.getMapComboFromMapFile("Narr_2_CFSR_Grid_Mapper.nc");
+            return View(result);
         }
 
         //

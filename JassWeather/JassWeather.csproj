@@ -724,6 +724,8 @@
     <Content Include="Views\Builder\ProcessBuilderAndUploadAllClean.cshtml" />
     <Content Include="Views\Blob\ShowDashBoard4DayFromFile.cshtml" />
     <Content Include="Views\Blob\ShowDashBoard4DayFromFileFirst.cshtml" />
+    <Content Include="Views\Grid\Ideas________________________.cshtml" />
+    <Content Include="Views\Grid\ShowGridMap.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
