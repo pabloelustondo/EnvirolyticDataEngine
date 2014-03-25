@@ -1767,6 +1767,7 @@ v(np)  =   ---------------------------------------------------------------------
         }
         public ProcessDeriverModel processDeriverAll(JassDeriver deriver, Boolean upload, Boolean clean)
         {
+                         
              ProcessDeriverModel result = new ProcessDeriverModel();
              result.Message = "OK";
 
@@ -1792,6 +1793,47 @@ v(np)  =   ---------------------------------------------------------------------
                          DownloadFile2DiskIfNotThere(X1FileName, X1FilePath);
                          DownloadFile2DiskIfNotThere(X2FileName, X2FilePath);
 
+                         //Now, we will iterate on our grid (we know we are on our grid) and apply the formula
+                         //here we need to open the files
+
+                         dynamic x1Values;
+                         using (var x1DataSet = DataSet.Open(X1FilePath + "?openMode=open")) { 
+                         
+                               x1Values = x1DataSet.GetData<Int16[,,,]>(deriver.X1,
+                                     DataSet.FromToEnd(0),
+                                     DataSet.FromToEnd(0),
+                                     DataSet.FromToEnd(0),
+                                     DataSet.FromToEnd(0));
+                         }
+
+                         dynamic x2Values;
+                         using (var x2DataSet = DataSet.Open(X2FilePath + "?openMode=open"))
+                         {
+                             x2Values = x2DataSet.GetData<Int16[, ,]>(deriver.X2,
+                                   DataSet.FromToEnd(0),
+                                   DataSet.FromToEnd(0),
+                                   DataSet.FromToEnd(0));
+                         }
+
+
+
+                         for (int t = 0; t < deriver.JassGrid.Timesize; t++)
+                         {
+                             for (int l = 0; l < deriver.JassGrid.Levelsize; l++)
+                             {
+                                 for (int y = 0; y < deriver.JassGrid.Ysize; y++)
+                                 {
+                                     for (int x = 0; y < deriver.JassGrid.Xsize; x++)
+                                     {
+                                         //now we want to apply the formula
+
+                                         //var x1 = 
+                                         //var x2 = 
+                                         //var result = formula
+                                     }
+                                 }
+                             }
+                         }
 
                      }
                  }

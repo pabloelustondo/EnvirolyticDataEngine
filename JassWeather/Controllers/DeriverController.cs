@@ -52,6 +52,7 @@ namespace JassWeather.Controllers
         {
             ViewBag.JassVariableID = new SelectList(db.JassVariables, "JassVariableID", "Name");
             ViewBag.JassFormulaID = new SelectList(db.JassFormulas, "JassFormulaID", "Name");
+            ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name");
             return View();
         }
 
@@ -71,6 +72,8 @@ namespace JassWeather.Controllers
 
             ViewBag.JassVariableID = new SelectList(db.JassVariables, "JassVariableID", "Name", jassderiver.JassVariableID);
             ViewBag.JassFormulaID = new SelectList(db.JassFormulas, "JassFormulaID", "Name", jassderiver.JassFormulaID);
+            ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", jassderiver.JassGridID);
+
             return View(jassderiver);
         }
 
@@ -86,6 +89,7 @@ namespace JassWeather.Controllers
             }
             ViewBag.JassVariableID = new SelectList(db.JassVariables, "JassVariableID", "Name", jassderiver.JassVariableID);
             ViewBag.JassFormulaID = new SelectList(db.JassFormulas, "JassFormulaID", "Name", jassderiver.JassFormulaID);
+            ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", jassderiver.JassGridID);
             return View(jassderiver);
         }
 
@@ -104,6 +108,7 @@ namespace JassWeather.Controllers
             }
             ViewBag.JassVariableID = new SelectList(db.JassVariables, "JassVariableID", "Name", jassderiver.JassVariableID);
             ViewBag.JassFormulaID = new SelectList(db.JassFormulas, "JassFormulaID", "Name", jassderiver.JassFormulaID);
+            ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", jassderiver.JassGridID);
             return View(jassderiver);
         }
 

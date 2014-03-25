@@ -13,6 +13,9 @@ namespace JassWeather.Models
         public int JassVariableID { get; set; }
         public virtual JassVariable JassVariable { get; set; }
 
+        public int JassGridID { get; set; }
+        public virtual JassGrid JassGrid { get; set; }
+
         public string X1 { get; set; }
         public string X2 { get; set; }
 

@@ -541,6 +541,14 @@
     <Compile Include="Migrations\201403250202240_hack.Designer.cs">
       <DependentUpon>201403250202240_hack.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201403251731299_remove-deriver-again.cs" />
+    <Compile Include="Migrations\201403251731299_remove-deriver-again.Designer.cs">
+      <DependentUpon>201403251731299_remove-deriver-again.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403251732142_add-deriver-again.cs" />
+    <Compile Include="Migrations\201403251732142_add-deriver-again.Designer.cs">
+      <DependentUpon>201403251732142_add-deriver-again.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -1018,6 +1026,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201403250202240_hack.resx">
       <DependentUpon>201403250202240_hack.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403251731299_remove-deriver-again.resx">
+      <DependentUpon>201403251731299_remove-deriver-again.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403251732142_add-deriver-again.resx">
+      <DependentUpon>201403251732142_add-deriver-again.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
