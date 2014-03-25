@@ -12,13 +12,10 @@ namespace JassWeather.Models
 
         public int JassVariableID { get; set; }
         public virtual JassVariable JassVariable { get; set; }
-/*
-        public int X1JassVariableID { get; set; }
-        public virtual JassVariable X1JassVariable { get; set; }
 
-        public int X2JassVariableID { get; set; }
-        public virtual JassVariable X2JassVariable { get; set; }
-*/
+        public string X1 { get; set; }
+        public string X2 { get; set; }
+
         public int JassFormulaID { get; set; }
         public virtual JassFormula JassFormula { get; set; }
 

@@ -533,6 +533,14 @@
     <Compile Include="Migrations\201403250035044_aaaaa.Designer.cs">
       <DependentUpon>201403250035044_aaaaa.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201403250154093_go-back.cs" />
+    <Compile Include="Migrations\201403250154093_go-back.Designer.cs">
+      <DependentUpon>201403250154093_go-back.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403250202240_hack.cs" />
+    <Compile Include="Migrations\201403250202240_hack.Designer.cs">
+      <DependentUpon>201403250202240_hack.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -1003,6 +1011,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201403250035044_aaaaa.resx">
       <DependentUpon>201403250035044_aaaaa.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403250154093_go-back.resx">
+      <DependentUpon>201403250154093_go-back.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403250202240_hack.resx">
+      <DependentUpon>201403250202240_hack.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

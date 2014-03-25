@@ -32,6 +32,22 @@
         </div>
 
         <div class="editor-label">
+            @Html.LabelFor(model => model.X1)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.X1)
+            @Html.ValidationMessageFor(model => model.X1)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.X2)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.X2)
+            @Html.ValidationMessageFor(model => model.X2)
+        </div>
+
+        <div class="editor-label">
             @Html.LabelFor(model => model.JassFormulaID, "JassFormula")
         </div>
         <div class="editor-field">
