@@ -9,7 +9,7 @@ using JassWeather.Models;
 
 namespace JassWeather.Controllers
 {
-    public class DeriverController : Controller
+    public class DeriverController : JassController
     {
         private JassWeatherContext db = new JassWeatherContext();
 
@@ -34,6 +34,16 @@ namespace JassWeather.Controllers
             }
             return View(jassderiver);
         }
+
+        public ActionResult ProcessDeriverLocallyNoClean(int id = 0)
+        {
+            JassDeriver jassderiver = db.JassDerivers.Find(id);
+
+            var result = apiCaller.processDeriverAll(jassderiver,false,false);
+
+            return View("ProcessDeriver",result);
+        }
+
 
         //
         // GET: /Deriver/Create

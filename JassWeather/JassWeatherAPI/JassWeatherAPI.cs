@@ -1763,6 +1763,20 @@ v(np)  =   ---------------------------------------------------------------------
             return Message; 
         }
 
+        public class ProcessDeriverModel
+        {
+            public string Message { get; set; }
+        }
+        public ProcessDeriverModel processDeriverAll(JassDeriver deriver, Boolean upload, Boolean clean)
+        {
+             ProcessDeriverModel result = new ProcessDeriverModel();
+             result.Message = "OK";
+
+
+            return result;        
+        }
+
+
         public string processBuilder(JassBuilder builder, int year, int month, int weeky, Boolean upload, JassBuilderLog builderAllLog)
         {
 
@@ -2229,10 +2243,11 @@ v(np)  =   ---------------------------------------------------------------------
                 string[] results = new string[lines.Length];
                 string[] urls = new string[lines.Length];
 
-
+                int delay = 3000;
                 for (int l = 0; l < lines.Length; l++)
                 {
-                    System.Threading.Thread.Sleep(1000);
+                    if (l%10==0) { delay=10000; };
+                    System.Threading.Thread.Sleep(delay);
                     var line = lines[l].Split('\t');
                     addresses[l] = line[0].Replace(" ","%20");
 
@@ -2258,7 +2273,7 @@ v(np)  =   ---------------------------------------------------------------------
                                 formatted_address = response.formatted_address;
                                 lat = Convert.ToDouble(response.geometry.location.lat);
                                 lon = Convert.ToDouble(response.geometry.location.lng);
-                                results[l] = addresses[l] + " ==>> lat: " + lat + " lon: " + lon + " formatted_address: " + formatted_address;
+                                results[l] = addresses[l] + " ==>> lat:" + lat + "lon:" + lon + "formatted_address: " + formatted_address;
                             }
                         }
                         else
