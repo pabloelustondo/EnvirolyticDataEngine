@@ -17,8 +17,26 @@ namespace JassWeather.Controllers
     [Authorize]
     public class TestController : JassController
     {
-        //
-        // GET: /Test/
+
+        public ActionResult TestSheridan()
+        {
+            JassWeather.Models.JassWeatherAPI.SheridanInfoModel vm 
+                = new JassWeather.Models.JassWeatherAPI.SheridanInfoModel();
+            vm = apiCaller.sheridanGetHistory(3);
+            ViewBag.resultOfFileSave = apiCaller.sheridanSaveNetCDF(vm);
+
+            JassWeather.Models.JassWeatherAPI.SheridanInspect si = apiCaller.sheridanInspectFile();
+
+            ViewBag.si = si;
+
+            return View(vm);
+        }
+
+        public ActionResult TestSheridanLatLon()
+        {
+            string[] result = apiCaller.SheridanGetLatLon();
+            return View(result);
+        }
 
         public ActionResult Index()
         {

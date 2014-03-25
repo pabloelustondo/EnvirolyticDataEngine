@@ -17,6 +17,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.Research.Science.Data;
 using Microsoft.Research.Science.Data.Imperative;
 using Microsoft.WindowsAzure;
+using System.Web.Helpers;
 
 namespace JassWeather.Models
 {
@@ -2198,6 +2199,300 @@ v(np)  =   ---------------------------------------------------------------------
                 return string.Format("Status Code: {0}, Status Description: {1}", resp.StatusCode, resp.StatusDescription);
             }
 
+        }
+
+        public class SheridanInfoModel
+        {
+            public string response { get; set; }
+            public string[] lines { get; set; }
+            public bool[] success { get; set; }
+            public string[] city { get; set; }
+            public string[] code { get; set; }
+            public string[] urls { get; set; }
+            public string[] availability { get; set; }
+            public string[] measures  { get; set; }
+            public int testMax { get; set; }
+            public Int16[,] data { get; set; }
+            public TimeSpan timeSpan;
+            public int totalTimePoints { get; set; }
+            public int totalCodes { get; set; }
+        }
+
+        public string[] SheridanGetLatLon(){
+
+                string sherindanStationsFilePath = AppFilesFolder + "/sheridan-stations.csv";
+                string[] lines = System.IO.File.ReadAllLines(sherindanStationsFilePath);
+                string[] addresses = new string[lines.Length];
+                string[] formatted_addresses =new string[lines.Length];
+                double[] lats=new double[lines.Length];
+                double[] lons=new double[lines.Length];            
+                string[] results = new string[lines.Length];
+                string[] urls = new string[lines.Length];
+
+
+                for (int l = 0; l < lines.Length; l++)
+                {
+                    System.Threading.Thread.Sleep(1000);
+                    var line = lines[l].Split('\t');
+                    addresses[l] = line[0].Replace(" ","%20");
+
+                    string responseString;
+                    dynamic response;
+                    string formatted_address = "n/a";
+                    double lat = 0;
+                    double lon = 0;
+
+                    string url = "http://maps.googleapis.com/maps/api/geocode/json?address=" + addresses[l] + "&sensor=false";
+                    WebRequest req = WebRequest.Create(url);
+                    req.Method = "GET";
+                    try
+                    {
+                        HttpWebResponse resp = req.GetResponse() as HttpWebResponse;
+                        if (resp.StatusCode == HttpStatusCode.OK)
+                        {
+                            using (Stream respStream = resp.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(respStream, Encoding.UTF8);
+                                responseString = reader.ReadToEnd();
+                                response = Json.Decode(responseString).results[0];
+                                formatted_address = response.formatted_address;
+                                lat = Convert.ToDouble(response.geometry.location.lat);
+                                lon = Convert.ToDouble(response.geometry.location.lng);
+                                results[l] = addresses[l] + " ==>> lat: " + lat + " lon: " + lon + " formatted_address: " + formatted_address;
+                            }
+                        }
+                        else
+                        {
+                            results[l] = string.Format("Status Code: {0}, Status Description: {1}", resp.StatusCode, resp.StatusDescription);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        results[l] = "            ---Error: " + addresses[l] + " URL:" + url;
+                    }
+                }//end of for lines
+
+                return results;
+        }
+
+        public SheridanInfoModel sheridanGetHistory(int testMax)
+        {
+            DateTime startDateTime = DateTime.Now;
+            SheridanInfoModel vm = new SheridanInfoModel();
+
+            DateTime startRelevantHistoryDay = DateTime.Parse("2002-01-01");
+
+            Int16 missingValue = 32767;
+            int totalDays = 366*13;
+            string sherindanStationsFilePath = AppFilesFolder + "/sheridan-stations.csv";
+            string[] lines = System.IO.File.ReadAllLines(sherindanStationsFilePath);
+            bool[] success = new bool[lines.Length];
+            string[] city = new string[lines.Length];
+            string[] code = new string[lines.Length];
+            string[] urls = new string[lines.Length];
+            string[] availability = new string[lines.Length];
+            string[] measures = new string[lines.Length];
+            Int16[,] data = new short[code.Length,totalDays];
+            string[] splitMeasuresArray;
+            string[] splitMeasure;
+            int problems = 0;
+
+            int totalCodes = 0;
+
+            for (int l = 0; l < lines.Length && l < testMax; l++)
+            {
+                var line = lines[l].Split('\t');
+                city[l] = line[0];
+                code[l] = line[1];
+                availability[l] = line[2];
+
+                              
+
+                string url = "http://sheridan.geog.kent.edu/ssc/files/" + code[l] + ".dbdmt";
+                urls[l] = url;
+                WebRequest req = WebRequest.Create(url);
+                req.Method = "GET";
+                try
+                {
+                    HttpWebResponse resp = req.GetResponse() as HttpWebResponse;
+                    if (resp.StatusCode == HttpStatusCode.OK)
+                    {
+                        using (Stream respStream = resp.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(respStream, Encoding.UTF8);
+                            measures[l] = reader.ReadToEnd();
+                            success[l] = true;
+                        }
+                    }
+                    else
+                    {
+                        measures[l] = string.Format("Status Code: {0}, Status Description: {1}", resp.StatusCode, resp.StatusDescription);
+                        problems++;
+                        success[l] = false;
+                    }
+                }
+                catch (Exception e)
+                {
+                    measures[l] = e.Message;
+                    problems++;
+                    success[l] = false;
+                }
+
+                //Now, if success, let's do something with the measures
+                if (success[l])
+                {
+                    splitMeasuresArray = measures[l].Split('\n');
+
+                    splitMeasure = splitMeasuresArray[0].Split(' ');
+                    DateTime dataStartDay = getDataFromString(splitMeasure[1]);
+                  
+                    int irrelevantTotalDays=0;
+                    int missingTotalDays = 0;
+
+                    if (dataStartDay < startRelevantHistoryDay)
+                    {
+                        TimeSpan irrelevantDays = startRelevantHistoryDay - dataStartDay;
+                        irrelevantTotalDays = Convert.ToInt16(irrelevantDays.TotalDays);
+                    }
+                    else
+                    {
+                        TimeSpan missingDays = dataStartDay - startRelevantHistoryDay;
+                        missingTotalDays = Convert.ToInt16(missingDays.TotalDays);
+                    }
+
+                    for(int dd=0;dd<missingTotalDays;dd++){
+                        data[l, dd] = missingValue;
+                        }
+
+                    int dayIndex=missingTotalDays;
+
+                    for(int d=0+irrelevantTotalDays; d < splitMeasuresArray.Length-1; d++){
+                        string splitMeasureString = splitMeasuresArray[d];
+                        splitMeasure = splitMeasureString.Split(' ');
+                        var codeString = splitMeasure[0];
+                        var dayString = splitMeasure[1];
+                        var measureString = splitMeasure[2];
+
+                        DateTime inputTime = getDataFromString(dayString);
+                        DateTime historyTime = startRelevantHistoryDay.AddDays(dayIndex);
+                        if (historyTime != inputTime)
+                        {
+                            var problem = "problem";
+                        }
+
+                        string currentCode = code[l];
+                        Int16 currentMeasure = Convert.ToInt16(measureString);
+                        data[l, dayIndex] = currentMeasure;
+
+                        dayIndex++;
+                    }
+
+                    totalCodes++;
+                }
+            }
+
+            if (problems > 0)
+            {
+                vm.response = "Number of problems: " + problems;
+            }
+            else { vm.response = "OK"; }
+            vm.lines = lines;
+            vm.success = success;
+            vm.city = city;
+            vm.availability = availability;
+            vm.code = code;
+            vm.measures = measures;
+            vm.testMax = testMax;
+            vm.data = data;
+            vm.urls = urls;
+            vm.totalTimePoints = totalDays;
+            vm.totalCodes = totalCodes;
+
+            DateTime endDateTime = DateTime.Now;
+            vm.timeSpan = endDateTime - startDateTime;
+
+            return vm;
+
+        }
+
+        public string sheridanSaveNetCDF(SheridanInfoModel vm){
+
+            //this process will save this information in a grid-friendly way.
+            //we will have data, lat, lon, time and no level
+
+            string ReturnMessage = "Ok";
+            string fileNameNarr = "Narr_Grid.nc";
+            string narrFile = AppFilesFolder + "/" + fileNameNarr;
+
+            double[] time = new double[vm.totalTimePoints];
+            string[] station = new string[vm.totalCodes];
+            Single[] lat = new Single[vm.totalCodes];
+            Single[] lon = new Single[vm.totalCodes];
+            Int16[,] sher = new Int16[vm.totalTimePoints,vm.totalCodes];
+
+            using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
+            {
+                string outputFilePath = AppDataFolder + "\\sherindan.nc";
+                using (var sheridanOutputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
+                {
+
+                    for (int s = 0; s < vm.totalCodes; s++)
+                    {
+                        station[s] = vm.code[s];
+                        for (int t = 0; t < vm.totalTimePoints; t++) {
+                        sher[t, s] = vm.data[s,t];
+                        }
+                    }
+
+                    sheridanOutputDataSet.Add<double[]>("time", time, "time");
+                    sheridanOutputDataSet.Add<string[]>("station", station, "station");;
+                    sheridanOutputDataSet.Add<Single[]>("lat", lat, "station");
+                    sheridanOutputDataSet.Add<Single[]>("lon", lon, "station");
+                    sheridanOutputDataSet.Add<Int16[,]>("sher", sher, "time","station");
+                }
+            }
+                       
+
+            return ReturnMessage;
+        }
+
+        public class SheridanInspect
+        {
+            public string[] station { get; set; }
+            public double[] time {get;set;}
+            public Single[] lat {get;set;}
+            public Single[] lon {get;set;}
+            public Int16[,] sher { get; set; }
+        }
+
+        public SheridanInspect sheridanInspectFile()
+        {
+                SheridanInspect si = new SheridanInspect();
+
+                string outputFilePath = AppDataFolder + "\\sherindan.nc";
+                using (var sheridanOutputDataSet = DataSet.Open(outputFilePath + "?openMode=open"))
+                {
+
+                    si.sher = sheridanOutputDataSet.GetData<Int16[,]>("sher");
+                    si.time = sheridanOutputDataSet.GetData<double[]>("time");
+                    si.lat = sheridanOutputDataSet.GetData<Single[]>("lat");
+                    si.lon = sheridanOutputDataSet.GetData<Single[]>("lon");
+                    si.station = sheridanOutputDataSet.GetData<string[]>("station");
+                }
+
+                return si;
+        }
+
+        public DateTime getDataFromString(string dateTime){
+
+            var startDayString = dateTime;
+            int startDayYear = Convert.ToInt16(startDayString.Substring(0, 4));
+            int startDayMonth = Convert.ToInt16(startDayString.Substring(4, 2));
+            int startDayDay = Convert.ToInt16(startDayString.Substring(6, 2));
+
+            DateTime dataStartDay = new DateTime(startDayYear, startDayMonth, startDayDay);
+
+            return dataStartDay;
         }
 
         public string ping_small_NetCDF_file(string url, string workingDirectoryPath)

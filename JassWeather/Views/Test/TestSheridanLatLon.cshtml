@@ -1,0 +1,19 @@
+﻿@model string[]
+@{
+    ViewBag.Title = "TestSheridan";
+}
+
+
+<h2>TestSheridanlatLon</h2>
+
+
+Result: 
+<table>
+@for(int l=0;l<Model.Length;l++){
+<tr><td>
+@Model[l]
+</td>
+</tr>
+
+}
+</table>

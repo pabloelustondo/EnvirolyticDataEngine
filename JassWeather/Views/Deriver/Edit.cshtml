@@ -1,0 +1,102 @@
+﻿@model JassWeather.Models.JassDeriver
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+@using (Html.BeginForm()) {
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>JassDeriver</legend>
+
+        @Html.HiddenFor(model => model.JassDeriverID)
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Name)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Name)
+            @Html.ValidationMessageFor(model => model.Name)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.JassVariableID, "JassVariable")
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("JassVariableID", String.Empty)
+            @Html.ValidationMessageFor(model => model.JassVariableID)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.JassFormulaID, "JassFormula")
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("JassFormulaID", String.Empty)
+            @Html.ValidationMessageFor(model => model.JassFormulaID)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.YearStart)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.YearStart)
+            @Html.ValidationMessageFor(model => model.YearStart)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.YearEnd)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.YearEnd)
+            @Html.ValidationMessageFor(model => model.YearEnd)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.MonthStart)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.MonthStart)
+            @Html.ValidationMessageFor(model => model.MonthStart)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.MnnthEnd)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.MnnthEnd)
+            @Html.ValidationMessageFor(model => model.MnnthEnd)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.DayStart)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.DayStart)
+            @Html.ValidationMessageFor(model => model.DayStart)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.DayEnd)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.DayEnd)
+            @Html.ValidationMessageFor(model => model.DayEnd)
+        </div>
+
+        <p>
+            <input type="submit" value="Save" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -243,6 +243,8 @@
     <Compile Include="Controllers\BlobController.cs" />
     <Compile Include="Controllers\BuilderController.cs" />
     <Compile Include="Controllers\BuilderLogController.cs" />
+    <Compile Include="Controllers\DeriverController.cs" />
+    <Compile Include="Controllers\FormulaController.cs" />
     <Compile Include="Controllers\GridController.cs" />
     <Compile Include="Controllers\JassController.cs" />
     <Compile Include="Controllers\MeasureController.cs" />
@@ -479,6 +481,58 @@
     <Compile Include="Migrations\201403191313585_weeky.Designer.cs">
       <DependentUpon>201403191313585_weeky.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201403241852297_deriver.cs" />
+    <Compile Include="Migrations\201403241852297_deriver.Designer.cs">
+      <DependentUpon>201403241852297_deriver.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403241857016_deriver1.cs" />
+    <Compile Include="Migrations\201403241857016_deriver1.Designer.cs">
+      <DependentUpon>201403241857016_deriver1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403241948509_variables.cs" />
+    <Compile Include="Migrations\201403241948509_variables.Designer.cs">
+      <DependentUpon>201403241948509_variables.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403242001047_deriver2.cs" />
+    <Compile Include="Migrations\201403242001047_deriver2.Designer.cs">
+      <DependentUpon>201403242001047_deriver2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403242054354_removederiver.cs" />
+    <Compile Include="Migrations\201403242054354_removederiver.Designer.cs">
+      <DependentUpon>201403242054354_removederiver.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403242056214_addderiver.cs" />
+    <Compile Include="Migrations\201403242056214_addderiver.Designer.cs">
+      <DependentUpon>201403242056214_addderiver.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403242105448_takeitback.cs" />
+    <Compile Include="Migrations\201403242105448_takeitback.Designer.cs">
+      <DependentUpon>201403242105448_takeitback.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403242107314_aaa1.cs" />
+    <Compile Include="Migrations\201403242107314_aaa1.Designer.cs">
+      <DependentUpon>201403242107314_aaa1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403242114565_aaaa.cs" />
+    <Compile Include="Migrations\201403242114565_aaaa.Designer.cs">
+      <DependentUpon>201403242114565_aaaa.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403242117151_aaaa1.cs" />
+    <Compile Include="Migrations\201403242117151_aaaa1.Designer.cs">
+      <DependentUpon>201403242117151_aaaa1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403242133141_aaaaaaa.cs" />
+    <Compile Include="Migrations\201403242133141_aaaaaaa.Designer.cs">
+      <DependentUpon>201403242133141_aaaaaaa.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403250026338_aaaa2.cs" />
+    <Compile Include="Migrations\201403250026338_aaaa2.Designer.cs">
+      <DependentUpon>201403250026338_aaaa2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403250035044_aaaaa.cs" />
+    <Compile Include="Migrations\201403250035044_aaaaa.Designer.cs">
+      <DependentUpon>201403250035044_aaaaa.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -486,6 +540,8 @@
     <Compile Include="Models\JassBuilderLog.cs" />
     <Compile Include="Models\JassDashVariable.cs" />
     <Compile Include="Models\JassBuilder.cs" />
+    <Compile Include="Models\JassDeriver.cs" />
+    <Compile Include="Models\JassFormula.cs" />
     <Compile Include="Models\JassGrid.cs" />
     <Compile Include="Models\JassVariable.cs" />
     <Compile Include="Models\JassWeatherContext.cs" />
@@ -726,6 +782,18 @@
     <Content Include="Views\Blob\ShowDashBoard4DayFromFileFirst.cshtml" />
     <Content Include="Views\Grid\Ideas________________________.cshtml" />
     <Content Include="Views\Grid\ShowGridMap.cshtml" />
+    <Content Include="Views\Test\TestSheridan.cshtml" />
+    <Content Include="Views\Test\TestSheridanLatLon.cshtml" />
+    <Content Include="Views\Formula\Index.cshtml" />
+    <Content Include="Views\Formula\Details.cshtml" />
+    <Content Include="Views\Formula\Create.cshtml" />
+    <Content Include="Views\Formula\Edit.cshtml" />
+    <Content Include="Views\Formula\Delete.cshtml" />
+    <Content Include="Views\Deriver\Index.cshtml" />
+    <Content Include="Views\Deriver\Details.cshtml" />
+    <Content Include="Views\Deriver\Create.cshtml" />
+    <Content Include="Views\Deriver\Edit.cshtml" />
+    <Content Include="Views\Deriver\Delete.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -896,6 +964,45 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201403191313585_weeky.resx">
       <DependentUpon>201403191313585_weeky.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403241852297_deriver.resx">
+      <DependentUpon>201403241852297_deriver.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403241857016_deriver1.resx">
+      <DependentUpon>201403241857016_deriver1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403241948509_variables.resx">
+      <DependentUpon>201403241948509_variables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403242001047_deriver2.resx">
+      <DependentUpon>201403242001047_deriver2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403242054354_removederiver.resx">
+      <DependentUpon>201403242054354_removederiver.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403242056214_addderiver.resx">
+      <DependentUpon>201403242056214_addderiver.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403242105448_takeitback.resx">
+      <DependentUpon>201403242105448_takeitback.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403242107314_aaa1.resx">
+      <DependentUpon>201403242107314_aaa1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403242114565_aaaa.resx">
+      <DependentUpon>201403242114565_aaaa.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403242117151_aaaa1.resx">
+      <DependentUpon>201403242117151_aaaa1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403242133141_aaaaaaa.resx">
+      <DependentUpon>201403242133141_aaaaaaa.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403250026338_aaaa2.resx">
+      <DependentUpon>201403250026338_aaaa2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403250035044_aaaaa.resx">
+      <DependentUpon>201403250035044_aaaaa.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

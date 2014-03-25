@@ -32,5 +32,9 @@ namespace JassWeather.Models
 
         public DbSet<JassBuilderLog> JassBuilderLogs { get; set; }
 
+        public DbSet<JassFormula> JassFormulas { get; set; }
+
+        public DbSet<JassDeriver> JassDerivers { get; set; }
+
     }
 }

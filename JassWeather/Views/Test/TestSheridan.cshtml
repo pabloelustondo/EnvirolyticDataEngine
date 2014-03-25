@@ -1,0 +1,75 @@
+﻿@model JassWeather.Models.JassWeatherAPI.SheridanInfoModel
+@{
+    ViewBag.Title = "TestSheridan";
+}
+
+<h2>TestSheridan</h2>
+
+
+TestMax: @Model.testMax
+Response: @Model.response
+TimeSpan: @Model.timeSpan
+FileSave: @ViewBag.resultOfFileSave
+
+
+<table>
+  <tr>
+<td>
+City
+</td>
+<td>
+Code/URL
+</td>
+<td>
+Success
+</td>
+<td>
+2002-01-01
+</td>
+<td>
+2002-01-02
+</td>
+<td>
+2002-01-03
+</td>
+<td>
+2002-01-04
+</td>
+<td>
+2002-01-05
+</td>
+</tr>  
+    
+    
+    @for(int l=1;l<Model.testMax;l++){
+<tr>
+<td>
+@Model.city[l]
+</td>
+<td>
+<a href="@Model.urls[l]">@Model.code[l]</a>
+</td>
+<td>
+@Model.success[l]
+</td>
+<td>
+@Model.data[l,0]
+</td>
+<td>
+@Model.data[l,1]
+</td>
+<td>
+@Model.data[l,2]
+</td>
+<td>
+@Model.data[l,3]
+</td>
+<td>
+@Model.data[l,4]
+</td>
+
+</tr>
+}
+
+
+</table>
