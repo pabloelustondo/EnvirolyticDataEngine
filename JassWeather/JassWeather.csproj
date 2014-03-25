@@ -549,6 +549,10 @@
     <Compile Include="Migrations\201403251732142_add-deriver-again.Designer.cs">
       <DependentUpon>201403251732142_add-deriver-again.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201403251827167_added-level-to-deriver.cs" />
+    <Compile Include="Migrations\201403251827167_added-level-to-deriver.Designer.cs">
+      <DependentUpon>201403251827167_added-level-to-deriver.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -1032,6 +1036,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201403251732142_add-deriver-again.resx">
       <DependentUpon>201403251732142_add-deriver-again.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403251827167_added-level-to-deriver.resx">
+      <DependentUpon>201403251827167_added-level-to-deriver.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

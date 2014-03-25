@@ -56,6 +56,22 @@
         </div>
 
         <div class="editor-label">
+            @Html.LabelFor(model => model.X1Level)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.X1Level)
+            @Html.ValidationMessageFor(model => model.X1Level)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.X2Level)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.X2Level)
+            @Html.ValidationMessageFor(model => model.X2Level)
+        </div>
+
+        <div class="editor-label">
             @Html.LabelFor(model => model.JassFormulaID, "JassFormula")
         </div>
         <div class="editor-field">

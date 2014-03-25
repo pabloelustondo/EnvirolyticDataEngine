@@ -1770,11 +1770,16 @@ v(np)  =   ---------------------------------------------------------------------
                          
              ProcessDeriverModel result = new ProcessDeriverModel();
              result.Message = "OK";
+             dynamic resultValues=null;
 
            //The ideas of this process is to loop over the year, month and day, get the necessary files and create the new one.
-             string outputtFileName = null;
+             string outputFileName = null; string outputFilePath = null;
              string X1FileName = null;  string X1FilePath = null;
              string X2FileName = null;  string X2FilePath = null;
+
+             Single[] yDim = null;
+             Single[] xDim = null;
+             double[] timeDim = null;
 
              for (int year = deriver.YearStart; year <= deriver.YearEnd; year++)
              {
@@ -1784,7 +1789,8 @@ v(np)  =   ---------------------------------------------------------------------
                      {
                         //first open the necessary file with something like process source.
 
-                         outputtFileName = fileNameBuilderByDay(deriver.JassVariable.Name, year, month, day);
+                         outputFileName = fileNameBuilderByDay(deriver.JassVariable.Name, year, month, day) + ".nc"; ;
+                         outputFilePath = AppDataFolder + "\\" + outputFileName;
                          X1FileName = fileNameBuilderByDay(deriver.X1, year, month, day) + ".nc";
                          X2FileName = fileNameBuilderByDay(deriver.X2, year, month, day) + ".nc";
                          X1FilePath = AppDataFolder + "\\" + X1FileName;
@@ -1797,25 +1803,58 @@ v(np)  =   ---------------------------------------------------------------------
                          //here we need to open the files
 
                          dynamic x1Values;
-                         using (var x1DataSet = DataSet.Open(X1FilePath + "?openMode=open")) { 
-                         
-                               x1Values = x1DataSet.GetData<Int16[,,,]>(deriver.X1,
-                                     DataSet.FromToEnd(0),
-                                     DataSet.FromToEnd(0),
-                                     DataSet.FromToEnd(0),
-                                     DataSet.FromToEnd(0));
+                         using (var x1DataSet = DataSet.Open(X1FilePath + "?openMode=open")) {
+
+                             yDim = x1DataSet.GetData<Single[]>("y");
+                             xDim = x1DataSet.GetData<Single[]>("x");
+                             timeDim = x1DataSet.GetData<double[]>("time");
+
+                             //NOTE: This version cannot handle multiple presure.. generalize!
+                             if (deriver.X1Level == null)
+                             {
+                                 x1Values = x1DataSet.GetData<Int16[, ,]>(deriver.X1,
+                                       DataSet.FromToEnd(0),
+                                       DataSet.FromToEnd(0),
+                                       DataSet.FromToEnd(0));
+                             }
+                             else
+                             {
+                                 x1Values = x1DataSet.GetData<Int16[, ,]>(deriver.X1,
+                                 DataSet.FromToEnd(0),
+                                 DataSet.ReduceDim((int)deriver.X1Level),
+                                 DataSet.FromToEnd(0),
+                                 DataSet.FromToEnd(0));
+                             }
                          }
 
                          dynamic x2Values;
                          using (var x2DataSet = DataSet.Open(X2FilePath + "?openMode=open"))
                          {
-                             x2Values = x2DataSet.GetData<Int16[, ,]>(deriver.X2,
-                                   DataSet.FromToEnd(0),
-                                   DataSet.FromToEnd(0),
-                                   DataSet.FromToEnd(0));
+                             //NOTE: This version cannot handle multiple presure.. generalize!
+                             if (deriver.X2Level == null)
+                             {
+                                 x2Values = x2DataSet.GetData<Int16[, ,]>(deriver.X2,
+                                       DataSet.FromToEnd(0),
+                                       DataSet.FromToEnd(0),
+                                       DataSet.FromToEnd(0));
+                             }
+                             else {
+                                 x2Values = x2DataSet.GetData<Int16[, ,]>(deriver.X2,
+                                 DataSet.FromToEnd(0),
+                                 DataSet.ReduceDim((int)deriver.X2Level),
+                                 DataSet.FromToEnd(0),
+                                 DataSet.FromToEnd(0));                            
+                             }
                          }
 
 
+                         dynamic x1Value, x2Value, resultValue;
+
+                             if (deriver.JassGrid.Levelsize==0){
+                         resultValues = new Int16[deriver.JassGrid.Timesize, deriver.JassGrid.Ysize, deriver.JassGrid.Xsize];
+                             }else{
+                         resultValues = new Int16[deriver.JassGrid.Timesize, deriver.JassGrid.Levelsize, deriver.JassGrid.Ysize, deriver.JassGrid.Xsize];
+                             }
 
                          for (int t = 0; t < deriver.JassGrid.Timesize; t++)
                          {
@@ -1825,22 +1864,50 @@ v(np)  =   ---------------------------------------------------------------------
                                  {
                                      for (int x = 0; y < deriver.JassGrid.Xsize; x++)
                                      {
-                                         //now we want to apply the formula
+                                         x1Value = x1Values[t, y, x];
+                                         x2Value = x2Values[t, y, x];
 
-                                         //var x1 = 
-                                         //var x2 = 
-                                         //var result = formula
+                                         resultValue = applyDeriverFormmula(deriver, x1Value, x2Value);
+
+                                         if (deriver.JassGrid.Levelsize == 0)
+                                         {
+                                             resultValues[t, y, x] = resultValue;
+                                         }
+                                         else
+                                         {
+                                             resultValues[t, l, y, x] = resultValue;
+                                         }
                                      }
                                  }
                              }
                          }
 
+
+                         //finally, here is where we write the file
+                         //
+                         using (var resultDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
+                         {
+                             resultDataSet.Add<double[]>("time", timeDim, "time");
+                             resultDataSet.Add<Single[]>("y",yDim,"y");
+                             resultDataSet.Add<Single[]>("x", xDim, "x");
+                             resultDataSet.Add<Int16[, ,]>(deriver.JassVariable.Name, (Int16[, ,])resultValues, "time", "y", "x");
+                         }
                      }
                  }
              }
+
+
+
+
+
             return result;        
         }
 
+        public dynamic applyDeriverFormmula(JassDeriver deriver, dynamic valueX1, dynamic valueX2){
+
+            var result = valueX1 + valueX2;
+            return result;
+        }
 
         public string processBuilder(JassBuilder builder, int year, int month, int weeky, Boolean upload, JassBuilderLog builderAllLog)
         {
