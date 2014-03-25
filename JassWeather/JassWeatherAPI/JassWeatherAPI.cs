@@ -232,8 +232,6 @@ namespace JassWeather.Models
             return filePath; 
         }
 
-
-
         public static double HaversineDistance(double firstLat, double firstLong, double secondLat, double secondLong)
         {
             double dLat = toRadian(secondLat - firstLat);
@@ -1772,7 +1770,32 @@ v(np)  =   ---------------------------------------------------------------------
              ProcessDeriverModel result = new ProcessDeriverModel();
              result.Message = "OK";
 
+           //The ideas of this process is to loop over the year, month and day, get the necessary files and create the new one.
+             string outputtFileName = null;
+             string X1FileName = null;  string X1FilePath = null;
+             string X2FileName = null;  string X2FilePath = null;
 
+             for (int year = deriver.YearStart; year <= deriver.YearEnd; year++)
+             {
+                 for (int month = deriver.MonthStart; month <= deriver.MnnthEnd; month++)
+                 {
+                     for (int day = deriver.DayStart; day <= deriver.DayEnd; day++)
+                     {
+                        //first open the necessary file with something like process source.
+
+                         outputtFileName = fileNameBuilderByDay(deriver.JassVariable.Name, year, month, day);
+                         X1FileName = fileNameBuilderByDay(deriver.X1, year, month, day) + ".nc";
+                         X2FileName = fileNameBuilderByDay(deriver.X2, year, month, day) + ".nc";
+                         X1FilePath = AppDataFolder + "\\" + X1FileName;
+                         X2FilePath = AppDataFolder + "\\" + X2FileName;
+
+                         DownloadFile2DiskIfNotThere(X1FileName, X1FilePath);
+                         DownloadFile2DiskIfNotThere(X2FileName, X2FilePath);
+
+
+                     }
+                 }
+             }
             return result;        
         }
 
