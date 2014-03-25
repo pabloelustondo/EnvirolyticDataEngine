@@ -1765,11 +1765,77 @@ v(np)  =   ---------------------------------------------------------------------
         {
             public string Message { get; set; }
         }
+
+
+        public class KeyMetadataModel
+        {
+            public double scale_factor { get; set; }
+            public double add_offset { get; set; }
+            public double missing_value { get; set; }
+            public double FillValue { get; set; }
+        }
+
+        public KeyMetadataModel getKeyMetadata(DataSet dataset)
+        {
+            var schema1 = dataset.GetSchema();
+            VariableSchema keyVariable=null;
+
+            foreach (var v in schema1.Variables)
+            {
+                if (v.Dimensions.Count > 2)
+                {
+                    keyVariable = v;
+                }
+            }
+
+            double scale_factor = 1;
+            double add_offset = 0;
+            double missing_value = 32766;
+            double FillValue = 32766;
+
+            try { scale_factor = Convert.ToDouble(keyVariable.Metadata["scale_factor"]); }
+            catch (Exception e)
+            {
+                var n = e;
+            };
+            try { add_offset = Convert.ToDouble(keyVariable.Metadata["add_offset"]); }
+            catch (Exception e)
+            {
+                var n = e;
+            };
+            try { missing_value = Convert.ToDouble(keyVariable.Metadata["missing_value"]); }
+            catch (Exception e)
+            {
+                var n = e;
+            };
+
+            try { FillValue = Convert.ToDouble(keyVariable.Metadata["FillValue"]); }
+            catch (Exception e)
+            {
+                var n = e;
+            };
+            try { FillValue = Convert.ToDouble(keyVariable.Metadata["_FillValue"]); }
+            catch (Exception e)
+            {
+                var n = e;
+            };
+
+            KeyMetadataModel result = new KeyMetadataModel();
+            result.add_offset = add_offset;
+            result.scale_factor = scale_factor;
+            result.missing_value = missing_value;
+            result.FillValue = FillValue;
+
+            return result;
+
+        }
+
         public ProcessDeriverModel processDeriverAll(JassDeriver deriver, Boolean upload, Boolean clean)
         {
                          
              ProcessDeriverModel result = new ProcessDeriverModel();
              result.Message = "OK";
+             int numberOfMissingValues = 0;
              dynamic resultValues=null;
 
            //The ideas of this process is to loop over the year, month and day, get the necessary files and create the new one.
@@ -1803,11 +1869,14 @@ v(np)  =   ---------------------------------------------------------------------
                          //here we need to open the files
 
                          dynamic x1Values;
+                         KeyMetadataModel x1Meta;
                          using (var x1DataSet = DataSet.Open(X1FilePath + "?openMode=open")) {
 
                              yDim = x1DataSet.GetData<Single[]>("y");
                              xDim = x1DataSet.GetData<Single[]>("x");
                              timeDim = x1DataSet.GetData<double[]>("time");
+
+                             x1Meta = getKeyMetadata(x1DataSet);
 
                              //NOTE: This version cannot handle multiple presure.. generalize!
                              if (deriver.X1Level == null)
@@ -1828,8 +1897,10 @@ v(np)  =   ---------------------------------------------------------------------
                          }
 
                          dynamic x2Values;
+                         KeyMetadataModel x2Meta;
                          using (var x2DataSet = DataSet.Open(X2FilePath + "?openMode=open"))
                          {
+                             x2Meta = getKeyMetadata(x2DataSet);
                              //NOTE: This version cannot handle multiple presure.. generalize!
                              if (deriver.X2Level == null)
                              {
@@ -1855,19 +1926,33 @@ v(np)  =   ---------------------------------------------------------------------
                              }else{
                          resultValues = new Int16[deriver.JassGrid.Timesize, deriver.JassGrid.Levelsize, deriver.JassGrid.Ysize, deriver.JassGrid.Xsize];
                              }
-
+                         int safeLevel = (deriver.JassGrid.Levelsize == 0) ? 1 : deriver.JassGrid.Levelsize;
                          for (int t = 0; t < deriver.JassGrid.Timesize; t++)
                          {
-                             for (int l = 0; l < deriver.JassGrid.Levelsize; l++)
+                             for (int l = 0; l < safeLevel; l++)
                              {
                                  for (int y = 0; y < deriver.JassGrid.Ysize; y++)
                                  {
-                                     for (int x = 0; y < deriver.JassGrid.Xsize; x++)
+                                     for (int x = 0; x < deriver.JassGrid.Xsize; x++)
                                      {
-                                         x1Value = x1Values[t, y, x];
-                                         x2Value = x2Values[t, y, x];
+                                         //add_offset + scale_factor * values[tt, ll, yy, xx];
 
-                                         resultValue = applyDeriverFormmula(deriver, x1Value, x2Value);
+                                         if (x1Values[t, y, x] != x1Meta.missing_value &&
+                                             x1Values[t, y, x] != x1Meta.FillValue &&
+                                             x2Values[t, y, x] != x2Meta.missing_value &&
+                                             x2Values[t, y, x] != x2Meta.FillValue
+                                             )
+                                         {
+                                             x1Value = x1Meta.add_offset + x1Meta.scale_factor * x1Values[t, y, x];
+                                             x2Value = x2Meta.add_offset + x2Meta.scale_factor * x2Values[t, y, x];
+                                             resultValue = applyDeriverFormmula(deriver, x1Value, x2Value);
+                                         }
+                                         else
+                                         {
+                                             resultValue = (Int16)x1Meta.missing_value;
+                                             numberOfMissingValues++;
+
+                                         }
 
                                          if (deriver.JassGrid.Levelsize == 0)
                                          {
@@ -1891,6 +1976,11 @@ v(np)  =   ---------------------------------------------------------------------
                              resultDataSet.Add<Single[]>("y",yDim,"y");
                              resultDataSet.Add<Single[]>("x", xDim, "x");
                              resultDataSet.Add<Int16[, ,]>(deriver.JassVariable.Name, (Int16[, ,])resultValues, "time", "y", "x");
+
+
+                             //metadata
+                             resultDataSet.PutAttr(deriver.JassVariable.Name, "missing_value", x1Meta.missing_value);
+
                          }
                      }
                  }
@@ -1899,14 +1989,15 @@ v(np)  =   ---------------------------------------------------------------------
 
 
 
+             result.Message += " number of missing values: " + numberOfMissingValues;
 
-            return result;        
+             return result;        
         }
 
-        public dynamic applyDeriverFormmula(JassDeriver deriver, dynamic valueX1, dynamic valueX2){
+        public Int16 applyDeriverFormmula(JassDeriver deriver, dynamic valueX1, dynamic valueX2){
 
-            var result = valueX1 + valueX2;
-            return result;
+            var result = (valueX1 + valueX2)/2;
+            return (Int16) result;
         }
 
         public string processBuilder(JassBuilder builder, int year, int month, int weeky, Boolean upload, JassBuilderLog builderAllLog)
