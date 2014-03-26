@@ -652,6 +652,7 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Quick guide to get historical environmental sample information into Matlab.pdf" />
     <Content Include="Content\Quick guide to use Envirolytic dashboard to understand which information is available.pdf" />
+    <Content Include="App_Files\sheridan-stations.csv" />
     <None Include="Properties\PublishProfiles\envirolytic - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic1 - FTP.pubxml" />
@@ -826,10 +827,10 @@
     <Content Include="Views\LatLon\Create.cshtml" />
     <Content Include="Views\LatLon\Edit.cshtml" />
     <Content Include="Views\LatLon\Delete.cshtml" />
+    <Content Include="Views\Test\SaveSheridanLatLon.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="App_Files\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

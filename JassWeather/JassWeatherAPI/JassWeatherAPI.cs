@@ -2562,6 +2562,9 @@ v(np)  =   ---------------------------------------------------------------------
                 return results;
         }
 
+
+
+
         public SheridanInfoModel sheridanGetHistory(int testMax)
         {
             DateTime startDateTime = DateTime.Now;
@@ -2739,6 +2742,53 @@ v(np)  =   ---------------------------------------------------------------------
                 }
             }
                        
+
+            return ReturnMessage;
+        }
+
+        public string sheridanSaveLatLongNetCDF()
+        {
+            string ReturnMessage = "ok";
+            //the idea here is to loop through all the found codes in the DB and store them in a file
+            //the idea is to create the dimensions 
+
+            string sherindanStationsFilePath = AppFilesFolder + "/sheridan-stations.csv";
+            string[] lines = System.IO.File.ReadAllLines(sherindanStationsFilePath);
+
+            string[] station = new string[lines.Length];
+            Single[] lat = new Single[lines.Length];
+            Single[] lon = new Single[lines.Length];
+
+            List<JassLatLon> latlons = db.JassLatLons.Where(l => l.StationCode.Length == 3).ToList();
+            Dictionary<string, JassLatLon> latlonsDic = new Dictionary<string, JassLatLon>();
+            string code;
+
+            foreach( var latlon in latlons){
+                code = latlon.StationCode.Substring(0, 3);
+                latlonsDic.Add(code, latlon);
+            }
+
+
+            for (int l = 0; l < lines.Length; l++)
+            {
+                var line = lines[l].Split('\t');
+                code = line[1];
+                station[l] = code;
+                lat[l] = Convert.ToSingle(latlonsDic[code].Lat);
+                lon[l] = Convert.ToSingle(latlonsDic[code].Lon);
+
+
+            }
+
+
+            string outputFilePath = AppDataFolder + "\\sherindan_stations.nc";
+                using (var sheridanOutputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
+                {
+                    sheridanOutputDataSet.Add<string[]>("station", station, "station"); ;
+                    sheridanOutputDataSet.Add<Single[]>("lat", lat, "station");
+                    sheridanOutputDataSet.Add<Single[]>("lon", lon, "station");
+                }
+
 
             return ReturnMessage;
         }

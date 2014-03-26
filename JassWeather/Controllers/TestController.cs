@@ -38,6 +38,12 @@ namespace JassWeather.Controllers
             return View(result);
         }
 
+        public ActionResult SaveSheridanLatLon()
+        {
+            ViewBag.Result = apiCaller.sheridanSaveLatLongNetCDF();
+            return View();
+        }
+
         public ActionResult Index()
         {
             return View();
