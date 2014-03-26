@@ -1846,16 +1846,21 @@ v(np)  =   ---------------------------------------------------------------------
              Single[] yDim = null;
              Single[] xDim = null;
              double[] timeDim = null;
+             int year;
+             int month;
+             int day;
 
-             for (int year = deriver.YearStart; year <= deriver.YearEnd; year++)
-             {
-                 for (int month = deriver.MonthStart; month <= deriver.MnnthEnd; month++)
-                 {
-                     for (int day = deriver.DayStart; day <= deriver.DayEnd; day++)
-                     {
+             DateTime dayLooper = new DateTime(deriver.YearStart, deriver.MonthStart, deriver.DayStart);
+             DateTime dayEnd = new DateTime(deriver.YearEnd, deriver.MnnthEnd, deriver.DayEnd);
+             while (dayLooper <= dayEnd){
+
+                 year = dayLooper.Year;
+                 month = dayLooper.Month;
+                 day = dayLooper.Day;
+
                         //first open the necessary file with something like process source.
 
-                         outputFileName = fileNameBuilderByDay(deriver.JassVariable.Name, year, month, day) + ".nc"; ;
+                         outputFileName = fileNameBuilderByDay(deriver.JassVariable.Name, year, month, day) + ".nc";
                          outputFilePath = AppDataFolder + "\\" + outputFileName;
                          X1FileName = fileNameBuilderByDay(deriver.X1, year, month, day) + ".nc";
                          X2FileName = fileNameBuilderByDay(deriver.X2, year, month, day) + ".nc";
@@ -1987,11 +1992,9 @@ v(np)  =   ---------------------------------------------------------------------
                          {
                              uploadBlob(deriver.JassVariable.Name, outputFileName, outputFilePath);
                          }
-                     }
-                 }
-             }
 
-
+                         dayLooper = dayLooper.AddDays(1);
+                     }//end while day
 
              if (clean) cleanAppData();
              result.Message += " number of missing values: " + numberOfMissingValues;
