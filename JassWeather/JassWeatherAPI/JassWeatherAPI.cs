@@ -1945,7 +1945,7 @@ v(np)  =   ---------------------------------------------------------------------
                                          {
                                              x1Value = x1Meta.add_offset + x1Meta.scale_factor * x1Values[t, y, x];
                                              x2Value = x2Meta.add_offset + x2Meta.scale_factor * x2Values[t, y, x];
-                                             resultValue = applyDeriverFormmula(deriver, x1Value, x2Value);
+                                             resultValue = applyDeriverFormula(deriver, x1Value, x2Value);
                                          }
                                          else
                                          {
@@ -1994,10 +1994,24 @@ v(np)  =   ---------------------------------------------------------------------
              return result;        
         }
 
-        public Int16 applyDeriverFormmula(JassDeriver deriver, dynamic valueX1, dynamic valueX2){
+        public Int16 applyDeriverFormula(JassDeriver deriver, dynamic valueX1, dynamic valueX2){
 
-            var result = (valueX1 + valueX2)/2;
-            return (Int16) result;
+            Int16 result = 0;
+
+            if (deriver.JassFormula.Name == "Humidex")
+            {
+                /*
+                 * airtemp  +   0.5555 * (   6.11 * e^ ( 5417.7530 x ( 1 / 273.16 - 1 / dewpointtemp) )  - 10  )
+ 
+                 */
+                var airtemp = valueX1;
+                var dewpointtemp = valueX2;
+                double d_result = airtemp + 0.5555 * (6.11 * Math.Exp(5417.7530 * (1 / 273.16 - 1 / dewpointtemp)) - 10);
+                result = Convert.ToInt16(d_result);
+                return result;
+            }
+
+            throw new Exception("We do not have an algorithm to calculate the specified formula");
         }
 
         public string processBuilder(JassBuilder builder, int year, int month, int weeky, Boolean upload, JassBuilderLog builderAllLog)
