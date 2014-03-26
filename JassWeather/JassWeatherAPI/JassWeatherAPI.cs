@@ -2479,59 +2479,86 @@ v(np)  =   ---------------------------------------------------------------------
 
         public string[] SheridanGetLatLon(){
 
+                int numberOfStationsGeocoded = 0;
                 string sherindanStationsFilePath = AppFilesFolder + "/sheridan-stations.csv";
                 string[] lines = System.IO.File.ReadAllLines(sherindanStationsFilePath);
                 string[] addresses = new string[lines.Length];
                 string[] formatted_addresses =new string[lines.Length];
                 double[] lats=new double[lines.Length];
                 double[] lons=new double[lines.Length];            
-                string[] results = new string[lines.Length];
+                string[] results = new string[lines.Length+1];
                 string[] urls = new string[lines.Length];
 
                 int delay = 3000;
                 for (int l = 0; l < lines.Length; l++)
                 {
-                    if (l%10==0) { delay=10000; };
-                    System.Threading.Thread.Sleep(delay);
+                    //if (l%10==0) { delay=10000; };
+                    //System.Threading.Thread.Sleep(delay);
+                    
                     var line = lines[l].Split('\t');
-                    addresses[l] = line[0].Replace(" ","%20");
+                   // addresses[l] = (line[0] +" "+ line[1]).Replace(" ","%20");
+                    addresses[l] = (line[0]).Replace(" ", "%20");
+                    string code = line[1];
+                    //here we see if we have this in the DB
 
-                    string responseString;
-                    dynamic response;
-                    string formatted_address = "n/a";
-                    double lat = 0;
-                    double lon = 0;
+                    List<JassLatLon> jasslatlonList = db.JassLatLons.Where(j => j.StationCode==code).ToList();
 
-                    string url = "http://maps.googleapis.com/maps/api/geocode/json?address=" + addresses[l] + "&sensor=false";
-                    WebRequest req = WebRequest.Create(url);
-                    req.Method = "GET";
-                    try
+                    if (jasslatlonList.Count == 0)
                     {
-                        HttpWebResponse resp = req.GetResponse() as HttpWebResponse;
-                        if (resp.StatusCode == HttpStatusCode.OK)
+
+                        string responseString;
+                        dynamic response;
+                        string formatted_address = "n/a";
+                        double lat = 0;
+                        double lon = 0;
+
+                        string url = "http://maps.googleapis.com/maps/api/geocode/json?address=" + addresses[l] + "&sensor=false";
+                        WebRequest req = WebRequest.Create(url);
+                        req.Method = "GET";
+                        try
                         {
-                            using (Stream respStream = resp.GetResponseStream())
+                            HttpWebResponse resp = req.GetResponse() as HttpWebResponse;
+                            if (resp.StatusCode == HttpStatusCode.OK)
                             {
-                                StreamReader reader = new StreamReader(respStream, Encoding.UTF8);
-                                responseString = reader.ReadToEnd();
-                                response = Json.Decode(responseString).results[0];
-                                formatted_address = response.formatted_address;
-                                lat = Convert.ToDouble(response.geometry.location.lat);
-                                lon = Convert.ToDouble(response.geometry.location.lng);
-                                results[l] = addresses[l] + " ==>> lat:" + lat + "lon:" + lon + "formatted_address: " + formatted_address;
+                                using (Stream respStream = resp.GetResponseStream())
+                                {
+                                    StreamReader reader = new StreamReader(respStream, Encoding.UTF8);
+                                    responseString = reader.ReadToEnd();
+                                    response = Json.Decode(responseString).results[0];
+                                    formatted_address = response.formatted_address;
+                                    lat = Convert.ToDouble(response.geometry.location.lat);
+                                    lon = Convert.ToDouble(response.geometry.location.lng);
+                                    results[l] = addresses[l] + " ==>> lat:" + lat + "lon:" + lon + "formatted_address: " + formatted_address;
+
+                                    //here, we are saving the found values in the database assuming this value is not in the DB
+
+                                    JassLatLon jasslatlon = new JassLatLon();
+                                    jasslatlon.StationCode = code;
+                                    jasslatlon.Lat = lat;
+                                    jasslatlon.Lon = lon;
+                                    jasslatlon.Info = "NO STATION " + formatted_address;
+                                    db.JassLatLons.Add(jasslatlon);
+                                    db.SaveChanges();
+
+                                    numberOfStationsGeocoded++;
+
+                                }
+                            }
+                            else
+                            {
+                                results[l] = string.Format("Status Code: {0}, Status Description: {1}", resp.StatusCode, resp.StatusDescription);
                             }
                         }
-                        else
+                        catch (Exception e)
                         {
-                            results[l] = string.Format("Status Code: {0}, Status Description: {1}", resp.StatusCode, resp.StatusDescription);
+                            results[l] = "            ---Error: " + addresses[l] + " URL:" + url;
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        results[l] = "            ---Error: " + addresses[l] + " URL:" + url;
-                    }
+
+                    }//end if jasslatlonList==0
                 }//end of for lines
 
+                int numberOfLatLons = db.JassLatLons.ToList().Count();
+                results[lines.Length] = " Total Lines: " + lines.Length + " Total in DB: " + numberOfLatLons + " Geocoded now: " + numberOfStationsGeocoded;                
                 return results;
         }
 

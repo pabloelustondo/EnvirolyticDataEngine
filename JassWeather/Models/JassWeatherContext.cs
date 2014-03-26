@@ -36,5 +36,7 @@ namespace JassWeather.Models
 
         public DbSet<JassDeriver> JassDerivers { get; set; }
 
+        public DbSet<JassLatLon> JassLatLons { get; set; }
+
     }
 }

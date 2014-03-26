@@ -36,6 +36,7 @@
    
                            
                                @if(User.IsInRole("Envirolytic")){  
+                            <li>@Html.ActionLink("Sherindan Lat Lon", "Index", "LatLon")</li>         
                             <li>@Html.ActionLink("Dashboard(Dev)", "ShowDashBoard", "Blob")</li>   
                                }
                                @if(User.IsInRole("Admin")){                  

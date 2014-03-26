@@ -247,6 +247,7 @@
     <Compile Include="Controllers\FormulaController.cs" />
     <Compile Include="Controllers\GridController.cs" />
     <Compile Include="Controllers\JassController.cs" />
+    <Compile Include="Controllers\LatLonController.cs" />
     <Compile Include="Controllers\MeasureController.cs" />
     <Compile Include="Controllers\PartitionController.cs" />
     <Compile Include="Controllers\TestController.cs" />
@@ -553,6 +554,10 @@
     <Compile Include="Migrations\201403251827167_added-level-to-deriver.Designer.cs">
       <DependentUpon>201403251827167_added-level-to-deriver.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201403261309109_latlon.cs" />
+    <Compile Include="Migrations\201403261309109_latlon.Designer.cs">
+      <DependentUpon>201403261309109_latlon.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -563,6 +568,7 @@
     <Compile Include="Models\JassDeriver.cs" />
     <Compile Include="Models\JassFormula.cs" />
     <Compile Include="Models\JassGrid.cs" />
+    <Compile Include="Models\JassLatLon.cs" />
     <Compile Include="Models\JassVariable.cs" />
     <Compile Include="Models\JassWeatherContext.cs" />
     <Compile Include="Models\JassWeatherContextInitializer.cs" />
@@ -815,6 +821,11 @@
     <Content Include="Views\Deriver\Edit.cshtml" />
     <Content Include="Views\Deriver\Delete.cshtml" />
     <Content Include="Views\Deriver\ProcessDeriver.cshtml" />
+    <Content Include="Views\LatLon\Index.cshtml" />
+    <Content Include="Views\LatLon\Details.cshtml" />
+    <Content Include="Views\LatLon\Create.cshtml" />
+    <Content Include="Views\LatLon\Edit.cshtml" />
+    <Content Include="Views\LatLon\Delete.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1039,6 +1050,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201403251827167_added-level-to-deriver.resx">
       <DependentUpon>201403251827167_added-level-to-deriver.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403261309109_latlon.resx">
+      <DependentUpon>201403261309109_latlon.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

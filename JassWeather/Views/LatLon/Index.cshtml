@@ -1,0 +1,53 @@
+﻿@model IEnumerable<JassWeather.Models.JassLatLon>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+Total Number of Sherindan Stations: @ViewBag.TotalNumberOfStations
+Total Stations GeoCoded: @ViewBag.Count
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.StationCode)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Info)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Lat)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Lon)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.StationCode)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Info)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Lat)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Lon)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.JassLatLonID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.JassLatLonID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.JassLatLonID })
+        </td>
+    </tr>
+}
+
+</table>

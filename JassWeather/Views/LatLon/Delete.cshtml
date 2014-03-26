@@ -1,0 +1,47 @@
+﻿@model JassWeather.Models.JassLatLon
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<fieldset>
+    <legend>JassLatLon</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.StationCode)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.StationCode)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Info)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Info)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Lat)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Lat)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Lon)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Lon)
+    </div>
+</fieldset>
+@using (Html.BeginForm()) {
+    @Html.AntiForgeryToken()
+    <p>
+        <input type="submit" value="Delete" /> |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+}

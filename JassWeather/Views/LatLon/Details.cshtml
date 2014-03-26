@@ -1,0 +1,43 @@
+﻿@model JassWeather.Models.JassLatLon
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>JassLatLon</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.StationCode)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.StationCode)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Info)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Info)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Lat)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Lat)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Lon)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Lon)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.JassLatLonID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
