@@ -1982,13 +1982,18 @@ v(np)  =   ---------------------------------------------------------------------
                              resultDataSet.PutAttr(deriver.JassVariable.Name, "missing_value", x1Meta.missing_value);
 
                          }
+
+                         if (upload)
+                         {
+                             uploadBlob(deriver.JassVariable.Name, outputFileName, outputFilePath);
+                         }
                      }
                  }
              }
 
 
 
-
+             if (clean) cleanAppData();
              result.Message += " number of missing values: " + numberOfMissingValues;
 
              return result;        

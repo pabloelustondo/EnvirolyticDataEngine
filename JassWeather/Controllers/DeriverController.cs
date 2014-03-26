@@ -44,6 +44,14 @@ namespace JassWeather.Controllers
             return View("ProcessDeriver",result);
         }
 
+        public ActionResult ProcessDeriverUpLoadClean(int id = 0)
+        {
+            JassDeriver jassderiver = db.JassDerivers.Find(id);
+
+            var result = apiCaller.processDeriverAll(jassderiver, true, true);
+
+            return View("ProcessDeriver", result);
+        }
 
         //
         // GET: /Deriver/Create
