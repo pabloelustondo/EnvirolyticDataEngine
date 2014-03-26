@@ -22,7 +22,7 @@ namespace JassWeather.Controllers
         {
             JassWeather.Models.JassWeatherAPI.SheridanInfoModel vm 
                 = new JassWeather.Models.JassWeatherAPI.SheridanInfoModel();
-            vm = apiCaller.sheridanGetHistory(3);
+            vm = apiCaller.sheridanGetHistory(10);
             ViewBag.resultOfFileSave = apiCaller.sheridanSaveNetCDF(vm);
 
             JassWeather.Models.JassWeatherAPI.SheridanInspect si = apiCaller.sheridanInspectFile();

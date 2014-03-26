@@ -2722,7 +2722,7 @@ v(np)  =   ---------------------------------------------------------------------
 
             using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
             {
-                string outputFilePath = AppDataFolder + "\\sherindan.nc";
+                string outputFilePath = AppDataFolder + "\\sherindan-history.nc";
                 using (var sheridanOutputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
                 {
 
