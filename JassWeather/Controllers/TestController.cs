@@ -20,16 +20,27 @@ namespace JassWeather.Controllers
 
         public ActionResult TestSheridan()
         {
-            JassWeather.Models.JassWeatherAPI.SheridanInfoModel vm 
-                = new JassWeather.Models.JassWeatherAPI.SheridanInfoModel();
-            vm = apiCaller.sheridanGetHistory(10);
-            ViewBag.resultOfFileSave = apiCaller.sheridanSaveNetCDF(vm);
+            JassWeather.Models.JassWeatherAPI.SheridanInfoModel vm
+= new JassWeather.Models.JassWeatherAPI.SheridanInfoModel();
+            ViewBag.Message = "OK";
+            try
+            {
 
-            JassWeather.Models.JassWeatherAPI.SheridanInspect si = apiCaller.sheridanInspectFile();
 
-            ViewBag.si = si;
+                vm = apiCaller.sheridanGetHistory(1000);
+                ViewBag.resultOfFileSave = apiCaller.sheridanSaveNetCDF(vm);
 
-            return View(vm);
+                JassWeather.Models.JassWeatherAPI.SheridanInspect si = apiCaller.sheridanInspectFile();
+
+                ViewBag.si = si;
+
+                return View(vm);
+            }
+            catch (Exception e)
+            {
+                ViewBag.Message = e.Message;
+                return View(vm);
+            }
         }
 
         public ActionResult TestSheridanLatLon()
@@ -39,6 +50,12 @@ namespace JassWeather.Controllers
         }
 
         public ActionResult SaveSheridanLatLon()
+        {
+            ViewBag.Result = apiCaller.sheridanSaveLatLongNetCDF();
+            return View();
+        }
+
+        public ActionResult TestSheridanMapp()
         {
             ViewBag.Result = apiCaller.sheridanSaveLatLongNetCDF();
             return View();

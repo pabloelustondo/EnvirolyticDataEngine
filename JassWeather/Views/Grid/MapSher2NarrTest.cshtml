@@ -1,0 +1,134 @@
+﻿@model JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo
+@{
+    ViewBag.Title = "Compare_MACC_NARR_Grids";
+}
+
+<h2>Testing the Map From Narr to InputGrid</h2>
+
+<p>This page is a test to verify our Narr to InputGrid mapping function. The idea is to use this function to calculate a value for each Narr grid 
+    point based on the value of the close points in the InputGrid grid. 
+   Technically, the function, called "MapNarr2InputGridGrid", will take and return a structure of the class "InputGridNarrGridsCombo"
+   that contains, at least, both Narr and InputGrid grid represented as arrays that map points (y,x) into (latitud,longitud). 
+   Those arrays come in the netCDF files.
+   The algorithm will create another array 'map(x,y)' that for each (x,y) in the Narr grid will give the closest points in the InputGrid grid.
+   Closeness is calculated using the Haversine method.
+   In order to allow other algorithms to calcuate interpolation the structure will also contain other 4 maps, map2, map3 and map4 that contains
+   the second, thirds and fourth closest points in the InputGrid grid. For references purposes I show the original schema of the Narr and InputGrid netCDf files bellow.
+</p>
+<p>Narr Grid Schema:  @Model.narrSchema</p>
+<p>InputGrid Grid Schema:  @Model.maccSchema</p>
+<p>Both to keep the test at a reasonable size and to allow visual inspection, this page will limit itself to the Narr points around a central point.
+   This point and area is easy to change and has been defined by default to be:
+</p>
+<p>Point: CN Tower 43.642599,-79.387094</p>
+<p>Area = points where distance < 100KM</p>
+
+
+
+@{
+    double cnt_lat = 43.642599;
+    double cnt_lon = -79.387094;
+    double maxDistance = 100;
+    Model.narrYMin = 128;
+    Model.narrYMax = 136;
+    Model.narrXMin = 230;
+    Model.narrXMax = 250;
+}
+
+------Here are the points around our central point (by default CN Tower) that we found in the InputGrid grid.
+if you want to see these points in google maps you cna jsut cut and past from here and use thie page to show them
+<a href="http://www.darrinward.com/lat-long/">http://www.darrinward.com/lat-long/</a>
+
+@{int countNarrPointsAroundCNTower = 0; int countInputGridPointsAroundCNTower = 0; }
+----------------------------MACC
+<table>
+@for (int z = Model.maccLatMin; z < Model.maccLatMax; z++)
+{
+        if (Model.maccLat[z] != null)
+        {
+        double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.maccLat[z], Model.maccLon[z]);
+        if (distanceToCNT < maxDistance)
+        {
+            countInputGridPointsAroundCNTower++;
+        <tr>
+        <td>@z (@Model.station[z])==> @Model.maccLat[z]<span>,</span>@Model.maccLon[z]</td>
+        <td>@distanceToCNT</td>
+        </tr>
+        }
+    }
+}
+</table>
+
+@countInputGridPointsAroundCNTower<br />
+
+------Here are the points around our central point (by default CN Tower) that we found in the NARR grid.
+To help QA we show also the distance from this points to CN tower and to those found two points in the InputGrid grid.
+<table>
+            <tr>
+        <th>Narr y,x</th>
+        <th>Narr lat,lon</th>
+                    <th>Distance to CN Tower</th>
+        </tr>}
+@for (int y = Model.narrYMin; y < Model.narrYMax; y++)
+{
+    for (int x = Model.narrXMin; x < Model.narrXMax; x++)
+    {
+        double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.narrLat[y, x], Model.narrLon[y, x]);
+         if (distanceToCNT < maxDistance)
+        {
+            countNarrPointsAroundCNTower++;
+        <tr>
+        <td>@y , @x</td>
+        <td>@Model.narrLat[y,x]<span>,</span>@Model.narrLon[y,x]</td>
+                    <td>@distanceToCNT</td>
+        </tr>}
+    }
+}
+</table>
+
+@countNarrPointsAroundCNTower++<br />
+
+Finally, here we show the map, for every point (x,y) in the NARR grid, we show the first and second points in the InputGrid grid with 
+the corresponding latitud/longitud and distance.
+
+--------------GRID MAPP
+
+<table>
+   <tr>
+        <th>Narr y,x</th>
+        <th>Narr lat, lon</th>
+
+        
+        <th>InputGrid y,x (1)</th>
+        <th>InputGrid lat, lon (1)</th>
+        <th>Distance (1)</th>
+  
+        <th>InputGrid y,x (2)</th>
+        <th>InputGrid lat, lon (2)</th>
+        <th>Distance (2)</th>
+   </tr>
+@for (int y = Model.narrYMin; y < Model.narrYMax; y++)
+{
+    for (int x = Model.narrXMin; x < Model.narrXMax; x++)
+    {
+       double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.narrLat[y, x], Model.narrLon[y, x]);
+        if (distanceToCNT < maxDistance){
+        <tr>
+        <td>y: @y<span>,</span>x: @x</td>
+        <td>@Model.narrLat[y,x]<span>,</span>@Model.narrLon[y,x]</td>
+
+        
+        <td>@Model.map[y,x].lat<span>,</span>@Model.map[y,x].lon</td>
+        <td>@Model.map[y,x].latitud<span>,</span>@Model.map[y,x].longitud</td>
+        <td>@Model.map[y,x].distance</td>
+
+        <td>@Model.map[y,x].lat<span>,</span>@Model.map[y,x].lon</td>
+        <td>@Model.map2[y,x].latitud<span>,</span>@Model.map2[y,x].longitud</td>       
+        <td>@Model.map2[y,x].distance</td>
+            </tr>
+
+}
+             }
+    }
+}
+</table>

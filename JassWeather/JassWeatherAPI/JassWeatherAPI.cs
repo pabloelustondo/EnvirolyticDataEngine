@@ -261,6 +261,8 @@ namespace JassWeather.Models
             public Single[] maccLat { get; set; }
             public Single[] maccLon { get; set; }
 
+            public string[] station { get; set; }
+
             public Single[,] narrLon { get; set; }
             public Single[,] narrLat { get; set; }
 
@@ -357,6 +359,80 @@ namespace JassWeather.Models
                                            gc.map4[y, x].longitud = gc.maccLon[lon];
                                        }
                          }
+                    }
+                }
+            }
+
+            return gc;
+        }
+
+        public static JassMaccNarrGridsCombo MapGridNarr2Sher(JassMaccNarrGridsCombo gc)
+        {
+            JassBuilder builder = new JassBuilder();
+            DateTime start = DateTime.Now;
+            JassWeatherAPI apiCaller2 = new JassWeatherAPI("", "", "");
+            JassBuilderLog builderLog = apiCaller2.createBuilderLog(builder, "mapGridStart", "", "", new TimeSpan(), true);
+
+            double minDistance, minDistance2, minDistance3, minDistance4;
+            for (int y = gc.narrYMin; y < gc.narrYMax; y++)
+            {
+                JassBuilderLog builderLog2 = apiCaller2.createBuilderLog(builder, "mapGridY:" + y, "", "", DateTime.Now - start, true);
+                start = DateTime.Now;
+                for (int x = gc.narrXMin; x < gc.narrXMax; x++)
+                {
+                    minDistance = 2000; minDistance2 = 2000; minDistance3 = 2000; minDistance4 = 2000;
+                    for (int z = gc.maccLatMin; z < gc.maccLatMax; z++)   //161
+                    {
+                            double distance = HaversineDistance(gc.maccLat[z], gc.maccLon[z], gc.narrLat[y, x], gc.narrLon[y, x]);
+                            if (distance < minDistance)
+                            {
+                                minDistance = distance;
+                                gc.map4[y, x] = gc.map3[y, x];
+                                gc.map3[y, x] = gc.map2[y, x];
+                                gc.map2[y, x] = gc.map[y, x];
+                                gc.map[y, x] = new JassGridLocation();
+                                gc.map[y, x].distance = distance;
+                                gc.map[y, x].lat = z;
+                                gc.map[y, x].lon = z;
+                                gc.map[y, x].latitud = gc.maccLat[z];
+                                gc.map[y, x].longitud = gc.maccLon[z];
+                            }
+                            else
+                                if (distance < minDistance2)
+                                {
+                                    minDistance2 = distance;
+                                    gc.map4[y, x] = gc.map3[y, x];
+                                    gc.map3[y, x] = gc.map2[y, x];
+                                    gc.map2[y, x] = new JassGridLocation();
+                                    gc.map2[y, x].distance = distance;
+                                    gc.map2[y, x].lat = z;
+                                    gc.map2[y, x].lon = z;
+                                    gc.map2[y, x].latitud = gc.maccLat[z];
+                                    gc.map2[y, x].longitud = gc.maccLon[z];
+                                }
+                                else
+                                    if (distance < minDistance3)
+                                    {
+                                        minDistance3 = distance;
+                                        gc.map4[y, x] = gc.map3[y, x];
+                                        gc.map3[y, x] = new JassGridLocation();
+                                        gc.map3[y, x].distance = distance;
+                                        gc.map3[y, x].lat = z;
+                                        gc.map3[y, x].lon = z;
+                                        gc.map3[y, x].latitud = gc.maccLat[z];
+                                        gc.map3[y, x].longitud = gc.maccLon[z];
+                                    }
+                                    else
+                                        if (distance < minDistance4)
+                                        {
+                                            minDistance4 = distance;
+                                            gc.map4[y, x] = new JassGridLocation();
+                                            gc.map4[y, x].distance = distance;
+                                            gc.map4[y, x].lat = z;
+                                            gc.map4[y, x].lon = z;
+                                            gc.map4[y, x].latitud = gc.maccLat[z];
+                                            gc.map4[y, x].longitud = gc.maccLon[z];
+                                        }
                     }
                 }
             }
@@ -1072,7 +1148,7 @@ v(np)  =   ---------------------------------------------------------------------
 
         }
 
-        public JassMaccNarrGridsCombo MapGridNarr2GridFromFile(string fileNameInputGrid, string gridLatName, string gridLonName, string fileNameNarr, string fileNameMapper, bool testAroundToronto)
+        public JassMaccNarrGridsCombo MapGridNarr2GridFromFile(string fileNameInputGrid, string gridLatName, string gridLonName, string fileNameNarr, string fileNameMapper, bool testAroundToronto, bool sher)
         {
             JassBuilder builder = new JassBuilder();
             DateTime start = DateTime.Now;
@@ -1082,7 +1158,7 @@ v(np)  =   ---------------------------------------------------------------------
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
             string maccFile = AppDataFolder + "/" + fileNameInputGrid;
             string narrFile = AppFilesFolder + "/" + fileNameNarr;
-            string mapFile = AppFilesFolder + "/" + fileNameMapper;
+            string mapFile = AppFilesFolder + "/" + DateTime.Now.Millisecond + fileNameMapper;
             int MissingValue = 999999;
 
             using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
@@ -1109,7 +1185,10 @@ v(np)  =   ---------------------------------------------------------------------
 
                         gc.maccLat = maccDataSet.GetData<Single[]>(gridLatName);
                         gc.maccLon = maccDataSet.GetData<Single[]>(gridLonName);
-
+                        if (sher)
+                        {
+                            gc.station = maccDataSet.GetData<string[]>("station");
+                        }
                         gc.maccLatMax = gc.maccLat.Length;
                         gc.maccLatMin = 0;
                         gc.maccLonMax = gc.maccLon.Length;
@@ -1134,7 +1213,14 @@ v(np)  =   ---------------------------------------------------------------------
 
                         //mapp the grids
 
-                        gc = JassWeather.Models.JassWeatherAPI.MapGridNarr2Macc(gc);
+                        if (sher)
+                        {
+                            gc = JassWeather.Models.JassWeatherAPI.MapGridNarr2Sher(gc);
+                        }
+                        else
+                        {
+                            gc = JassWeather.Models.JassWeatherAPI.MapGridNarr2Macc(gc);
+                        }
 
                         JassBuilderLog builderLog2 = createBuilderLog(builder, "mapGridAfterGC", "", "", DateTime.Now - start, true);
 
@@ -1678,6 +1764,18 @@ v(np)  =   ---------------------------------------------------------------------
 
             try
             {
+                if (builder.year == null)
+                {
+                    builder.year = DateTime.Now.Year;
+                    builder.yearEnd = builder.year;
+                }
+                if (builder.month == null)
+                {
+                    builder.month = 0;
+                    builder.monthEnd = 0;
+                }
+                if (builder.monthEnd == null) builder.monthEnd = builder.month;
+
                 if (builder.yearEnd == null) builder.yearEnd=builder.year;
                 if (builder.month == null) {
                     builder.month = 0;
@@ -2067,6 +2165,12 @@ v(np)  =   ---------------------------------------------------------------------
                         }
 
                         if (builder.APIRequest.JassGrid.Type == "CFSR")
+                        {
+                            string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
+                            inputFile1 = processGridMappingCFSRToNarr(year, month, weeky, inputFileTemplateBeforeTransformation);
+                        }
+
+                        if (builder.APIRequest.JassGrid.Type == "SHER")
                         {
                             string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
                             inputFile1 = processGridMappingCFSRToNarr(year, month, weeky, inputFileTemplateBeforeTransformation);

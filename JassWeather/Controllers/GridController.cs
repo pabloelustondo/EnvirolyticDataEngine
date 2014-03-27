@@ -39,7 +39,7 @@ namespace JassWeather.Controllers
                 "lat",
                 "lon",
                 "Narr_Grid.nc",
-                "Narr_2_CFSR_Grid_Mapper.nc", true);
+                "Narr_2_CFSR_Grid_Mapper.nc", true, false);
             return View("MapGrid2NarrTest",result);
         }
 
@@ -51,8 +51,20 @@ namespace JassWeather.Controllers
                 "lat",
                 "lon",
                 "Narr_Grid.nc",
-                "Narr_2_CFSR_Grid_Mapper.nc", false);
+                "Narr_2_CFSR_Grid_Mapper.nc", false, false);
             return View("MapGrid2NarrTest", result);
+        }
+
+        [AllowAnonymous]
+        public ActionResult MapSher2NarrTest()
+        {
+            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
+                "sherindan_stations.nc",
+                "lat",
+                "lon",
+                "Narr_Grid.nc",
+                "Narr_2_SHER_Grid_Mapper.nc", true, true);
+            return View("MapSher2NarrTest", result);
         }
 
         [AllowAnonymous]

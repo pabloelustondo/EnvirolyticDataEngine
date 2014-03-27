@@ -828,6 +828,7 @@
     <Content Include="Views\LatLon\Edit.cshtml" />
     <Content Include="Views\LatLon\Delete.cshtml" />
     <Content Include="Views\Test\SaveSheridanLatLon.cshtml" />
+    <Content Include="Views\Grid\MapSher2NarrTest.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
