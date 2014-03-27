@@ -59,7 +59,7 @@ namespace JassWeather.Controllers
         public ActionResult MapSher2NarrTest()
         {
             JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
-                "sherindan_stations.nc",
+                "sheridan_stations.nc",
                 "lat",
                 "lon",
                 "Narr_Grid.nc",
@@ -71,7 +71,7 @@ namespace JassWeather.Controllers
         public ActionResult MapSher2NarrReal()
         {
             JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
-                "sherindan_stations.nc",
+                "sheridan_stations.nc",
                 "lat",
                 "lon",
                 "Narr_Grid.nc",

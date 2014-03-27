@@ -1042,7 +1042,7 @@ namespace JassWeather.Models
             string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month);
 
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
-            string maccFile = AppDataFolder + "/" + fileNameMacc;
+            string sherFile = AppDataFolder + "/" + fileNameMacc;
             string narrFile = AppFilesFolder + "/" + fileNameNarr;
             string mapFile = AppFilesFolder + "/Narr_2_SHER_Grid_Mapper.nc";
 
@@ -1053,7 +1053,7 @@ namespace JassWeather.Models
             Int16 missingValue = -32767;
             Int16 fillValue = -32767;
 
-            string VariableName = null;
+            string VariableName = "sher";
             Dictionary<string, MetadataDictionary> vars =
                         new Dictionary<string, MetadataDictionary>();
 
@@ -1080,15 +1080,16 @@ namespace JassWeather.Models
             }
             //getting stuff from input info in inpout grids
 
-            Int32[] maccTime = null;
-            Int16[, ,] maccVariable = null;
+            double[] sherTime = null;
+            Int16[,] sherVariable = null;
+            DateTime startRelevantHistoryDay = DateTime.Parse("2002-01-01");
 
-            Dictionary<string, MetadataDictionary> maccVars = new Dictionary<string, MetadataDictionary>();
-            using (var maccDataSet = DataSet.Open(maccFile + "?openMode=open"))
+            Dictionary<string, MetadataDictionary> sherVars = new Dictionary<string, MetadataDictionary>();
+            using (var sherDataSet = DataSet.Open(sherFile + "?openMode=open"))
             {
-                foreach (var v in maccDataSet.Variables)
+                foreach (var v in sherDataSet.Variables)
                 {
-                    maccVars.Add(v.Name, v.Metadata);
+                    sherVars.Add(v.Name, v.Metadata);
                     if (v.Dimensions.Count > 2 && VariableName == null)
                     {
                         VariableName = v.Name;
@@ -1101,62 +1102,47 @@ namespace JassWeather.Models
                     };
                 }
 
-                maccTime = maccDataSet.GetData<Int32[]>("time");
-                var maccSchema = maccDataSet.GetSchema();
 
-                gc.maccSchema = schema2string(maccSchema);
 
-                gc.maccLat = maccDataSet.GetData<Single[]>("latitude");
-                gc.maccLon = maccDataSet.GetData<Single[]>("longitude");
+                sherTime = sherDataSet.GetData<double[]>("time");
+                var sherSchema = sherDataSet.GetSchema();
 
-                maccVariable = maccDataSet.GetData<Int16[, ,]>(VariableName,
-                    DataSet.FromToEnd(0),
+                gc.maccSchema = schema2string(sherSchema);
+
+                gc.maccLat = sherDataSet.GetData<Single[]>("lat");
+                gc.maccLon = sherDataSet.GetData<Single[]>("lon");
+
+                sherVariable = sherDataSet.GetData<Int16[,]>(VariableName,
                     DataSet.FromToEnd(0),
                     DataSet.FromToEnd(0));
             }
 
-                    outputFileName = VariableName + "_macc2narr_" + year + "_" + smonth + ".nc";
+                    outputFileName = VariableName + "_sher2narr_" + year + "_" + smonth + ".nc";
                     outputFilePath = AppDataFolder + "\\" + outputFileName;
 
-                    double[] maccNarrTime = new double[maccTime.Length];
+                    double[] sherNarrTime = new double[sherTime.Length*8];
 
-                    DateTime day1900 = DateTime.Parse("1900-01-01 00:00:00");
                     DateTime day1800 = DateTime.Parse("1800-01-01 00:00:00");
 
-                    TimeSpan diff19001800 = day1900 - day1800;
-
-                    int hours19001800 = (int)diff19001800.TotalHours;
-
-                    DateTime maccDay;
+                    DateTime sherDay;
                     DateTime narrDay;
                     double narrNumber;
 
-                    DateTime maccDayStart = day1900.AddHours(maccTime[0]);
-                    DateTime narrDayStart = new DateTime(maccDayStart.Year, maccDayStart.Month, maccDayStart.Day);
+                    DateTime sherDayStart = startRelevantHistoryDay;
+                    DateTime narrDayStart = new DateTime(sherDayStart.Year, sherDayStart.Month, sherDayStart.Day);
 
-                    if (maccDayStart.Year != year || maccDayStart.Month != month)
-                    {
-                        throw new Exception("maccDayStart.Year != year || maccDayStart.Month != month");
-                    }
+               
 
                     double narrDayStartHours = (narrDayStart - day1800).TotalHours;
 
                     double narrDayHours = narrDayStartHours;
-                    for (int t = 0; t < maccTime.Length; t++)
+                    for (int t = 0; t < sherNarrTime.Length; t++)
                     {
-                        maccNarrTime[t] = narrDayHours;
+                        sherNarrTime[t] = narrDayHours;
                         narrDayHours += 3;
                     }
 
-                    for (int t = 0; t < maccTime.Length; t++)
-                    {
-                        if (maccNarrTime[t] != narrTime[t])
-                        {
-                            var crap = 1;
-                        }
-                    }
-
-                    //At this point we have the time dimension in the variable maccNarrTime
+                    //At this point we have the time dimension in the variable sherNarrTime
                     //we do not need the time dimension from narr anymore.
 
                     using (var mapDataSet = DataSet.Open(mapFile + "?openMode=open"))
@@ -1192,35 +1178,45 @@ namespace JassWeather.Models
                             {
                                 try
                                 {
+                                    if (mapLatY[y, x] < 469)  //quick hack due to problem
+                                    {
+                                        gc.map[y, x] = new JassGridLocation();
+                                        gc.map[y, x].distance = mapDistance[y, x];
+                                        gc.map[y, x].lat = mapLatY[y, x];
+                                        gc.map[y, x].lon = mapLonX[y, x];
+                                        gc.map[y, x].latitud = gc.maccLat[gc.map[y, x].lat];
+                                        gc.map[y, x].longitud = gc.maccLon[gc.map[y, x].lon];
+                                    }
 
-                                    gc.map[y, x] = new JassGridLocation();
-                                    gc.map[y, x].distance = mapDistance[y, x];
-                                    gc.map[y, x].lat = mapLatY[y, x];
-                                    gc.map[y, x].lon = mapLonX[y, x];
-                                    gc.map[y, x].latitud = gc.maccLat[gc.map[y, x].lat];
-                                    gc.map[y, x].longitud = gc.maccLon[gc.map[y, x].lon];
+                                    if (map2LatY[y, x] < 469)  //quick hack due to problem
+                                    {
+                                        gc.map2[y, x] = new JassGridLocation();
+                                        gc.map2[y, x].distance = map2Distance[y, x];
+                                        gc.map2[y, x].lat = map2LatY[y, x];
+                                        gc.map2[y, x].lon = map2LonX[y, x];
+                                        gc.map2[y, x].latitud = gc.maccLat[gc.map2[y, x].lat];
+                                        gc.map2[y, x].longitud = gc.maccLon[gc.map2[y, x].lon];
+                                    }
 
-                                    gc.map2[y, x] = new JassGridLocation();
-                                    gc.map2[y, x].distance = map2Distance[y, x];
-                                    gc.map2[y, x].lat = map2LatY[y, x];
-                                    gc.map2[y, x].lon = map2LonX[y, x];
-                                    gc.map2[y, x].latitud = gc.maccLat[gc.map2[y, x].lat];
-                                    gc.map2[y, x].longitud = gc.maccLon[gc.map2[y, x].lon];
+                                    if (map3LatY[y, x] < 469)  //quick hack due to problem
+                                    {
+                                        gc.map3[y, x] = new JassGridLocation();
+                                        gc.map3[y, x].distance = map3Distance[y, x];
+                                        gc.map3[y, x].lat = map3LatY[y, x];
+                                        gc.map3[y, x].lon = map3LonX[y, x];
+                                        gc.map3[y, x].latitud = gc.maccLat[gc.map3[y, x].lat];
+                                        gc.map3[y, x].longitud = gc.maccLon[gc.map3[y, x].lon];
+                                    }
 
-                                    gc.map3[y, x] = new JassGridLocation();
-                                    gc.map3[y, x].distance = map3Distance[y, x];
-                                    gc.map3[y, x].lat = map3LatY[y, x];
-                                    gc.map3[y, x].lon = map3LonX[y, x];
-                                    gc.map3[y, x].latitud = gc.maccLat[gc.map3[y, x].lat];
-                                    gc.map3[y, x].longitud = gc.maccLon[gc.map3[y, x].lon];
-
-                                    gc.map4[y, x] = new JassGridLocation();
-                                    gc.map4[y, x].distance = map4Distance[y, x];
-                                    gc.map4[y, x].lat = map4LatY[y, x];
-                                    gc.map4[y, x].lon = map4LonX[y, x];
-                                    gc.map4[y, x].latitud = gc.maccLat[gc.map4[y, x].lat];
-                                    gc.map4[y, x].longitud = gc.maccLon[gc.map4[y, x].lon];
-
+                                    if (map4LatY[y, x] < 469)  //quick hack due to problem
+                                    {
+                                        gc.map4[y, x] = new JassGridLocation();
+                                        gc.map4[y, x].distance = map4Distance[y, x];
+                                        gc.map4[y, x].lat = map4LatY[y, x];
+                                        gc.map4[y, x].lon = map4LonX[y, x];
+                                        gc.map4[y, x].latitud = gc.maccLat[gc.map4[y, x].lat];
+                                        gc.map4[y, x].longitud = gc.maccLon[gc.map4[y, x].lon];
+                                    }
                                 }
                                 catch (Exception e)
                                 {
@@ -1244,9 +1240,9 @@ namespace JassWeather.Models
                          */
 
                         ////filling up the array
-                        Int16[, ,] outputVariable = new Int16[maccNarrTime.Length, narrY.Length, narrX.Length];
+                        Int16[, ,] outputVariable = new Int16[sherNarrTime.Length, narrY.Length, narrX.Length];
 
-                        for (int t = 0; t < maccNarrTime.Length; t++)
+                        for (int t = 0; t < sherNarrTime.Length; t++)
                         {
                             for (int y = 0; y < narrY.Length; y++)
                             {
@@ -1254,7 +1250,7 @@ namespace JassWeather.Models
                                 {
                                     try
                                     {
-                                        outputVariable[t, y, x] = (Int16)interpolateValue(t, y, x, maccVariable, gc, missingValue, fillValue);
+                                        outputVariable[t, y, x] = (Int16)interpolateValueSher(t, y, x, sherVariable, gc, missingValue, fillValue);
                                     }
                                     catch (Exception e)
                                     {
@@ -1278,14 +1274,14 @@ namespace JassWeather.Models
                              */
 
 
-                            outputDataSet.Add<double[]>("time", maccNarrTime, "time");
+                            outputDataSet.Add<double[]>("time", sherNarrTime, "time");
                             foreach (var attr in narrVars["time"]) { if (attr.Key != "Name") outputDataSet.PutAttr("time", attr.Key, attr.Value); }
                             outputDataSet.Add<Single[]>("y", narrY, "y");
                             foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("y", attr.Key, attr.Value); }
                             outputDataSet.Add<Single[]>("x", narrX, "x");
                             foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("x", attr.Key, attr.Value); }
                             outputDataSet.Add<Int16[, ,]>(VariableName, outputVariable, "time", "y", "x");
-                            foreach (var attr in maccVars[VariableName])
+                            foreach (var attr in sherVars[VariableName])
                             {
                                 if (attr.Key != "Name")
                                 {
@@ -1431,6 +1427,17 @@ v(np)  =   ---------------------------------------------------------------------
                 };
 
             return value;
+
+        }
+
+        public double interpolateValueSher(int t, int y, int x, Int16[,] maccValues, JassMaccNarrGridsCombo gc, Int16 missValue, Int16 fillValue)
+        {
+
+            Int16 v_mp1 = maccValues[t, gc.map[y, x].lat];
+            double d_np_mp1 = gc.map[y, x].distance;
+            int go1 = (v_mp1 == missValue || v_mp1 == missValue) ? 0 : 1;
+
+            return v_mp1;
 
         }
 
