@@ -68,6 +68,17 @@ namespace JassWeather.Controllers
         }
 
         [AllowAnonymous]
+        public ActionResult MapSher2NarrReal()
+        {
+            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
+                "sherindan_stations.nc",
+                "lat",
+                "lon",
+                "Narr_Grid.nc",
+                "Narr_2_SHER_Grid_Mapper.nc", false, true);
+            return View("MapSher2NarrTest", result);
+        }
+        [AllowAnonymous]
         public ActionResult ShowGridMap()
         {
             JassWeather.Models.JassWeatherAPI.SmartGridMap result = apiCaller.getMapComboFromMapFile("Narr_2_CFSR_Grid_Mapper.nc");

@@ -9,7 +9,7 @@ th, td { width: 2px; font-size:xx-small}
 
 <h2>Values for @Model.fileName for time step=@Model.stepIndex </h2>
 Click here for other time steps: 
-@for(int i=0;i<Model.gridValues.timeLength;i++){
+@for(int i=0; i< 10 && i< Model.gridValues.timeLength;i++){
  @Html.ActionLink(""+i, "ShowDashBoard4DayFromFile", new { variableName=@Model.variableName, yearIndex=@Model.yearIndex, monthIndex=@Model.monthIndex, dayIndex=@Model.dayIndex, stepIndex=i, levelIndex=Model.levelIndex })    
 }
 @if(Model.gridValues.levelLength>1){ 

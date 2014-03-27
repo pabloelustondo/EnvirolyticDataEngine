@@ -1036,6 +1036,292 @@ namespace JassWeather.Models
             return outputFilePath;
         }
 
+        public string processGridMappingSHERToNarr(int year, int month, int weeky, string fileNameMaccTemp)
+        {
+            string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month);
+            string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month);
+
+            JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
+            string maccFile = AppDataFolder + "/" + fileNameMacc;
+            string narrFile = AppFilesFolder + "/" + fileNameNarr;
+            string mapFile = AppFilesFolder + "/Narr_2_SHER_Grid_Mapper.nc";
+
+            string smonth = (month < 10) ? "0" + month : "" + month;
+            string outputFileName = null;
+            string outputFilePath = null;
+
+            Int16 missingValue = -32767;
+            Int16 fillValue = -32767;
+
+            string VariableName = null;
+            Dictionary<string, MetadataDictionary> vars =
+                        new Dictionary<string, MetadataDictionary>();
+
+
+            Single[] narrY = null;
+            Single[] narrX = null;
+            double[] narrTime = null;
+            Dictionary<string, MetadataDictionary> narrVars = new Dictionary<string, MetadataDictionary>();
+
+            //getting stuff from narr dataset
+            using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
+            {               
+                foreach (var v in narrDataSet.Variables) { narrVars.Add(v.Name, v.Metadata); }
+
+                narrY = narrDataSet.GetData<Single[]>("y");
+                narrX = narrDataSet.GetData<Single[]>("x");
+                narrTime = narrDataSet.GetData<double[]>("time");
+
+                var narrSchema = narrDataSet.GetSchema();
+                gc.narrLon = narrDataSet.GetData<Single[,]>("lon");
+                gc.narrLat = narrDataSet.GetData<Single[,]>("lat");
+
+                gc.narrSchema = schema2string(narrSchema);
+            }
+            //getting stuff from input info in inpout grids
+
+            Int32[] maccTime = null;
+            Int16[, ,] maccVariable = null;
+
+            Dictionary<string, MetadataDictionary> maccVars = new Dictionary<string, MetadataDictionary>();
+            using (var maccDataSet = DataSet.Open(maccFile + "?openMode=open"))
+            {
+                foreach (var v in maccDataSet.Variables)
+                {
+                    maccVars.Add(v.Name, v.Metadata);
+                    if (v.Dimensions.Count > 2 && VariableName == null)
+                    {
+                        VariableName = v.Name;
+                        try
+                        {
+                            missingValue = (Int16)v.Metadata["missing_value"];
+                            fillValue = (Int16)v.Metadata["_FillValue"];
+                        }
+                        catch (Exception) { };
+                    };
+                }
+
+                maccTime = maccDataSet.GetData<Int32[]>("time");
+                var maccSchema = maccDataSet.GetSchema();
+
+                gc.maccSchema = schema2string(maccSchema);
+
+                gc.maccLat = maccDataSet.GetData<Single[]>("latitude");
+                gc.maccLon = maccDataSet.GetData<Single[]>("longitude");
+
+                maccVariable = maccDataSet.GetData<Int16[, ,]>(VariableName,
+                    DataSet.FromToEnd(0),
+                    DataSet.FromToEnd(0),
+                    DataSet.FromToEnd(0));
+            }
+
+                    outputFileName = VariableName + "_macc2narr_" + year + "_" + smonth + ".nc";
+                    outputFilePath = AppDataFolder + "\\" + outputFileName;
+
+                    double[] maccNarrTime = new double[maccTime.Length];
+
+                    DateTime day1900 = DateTime.Parse("1900-01-01 00:00:00");
+                    DateTime day1800 = DateTime.Parse("1800-01-01 00:00:00");
+
+                    TimeSpan diff19001800 = day1900 - day1800;
+
+                    int hours19001800 = (int)diff19001800.TotalHours;
+
+                    DateTime maccDay;
+                    DateTime narrDay;
+                    double narrNumber;
+
+                    DateTime maccDayStart = day1900.AddHours(maccTime[0]);
+                    DateTime narrDayStart = new DateTime(maccDayStart.Year, maccDayStart.Month, maccDayStart.Day);
+
+                    if (maccDayStart.Year != year || maccDayStart.Month != month)
+                    {
+                        throw new Exception("maccDayStart.Year != year || maccDayStart.Month != month");
+                    }
+
+                    double narrDayStartHours = (narrDayStart - day1800).TotalHours;
+
+                    double narrDayHours = narrDayStartHours;
+                    for (int t = 0; t < maccTime.Length; t++)
+                    {
+                        maccNarrTime[t] = narrDayHours;
+                        narrDayHours += 3;
+                    }
+
+                    for (int t = 0; t < maccTime.Length; t++)
+                    {
+                        if (maccNarrTime[t] != narrTime[t])
+                        {
+                            var crap = 1;
+                        }
+                    }
+
+                    //At this point we have the time dimension in the variable maccNarrTime
+                    //we do not need the time dimension from narr anymore.
+
+                    using (var mapDataSet = DataSet.Open(mapFile + "?openMode=open"))
+                    {
+
+                        var mapDistance = mapDataSet.GetData<double[,]>("mapDistance");
+                        var mapLatY = mapDataSet.GetData<int[,]>("mapLatY");
+                        var mapLonX = mapDataSet.GetData<int[,]>("mapLonX");
+
+
+                        var map2Distance = mapDataSet.GetData<double[,]>("map2Distance");
+                        var map2LatY = mapDataSet.GetData<int[,]>("map2LatY");
+                        var map2LonX = mapDataSet.GetData<int[,]>("map2LonX");
+
+
+                        var map3Distance = mapDataSet.GetData<double[,]>("map3Distance");
+                        var map3LatY = mapDataSet.GetData<int[,]>("map3LatY");
+                        var map3LonX = mapDataSet.GetData<int[,]>("map3LonX");
+
+
+                        var map4Distance = mapDataSet.GetData<double[,]>("map4Distance");
+                        var map4LatY = mapDataSet.GetData<int[,]>("map4LatY");
+                        var map4LonX = mapDataSet.GetData<int[,]>("map4LonX");
+
+                        //mapp the grids
+
+                        // gc = JassWeather.Models.JassWeatherAPI.MapGridNarr2Macc(gc);
+
+
+                        for (int y = 0; y < gc.narrYMax; y++)
+                        {
+                            for (int x = 0; x < gc.narrXMax; x++)
+                            {
+                                try
+                                {
+
+                                    gc.map[y, x] = new JassGridLocation();
+                                    gc.map[y, x].distance = mapDistance[y, x];
+                                    gc.map[y, x].lat = mapLatY[y, x];
+                                    gc.map[y, x].lon = mapLonX[y, x];
+                                    gc.map[y, x].latitud = gc.maccLat[gc.map[y, x].lat];
+                                    gc.map[y, x].longitud = gc.maccLon[gc.map[y, x].lon];
+
+                                    gc.map2[y, x] = new JassGridLocation();
+                                    gc.map2[y, x].distance = map2Distance[y, x];
+                                    gc.map2[y, x].lat = map2LatY[y, x];
+                                    gc.map2[y, x].lon = map2LonX[y, x];
+                                    gc.map2[y, x].latitud = gc.maccLat[gc.map2[y, x].lat];
+                                    gc.map2[y, x].longitud = gc.maccLon[gc.map2[y, x].lon];
+
+                                    gc.map3[y, x] = new JassGridLocation();
+                                    gc.map3[y, x].distance = map3Distance[y, x];
+                                    gc.map3[y, x].lat = map3LatY[y, x];
+                                    gc.map3[y, x].lon = map3LonX[y, x];
+                                    gc.map3[y, x].latitud = gc.maccLat[gc.map3[y, x].lat];
+                                    gc.map3[y, x].longitud = gc.maccLon[gc.map3[y, x].lon];
+
+                                    gc.map4[y, x] = new JassGridLocation();
+                                    gc.map4[y, x].distance = map4Distance[y, x];
+                                    gc.map4[y, x].lat = map4LatY[y, x];
+                                    gc.map4[y, x].lon = map4LonX[y, x];
+                                    gc.map4[y, x].latitud = gc.maccLat[gc.map4[y, x].lat];
+                                    gc.map4[y, x].longitud = gc.maccLon[gc.map4[y, x].lon];
+
+                                }
+                                catch (Exception e)
+                                {
+
+                                    var v = "crap";
+
+                                }
+
+                            }
+                        }
+
+
+                        //Ok, now let's process the file converting from Macc to Narr at the measure level.
+
+
+                        ////////  getting all the dimensions from Narr
+                        /* this was before
+                            Single[] narrY = narrDataSet.GetData<Single[]>("y");
+                            Single[] narrX = narrDataSet.GetData<Single[]>("x");
+                            double[] narrTime = narrDataSet.GetData<double[]>("time");
+                         */
+
+                        ////filling up the array
+                        Int16[, ,] outputVariable = new Int16[maccNarrTime.Length, narrY.Length, narrX.Length];
+
+                        for (int t = 0; t < maccNarrTime.Length; t++)
+                        {
+                            for (int y = 0; y < narrY.Length; y++)
+                            {
+                                for (int x = 0; x < narrX.Length; x++)
+                                {
+                                    try
+                                    {
+                                        outputVariable[t, y, x] = (Int16)interpolateValue(t, y, x, maccVariable, gc, missingValue, fillValue);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        var dosomething = 1;
+                                    }
+                                }
+                            }
+                        }
+                        /////// Writting results into file
+                        //   dataset3.Add<Int16[, ,]>(builder.JassVariable.Name, dataset, "time", "y", "x");
+
+                        //we will enter year/month as parameter
+
+                        using (var outputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
+                        {
+                            /*
+                             * 
+            Single[] narrY = narrDataSet.GetData<Single[]>("y");
+            Single[] narrX = narrDataSet.GetData<Single[]>("x");
+            double[] narrTime = narrDataSet.GetData<double[]>("time");
+                             */
+
+
+                            outputDataSet.Add<double[]>("time", maccNarrTime, "time");
+                            foreach (var attr in narrVars["time"]) { if (attr.Key != "Name") outputDataSet.PutAttr("time", attr.Key, attr.Value); }
+                            outputDataSet.Add<Single[]>("y", narrY, "y");
+                            foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("y", attr.Key, attr.Value); }
+                            outputDataSet.Add<Single[]>("x", narrX, "x");
+                            foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("x", attr.Key, attr.Value); }
+                            outputDataSet.Add<Int16[, ,]>(VariableName, outputVariable, "time", "y", "x");
+                            foreach (var attr in maccVars[VariableName])
+                            {
+                                if (attr.Key != "Name")
+                                {
+                                    if (attr.Key != "_FillValue")
+                                    {
+                                        outputDataSet.PutAttr(VariableName, attr.Key, attr.Value);
+                                    }
+                                    else
+                                    {
+                                        outputDataSet.PutAttr(VariableName, "FillValue", attr.Value);
+                                    }
+                                }
+                            }
+
+                        }
+
+
+                        //now let's test 
+                        using (var testDataSet = DataSet.Open(outputFilePath + "?openMode=open"))
+                        {
+
+                            Int16[, ,] testVariable = testDataSet.GetData<Int16[, ,]>(VariableName,
+                                    DataSet.FromToEnd(0),
+                                    DataSet.FromToEnd(0),
+                                    DataSet.FromToEnd(0));
+
+                            Single[] testY = testDataSet.GetData<Single[]>("y");
+                            Single[] testX = testDataSet.GetData<Single[]>("x");
+                            double[] testTime = testDataSet.GetData<double[]>("time");
+
+                        }
+                    }
+
+            //return gc;
+            return outputFilePath;
+        }
 
         public class SmartGridMap
         {
@@ -2173,7 +2459,7 @@ v(np)  =   ---------------------------------------------------------------------
                         if (builder.APIRequest.JassGrid.Type == "SHER")
                         {
                             string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
-                            inputFile1 = processGridMappingCFSRToNarr(year, month, weeky, inputFileTemplateBeforeTransformation);
+                            inputFile1 = processGridMappingSHERToNarr(year, month, weeky, inputFileTemplateBeforeTransformation);
                         }
 
                         //if we are here the type was wrong
@@ -4038,6 +4324,12 @@ v(np)  =   ---------------------------------------------------------------------
                     {
                         keyVariable = v;
                     }
+
+                    if (grid.Type=="SHER" && v.Name=="sher")
+                    {
+                        keyVariable = v;
+                    }
+
                     if (v.Name == grid.Levelname)
                     {
                         hasLevel = true;
@@ -4046,7 +4338,7 @@ v(np)  =   ---------------------------------------------------------------------
 
                 double scale_factor = 1;
                 double add_offset = 0;
-                double missing_value = 32766;
+                double missing_value = 32767;
                 double FillValue = 32766;
 
                 try { scale_factor = Convert.ToDouble(keyVariable.Metadata["scale_factor"]); }
@@ -4077,7 +4369,11 @@ v(np)  =   ---------------------------------------------------------------------
                 }; 
 
                 Single[] y = dataset1.GetData<Single[]>(grid.Yname);
-                Single[] x = dataset1.GetData<Single[]>(grid.Xname);
+                Single[] x = new Single[1];
+                if (grid.Xsize > 0)
+                {
+                    x = dataset1.GetData<Single[]>(grid.Xname);
+                }
                 double[] time = new double[grid.Timesize];
 
                 Single[] level = new Single[1];
@@ -4157,10 +4453,19 @@ v(np)  =   ---------------------------------------------------------------------
                     }
                     catch (Exception)
                     {
-                        values = dataset1.GetData<Single[, ,]>(keyVariable.Name,
+                        try
+                        {
+                            values = dataset1.GetData<Single[, ,]>(keyVariable.Name,
                                  DataSet.Range(0, time.Length - 1),
                                  DataSet.Range(0, y.Length - 1),
                                  DataSet.Range(0, x.Length - 1));
+                        }
+                        catch (Exception e)
+                        {
+                            values = dataset1.GetData<Int16[,]>(keyVariable.Name,
+                                       DataSet.Range(0, time.Length - 1),
+                                       DataSet.Range(0, y.Length - 1));
+                        }
                     }
                     for (int tt = 0; tt < time.Length; tt++)
                     {
@@ -4170,10 +4475,15 @@ v(np)  =   ---------------------------------------------------------------------
                             {
                                 for (int xx = 0; xx < x.Length; xx++)
                                 {
-                                    if (values[tt, yy, xx] != missing_value &&
-                                        values[tt, yy, xx] != FillValue)
+                                    dynamic value;
+
+                                    if (x.Length > 1) { value = values[tt, yy, xx]; }
+                                    else {value = values[tt, yy];}
+
+                                    if (value != missing_value &&
+                                        value != FillValue)
                                     {
-                                        dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, yy, xx];
+                                        dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * value;
                                         //0.0500015563699208
 
 
