@@ -1082,7 +1082,15 @@ namespace JassWeather.Models
 
             double[] sherTime = null;
             Int16[,] sherVariable = null;
+
+            int yearDiff = year - 2002;
             DateTime startRelevantHistoryDay = DateTime.Parse("2002-01-01");
+
+            DateTime startingDay = new DateTime(year, month, 1);
+            DateTime endingDay = startingDay.AddMonths(1);
+
+            int startingDayIndex = (int)(startingDay - startRelevantHistoryDay).TotalDays;
+            int endingDayIndex = (int)(endingDay - startRelevantHistoryDay).TotalDays;
 
             Dictionary<string, MetadataDictionary> sherVars = new Dictionary<string, MetadataDictionary>();
             using (var sherDataSet = DataSet.Open(sherFile + "?openMode=open"))
@@ -1104,7 +1112,7 @@ namespace JassWeather.Models
 
 
 
-                sherTime = sherDataSet.GetData<double[]>("time");
+                sherTime = sherDataSet.GetData<double[]>("time",  DataSet.Range(startingDayIndex,endingDayIndex-1));
                 var sherSchema = sherDataSet.GetSchema();
 
                 gc.maccSchema = schema2string(sherSchema);
@@ -1112,8 +1120,13 @@ namespace JassWeather.Models
                 gc.maccLat = sherDataSet.GetData<Single[]>("lat");
                 gc.maccLon = sherDataSet.GetData<Single[]>("lon");
 
+                //so here is where we will calculate exactly how manby days I need.
+                //I need a day starting index 2002-01-01 is 0   and a day ending index.
+
+
+
                 sherVariable = sherDataSet.GetData<Int16[,]>(VariableName,
-                    DataSet.FromToEnd(0),
+                    DataSet.Range(startingDayIndex,endingDayIndex-1), 
                     DataSet.FromToEnd(0));
             }
 
@@ -1433,12 +1446,16 @@ v(np)  =   ---------------------------------------------------------------------
         public double interpolateValueSher(int t, int y, int x, Int16[,] maccValues, JassMaccNarrGridsCombo gc, Int16 missValue, Int16 fillValue)
         {
 
-            Int16 v_mp1 = maccValues[t, gc.map[y, x].lat];
-            double d_np_mp1 = gc.map[y, x].distance;
-            int go1 = (v_mp1 == missValue || v_mp1 == missValue) ? 0 : 1;
+            //minor hack due to 0s. 
+            if ( (gc.map[y, x].distance == 0) && (gc.map[y, x].lat==0)  ){
+
+                return missValue;
+            }
+
+            int day = Convert.ToInt32(t / 8);
+            Int16 v_mp1 = maccValues[day, gc.map[y, x].lat];
 
             return v_mp1;
-
         }
 
         public JassMaccNarrGridsCombo MapGridNarr2GridFromFile(string fileNameInputGrid, string gridLatName, string gridLonName, string fileNameNarr, string fileNameMapper, bool testAroundToronto, bool sher)
@@ -2455,22 +2472,24 @@ v(np)  =   ---------------------------------------------------------------------
                         {
                         string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
                         inputFile1 = processGridMappingMaccToNarr(year, month,inputFileTemplateBeforeTransformation);
-                        }
+                        }else
 
                         if (builder.APIRequest.JassGrid.Type == "CFSR")
                         {
                             string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
                             inputFile1 = processGridMappingCFSRToNarr(year, month, weeky, inputFileTemplateBeforeTransformation);
-                        }
+                        }else
 
-                        if (builder.APIRequest.JassGrid.Type == "SHER")
-                        {
-                            string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
-                            inputFile1 = processGridMappingSHERToNarr(year, month, weeky, inputFileTemplateBeforeTransformation);
-                        }
-
-                        //if we are here the type was wrong
-                        throw new Exception("We cannot handle the supplied type of GRID: " + builder.APIRequest.JassGrid.Type);
+                            if (builder.APIRequest.JassGrid.Type == "SHER")
+                            {
+                                string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
+                                inputFile1 = processGridMappingSHERToNarr(year, month, weeky, inputFileTemplateBeforeTransformation);
+                            }
+                            else
+                            {
+                                //if we are here the type was wrong
+                                throw new Exception("We cannot handle the supplied type of GRID: " + builder.APIRequest.JassGrid.Type);
+                            }
                     }
                        catch (Exception e)
                     {
