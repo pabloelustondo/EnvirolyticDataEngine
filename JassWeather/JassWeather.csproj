@@ -248,6 +248,7 @@
     <Compile Include="Controllers\GridController.cs" />
     <Compile Include="Controllers\JassController.cs" />
     <Compile Include="Controllers\LatLonController.cs" />
+    <Compile Include="Controllers\LatLonGroupController.cs" />
     <Compile Include="Controllers\MeasureController.cs" />
     <Compile Include="Controllers\PartitionController.cs" />
     <Compile Include="Controllers\TestController.cs" />
@@ -562,6 +563,10 @@
     <Compile Include="Migrations\201403280320433_more-variables.Designer.cs">
       <DependentUpon>201403280320433_more-variables.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201403281637275_latlon1.cs" />
+    <Compile Include="Migrations\201403281637275_latlon1.Designer.cs">
+      <DependentUpon>201403281637275_latlon1.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -574,6 +579,7 @@
     <Compile Include="Models\JassFormula.cs" />
     <Compile Include="Models\JassGrid.cs" />
     <Compile Include="Models\JassLatLon.cs" />
+    <Compile Include="Models\JassLatLonGroup.cs" />
     <Compile Include="Models\JassVariable.cs" />
     <Compile Include="Models\JassWeatherContext.cs" />
     <Compile Include="Models\JassWeatherContextInitializer.cs" />
@@ -834,6 +840,11 @@
     <Content Include="Views\LatLon\Delete.cshtml" />
     <Content Include="Views\Test\SaveSheridanLatLon.cshtml" />
     <Content Include="Views\Grid\MapSher2NarrTest.cshtml" />
+    <Content Include="Views\LatLonGroup\Index.cshtml" />
+    <Content Include="Views\LatLonGroup\Details.cshtml" />
+    <Content Include="Views\LatLonGroup\Create.cshtml" />
+    <Content Include="Views\LatLonGroup\Edit.cshtml" />
+    <Content Include="Views\LatLonGroup\Delete.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1063,6 +1074,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201403280320433_more-variables.resx">
       <DependentUpon>201403280320433_more-variables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403281637275_latlon1.resx">
+      <DependentUpon>201403281637275_latlon1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -35,8 +35,7 @@
                             <li>@Html.ActionLink("Dashboard", "ShowDashBoardExt", "Blob")</li>   
    
                            
-                               @if(User.IsInRole("Envirolytic")){  
-                            <li>@Html.ActionLink("Sherindan Lat Lon", "Index", "LatLon")</li>         
+                               @if(User.IsInRole("Envirolytic")){         
                             <li>@Html.ActionLink("Dashboard(Dev)", "ShowDashBoard", "Blob")</li>   
                                }
                                @if(User.IsInRole("Admin")){                  
@@ -48,6 +47,8 @@
                             <li>@Html.ActionLink("Variables", "Index", "Variable")</li>
                             <li>@Html.ActionLink("Grids", "Index", "Grid")</li>
                             <li>@Html.ActionLink("Partitions", "Index", "Partition")</li>
+                            <li>@Html.ActionLink("Locations", "Index", "LatLon")</li>  
+                            <li>@Html.ActionLink("LocationGroups", "Index", "LatLonGroup")</li>  
                             <li>@Html.ActionLink("Blobs", "Index", "Blob")</li>
                             <li>@Html.ActionLink("Disk", "ShowAppData", "Blob")</li>
                             <li>@Html.ActionLink("Logs", "Index", "BuilderLog")</li>

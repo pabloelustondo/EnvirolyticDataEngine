@@ -38,5 +38,7 @@ namespace JassWeather.Models
 
         public DbSet<JassLatLon> JassLatLons { get; set; }
 
+        public DbSet<JassLatLonGroup> JassLatLonGroups { get; set; }
+
     }
 }
