@@ -10,7 +10,9 @@ th, td { width: 2px; font-size:xx-small}
 <h2>Values for @Model.fileName for time step=@Model.stepIndex</h2>
 Click here for other time steps: 
 @for(int i=0;i<Model.gridValues.timeLength;i++){
- @Html.ActionLink(""+i, "ShowDashBoard4Day", new { variableName=@Model.variableName, yearIndex=@Model.yearIndex, monthIndex=@Model.monthIndex, dayIndex=@Model.dayIndex, stepIndex=i, levelIndex=Model.levelIndex })    
+    DateTime now = new DateTime(2012,1,1);
+    string stime = ""+now.AddHours(i*3-4).Hour +"hr";
+ @Html.ActionLink(""+ i + "("+stime+")", "ShowDashBoard4Day", new { variableName=@Model.variableName, yearIndex=@Model.yearIndex, monthIndex=@Model.monthIndex, dayIndex=@Model.dayIndex, stepIndex=i, levelIndex=Model.levelIndex })    
 }
 @if(Model.gridValues.levelLength>1){    
 <text>Click here for other level steps: </text>

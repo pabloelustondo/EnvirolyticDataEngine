@@ -567,6 +567,7 @@
     <Compile Include="Models\APIRequest.cs" />
     <Compile Include="Models\APIRequestSet.cs" />
     <Compile Include="Models\JassBuilderLog.cs" />
+    <Compile Include="Models\JassColorCode.cs" />
     <Compile Include="Models\JassDashVariable.cs" />
     <Compile Include="Models\JassBuilder.cs" />
     <Compile Include="Models\JassDeriver.cs" />
