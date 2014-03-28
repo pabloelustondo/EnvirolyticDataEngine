@@ -37,7 +37,7 @@
             @Html.ValidationMessageFor(model => model.JassGridID)
         </div>
 
-        <div class="editor-label">
+                <div class="editor-label">
             @Html.LabelFor(model => model.X1)
         </div>
         <div class="editor-field">
@@ -54,6 +54,22 @@
         </div>
 
                 <div class="editor-label">
+            @Html.LabelFor(model => model.X3)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.X3)
+            @Html.ValidationMessageFor(model => model.X3)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.X4)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.X4)
+            @Html.ValidationMessageFor(model => model.X4)
+        </div>
+
+        <div class="editor-label">
             @Html.LabelFor(model => model.X1Level)
         </div>
         <div class="editor-field">
@@ -67,6 +83,22 @@
         <div class="editor-field">
             @Html.EditorFor(model => model.X2Level)
             @Html.ValidationMessageFor(model => model.X2Level)
+        </div>
+
+                <div class="editor-label">
+            @Html.LabelFor(model => model.X3Level)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.X3Level)
+            @Html.ValidationMessageFor(model => model.X3Level)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.X4Level)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.X4Level)
+            @Html.ValidationMessageFor(model => model.X4Level)
         </div>
 
         <div class="editor-label">

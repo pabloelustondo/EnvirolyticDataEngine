@@ -18,9 +18,13 @@ namespace JassWeather.Models
 
         public string X1 { get; set; }
         public string X2 { get; set; }
+        public string X3 { get; set; }
+        public string X4 { get; set; }
 
         public int? X1Level { get; set; }
         public int? X2Level { get; set; }
+        public int? X3Level { get; set; }
+        public int? X4Level { get; set; }
 
         public int JassFormulaID { get; set; }
         public virtual JassFormula JassFormula { get; set; }

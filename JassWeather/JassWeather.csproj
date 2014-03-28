@@ -558,6 +558,10 @@
     <Compile Include="Migrations\201403261309109_latlon.Designer.cs">
       <DependentUpon>201403261309109_latlon.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201403280320433_more-variables.cs" />
+    <Compile Include="Migrations\201403280320433_more-variables.Designer.cs">
+      <DependentUpon>201403280320433_more-variables.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -1055,6 +1059,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201403261309109_latlon.resx">
       <DependentUpon>201403261309109_latlon.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403280320433_more-variables.resx">
+      <DependentUpon>201403280320433_more-variables.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

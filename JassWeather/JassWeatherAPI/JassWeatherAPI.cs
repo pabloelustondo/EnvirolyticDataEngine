@@ -2250,6 +2250,7 @@ v(np)  =   ---------------------------------------------------------------------
              string outputFileName = null; string outputFilePath = null;
              string X1FileName = null;  string X1FilePath = null;
              string X2FileName = null;  string X2FilePath = null;
+             string X3FileName = null; string X3FilePath = null;
 
              Single[] yDim = null;
              Single[] xDim = null;
@@ -2272,11 +2273,14 @@ v(np)  =   ---------------------------------------------------------------------
                          outputFilePath = AppDataFolder + "\\" + outputFileName;
                          X1FileName = fileNameBuilderByDay(deriver.X1, year, month, day) + ".nc";
                          X2FileName = fileNameBuilderByDay(deriver.X2, year, month, day) + ".nc";
+                         X3FileName = fileNameBuilderByDay(deriver.X3, year, month, day) + ".nc";
                          X1FilePath = AppDataFolder + "\\" + X1FileName;
                          X2FilePath = AppDataFolder + "\\" + X2FileName;
+                         X3FilePath = AppDataFolder + "\\" + X3FileName;
 
                          DownloadFile2DiskIfNotThere(X1FileName, X1FilePath);
                          DownloadFile2DiskIfNotThere(X2FileName, X2FilePath);
+                         DownloadFile2DiskIfNotThere(X3FileName, X3FilePath);
 
                          //Now, we will iterate on our grid (we know we are on our grid) and apply the formula
                          //here we need to open the files
@@ -2331,8 +2335,30 @@ v(np)  =   ---------------------------------------------------------------------
                              }
                          }
 
+                         dynamic x3Values;
+                         KeyMetadataModel x3Meta;
+                         using (var x3DataSet = DataSet.Open(X3FilePath + "?openMode=open"))
+                         {
+                             x3Meta = getKeyMetadata(x3DataSet);
+                             //NOTE: This version cannot handle multiple presure.. generalize!
+                             if (deriver.X3Level == null)
+                             {
+                                 x3Values = x3DataSet.GetData<Int16[, ,]>(deriver.X3,
+                                       DataSet.FromToEnd(0),
+                                       DataSet.FromToEnd(0),
+                                       DataSet.FromToEnd(0));
+                             }
+                             else
+                             {
+                                 x3Values = x3DataSet.GetData<Int16[, ,]>(deriver.X3,
+                                 DataSet.FromToEnd(0),
+                                 DataSet.ReduceDim((int)deriver.X3Level),
+                                 DataSet.FromToEnd(0),
+                                 DataSet.FromToEnd(0));
+                             }
+                         }
 
-                         dynamic x1Value, x2Value, resultValue;
+                         dynamic x1Value, x2Value, x3Value, resultValue;
 
                              if (deriver.JassGrid.Levelsize==0){
                          resultValues = new Int16[deriver.JassGrid.Timesize, deriver.JassGrid.Ysize, deriver.JassGrid.Xsize];
@@ -2353,12 +2379,15 @@ v(np)  =   ---------------------------------------------------------------------
                                          if (x1Values[t, y, x] != x1Meta.missing_value &&
                                              x1Values[t, y, x] != x1Meta.FillValue &&
                                              x2Values[t, y, x] != x2Meta.missing_value &&
-                                             x2Values[t, y, x] != x2Meta.FillValue
+                                             x2Values[t, y, x] != x2Meta.FillValue &&
+                                             x3Values[t, y, x] != x3Meta.missing_value &&
+                                             x3Values[t, y, x] != x3Meta.FillValue
                                              )
                                          {
                                              x1Value = x1Meta.add_offset + x1Meta.scale_factor * x1Values[t, y, x];
                                              x2Value = x2Meta.add_offset + x2Meta.scale_factor * x2Values[t, y, x];
-                                             resultValue = applyDeriverFormula(deriver, x1Value, x2Value);
+                                             x3Value = x3Meta.add_offset + x3Meta.scale_factor * x3Values[t, y, x];
+                                             resultValue = applyDeriverFormula(deriver, x1Value, x2Value, x3Value);
                                          }
                                          else
                                          {
@@ -2410,7 +2439,8 @@ v(np)  =   ---------------------------------------------------------------------
              return result;        
         }
 
-        public Int16 applyDeriverFormula(JassDeriver deriver, dynamic valueX1, dynamic valueX2){
+        public Int16 applyDeriverFormula(JassDeriver deriver, dynamic valueX1, dynamic valueX2, dynamic valueX3)
+        {
 
             Int16 result = 0;
 
@@ -2418,12 +2448,29 @@ v(np)  =   ---------------------------------------------------------------------
             {
                 /*
                  * airtemp  +   0.5555 * (   6.11 * e^ ( 5417.7530 x ( 1 / 273.16 - 1 / dewpointtemp) )  - 10  )
- 
                  */
                 var airtemp = valueX1;
                 var dewpointtemp = valueX2;
                 double d_result = airtemp + 0.5555 * (6.11 * Math.Exp(5417.7530 * (1 / 273.16 - 1 / dewpointtemp)) - 10);
                 result = Convert.ToInt16(d_result);
+                return result;
+            }
+
+            if (deriver.JassFormula.Name == "WindChill")
+            {
+                var airTemp = valueX1;     //Kelvin
+                var windUSpeed = valueX2;  //meter/sec
+                var windVSpeed = valueX3;  //meter/sec
+
+                var T = airTemp - 273.15;             //from Kelvin to Celcius
+                var windUSpeedKmh = windUSpeed * 3.6;       //from meter/sec to km/h
+                var windVSpeedKmh = windVSpeed * 3.6;       //from meter/sec to km/h
+                var V = Math.Sqrt( Math.Pow(windUSpeedKmh,2) + Math.Pow(windVSpeedKmh,2) );
+                var V016 = Math.Pow(V,0.16);
+                
+                double windChill = 13.12 + 0.6215 * T  - 11.37 * V016  + 0.3965* T * V016 ;
+
+                result = Convert.ToInt16(windChill);
                 return result;
             }
 

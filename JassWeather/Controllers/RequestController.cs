@@ -449,18 +449,20 @@ namespace JassWeather.Controllers
 
         public DataSetSchema AnalyzeFileDiskAction(int id)
         {
-            APIRequest apiRequest = db.APIRequests.Find(id);
+            APIRequest source = db.APIRequests.Find(id);
             DataSetSchema schema = null;
             try
             {
-                string url = apiRequest.url;
+                int year = (int)source.sampleYear;
+                int month = (int)source.sampleMonth;
+                string url = apiCaller.replaceURIPlaceHolders(source.url, year, month);
                 string safeFileName = url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
 
                 string downloadedFilePath = HttpContext.Server.MapPath("~/App_Data/" + safeFileName);
 
 
 
-                apiRequest.onDisk = "N/A";
+                source.onDisk = "N/A";
                 bool fileExists = System.IO.File.Exists(downloadedFilePath);
 
                 if (System.IO.File.Exists(downloadedFilePath))
@@ -473,18 +475,18 @@ namespace JassWeather.Controllers
                     schema = dataset.GetSchema();
                     if (schema.Variables.Length > 1)
                     {
-                        apiRequest.onDisk = "OK";
-                        apiRequest.fileSize = (int)length / 1000000;
-                        apiRequest.schema = schemaString;
+                        source.onDisk = "OK";
+                        source.fileSize = (int)length / 1000000;
+                        source.schema = schemaString;
                     }
                 }
             }
             catch (Exception e)
             {
-                apiRequest.onDisk = "Error: " + e.Message;
+                source.onDisk = "Error: " + e.Message;
             }
 
-            db.Entry(apiRequest).State = System.Data.EntityState.Modified;
+            db.Entry(source).State = System.Data.EntityState.Modified;
             db.SaveChanges();
             return schema;
         }
