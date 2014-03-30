@@ -1,0 +1,34 @@
+﻿@model JassWeather.Controllers.LatLonGroupController.ShowLocationBasedDashboardModel
+{
+    ViewBag.Title = "ShowLocationBasedDashboard";
+}
+
+<h2>ShowLocationBasedDashboard for @Model.latlonGroup.Name</h2>
+
+    The idea here is to on show a matrix of various locations crossed by various variables.
+    Something like this
+
+@{
+    int numberOfLocations = 10;
+    int numberOfVariables = 8;
+    var locations = new List<string>();
+    for (int l = 0; l < numberOfLocations; l++)
+    { locations.Add("loc" + l);}
+    var variables = new List<string>();
+    for (int v = 0; v < numberOfVariables; v++)
+    { variables.Add("var" + v); }
+}
+
+<table>
+            @for (int l = 0; l < locations.Count; l++)
+        {
+    <tr>
+        <td>@locations[l]</td>
+                    @for (int v = 0; v < variables.Count; v++)
+                    {
+                        <td>@variables[v]</td>
+                        
+                    }
+    </tr>
+        }
+</table>

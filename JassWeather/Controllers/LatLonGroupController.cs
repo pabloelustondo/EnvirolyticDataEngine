@@ -22,6 +22,25 @@ namespace JassWeather.Controllers
             return View(db.JassLatLonGroups.ToList());
         }
 
+        public class ShowLocationBasedDashboardModel{
+            public int year { get; set; }
+            public int month { get; set; }
+            public int day { get; set; }
+
+            public JassLatLonGroup latlonGroup { get; set; }
+            //we sould have a variable group as well
+
+        }
+
+        public ActionResult ShowLocationBasedDashboard()
+        {
+            ViewBag.LatLonGroupID = Session["LatLonGroupID"];
+            ShowLocationBasedDashboardModel model = new ShowLocationBasedDashboardModel();
+            model.latlonGroup = db.JassLatLonGroups.Find(ViewBag.LatLonGroupID);
+
+            return View(model);
+        }
+
         //
         // GET: /LatLonGroup/Details/5
 
