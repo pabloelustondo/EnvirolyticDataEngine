@@ -36,7 +36,8 @@
    
                            
                                @if(User.IsInRole("Envirolytic")){         
-                            <li>@Html.ActionLink("Dashboard(Dev)", "ShowDashBoard", "Blob")</li>   
+                            <li>@Html.ActionLink("Dashboard(Dev)", "ShowDashBoard", "Blob")</li>  
+                            <li>@Html.ActionLink("Blobs", "Index", "Blob")</li> 
                                }
                                @if(User.IsInRole("Admin")){                  
                             <li>@Html.ActionLink("Sources", "Index", "RequestSet")</li>
@@ -49,7 +50,6 @@
                             <li>@Html.ActionLink("Partitions", "Index", "Partition")</li>
                             <li>@Html.ActionLink("Locations", "Index", "LatLon")</li>  
                             <li>@Html.ActionLink("LocationGroups", "Index", "LatLonGroup")</li>  
-                            <li>@Html.ActionLink("Blobs", "Index", "Blob")</li>
                             <li>@Html.ActionLink("Disk", "ShowAppData", "Blob")</li>
                             <li>@Html.ActionLink("Logs", "Index", "BuilderLog")</li>
                             <li>@Html.ActionLink("Tools", "Tools", "Home")</li>

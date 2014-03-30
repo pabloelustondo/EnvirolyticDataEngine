@@ -9,7 +9,7 @@ using JassWeather.Models;
 
 namespace JassWeather.Controllers
 {
-    public class LatLonController : JassController
+    public class LatLonController : Controller
     {
         private JassWeatherContext db = new JassWeatherContext();
 
@@ -18,13 +18,12 @@ namespace JassWeather.Controllers
 
         public ActionResult Index()
         {
-            string sherindanStationsFilePath = apiCaller.AppFilesFolder + "/sheridan-stations.csv";
-            string[] lines = System.IO.File.ReadAllLines(sherindanStationsFilePath);
+            int latLonGroupID = (int)Session["LatLonGroupID"];
+            ViewBag.LatLonGroup = Session["LatLonGroupName"];
+            JassLatLonGroup jasslatlongroup = db.JassLatLonGroups.Find(latLonGroupID);
 
-            var list = db.JassLatLons.Where(l => l.StationCode.Length == 3).ToList();
-            ViewBag.Count = list.Count();
-            ViewBag.TotalNumberOfStations = lines.Length;
-            return View(list);
+            var jasslatlons = db.JassLatLons.Include(j => j.JassLatLonGroup).Where(j => j.JassLatLonGroupID==latLonGroupID);
+            return View(jasslatlons.ToList());
         }
 
         //
@@ -45,6 +44,7 @@ namespace JassWeather.Controllers
 
         public ActionResult Create()
         {
+            ViewBag.JassLatLonGroupID = new SelectList(db.JassLatLonGroups, "JassLatLonGroupID", "Name");
             return View();
         }
 
@@ -62,6 +62,7 @@ namespace JassWeather.Controllers
                 return RedirectToAction("Index");
             }
 
+            ViewBag.JassLatLonGroupID = new SelectList(db.JassLatLonGroups, "JassLatLonGroupID", "Name", jasslatlon.JassLatLonGroupID);
             return View(jasslatlon);
         }
 
@@ -75,6 +76,7 @@ namespace JassWeather.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.JassLatLonGroupID = new SelectList(db.JassLatLonGroups, "JassLatLonGroupID", "Name", jasslatlon.JassLatLonGroupID);
             return View(jasslatlon);
         }
 
@@ -91,6 +93,7 @@ namespace JassWeather.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
+            ViewBag.JassLatLonGroupID = new SelectList(db.JassLatLonGroups, "JassLatLonGroupID", "Name", jasslatlon.JassLatLonGroupID);
             return View(jasslatlon);
         }
 

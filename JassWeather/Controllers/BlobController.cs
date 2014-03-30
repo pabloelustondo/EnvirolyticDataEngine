@@ -65,28 +65,11 @@ namespace JassWeather.Controllers
             return View(variableStatusModel);
         }
 
-        public class ShowDashBoard4DayViewModel
-        {
-            public string fileName { get; set; }
-            public string schema { get; set; } 
-            public JassGrid JassGrid { get; set; }
-            public int? JassGridID { get; set; }
-            public int year { get; set; }
-            public int yearIndex { get; set; }
-            public int monthIndex { get; set; }
-            public int dayIndex { get; set; }
-            public int stepIndex { get; set; }
-            public int levelIndex { get; set; }
-            public int numberOfDays { get; set; }           
-            public string variableName { get; set; }
-            public JassGridValues gridValues  { get; set; }
-
-        }
         public ActionResult ShowDashBoard4Day(string variableName, int yearIndex, int monthIndex, int dayIndex, int stepIndex, int levelIndex)  //list container
         {
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
 
-            ShowDashBoard4DayViewModel Model = new ShowDashBoard4DayViewModel();
+            JassWeatherAPI.VariableValueModel Model = new JassWeatherAPI.VariableValueModel();
             Model.year = yearIndex + (DateTime.Now.Year - 9);
             Model.yearIndex = yearIndex;
             Model.monthIndex = monthIndex;
@@ -102,34 +85,26 @@ namespace JassWeather.Controllers
             return View(Model);
         }
 
-        public ActionResult ShowDashBoard4DayFromFile()  //list container
+        public ActionResult ShowDashBoard4DayFromFile(string fileName)  //list container
         {
-            ShowDashBoard4DayViewModel Model = new ShowDashBoard4DayViewModel(); 
+            apiCaller.DownloadFile2DiskIfNotThere(fileName, apiCaller.AppDataFolder + "\\" + fileName);
+
+            JassWeatherAPI.VariableValueModel Model = apiCaller.AnalyzeFileOnDisk(fileName);
             ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", Model.JassGridID);
             //hack for now:
-            Model.fileName = "pgbhnl.gdas.20101211-20101215.grb2.nc";
+            Model.fileName = fileName;
             return View("ShowDashBoard4DayFromFileFirst", Model);
         }
 
         [HttpPost]
-        public ActionResult ShowDashBoard4DayFromFile(ShowDashBoard4DayViewModel Model)  //list container
+        public ActionResult ShowDashBoard4DayFromFile(JassWeatherAPI.VariableValueModel Model)  //list container
         {
             if (Model.JassGridID != null)
             {
-                /*
-Model.year = yearIndex + (DateTime.Now.Year - 9);
-Model.yearIndex = yearIndex;
-Model.monthIndex = monthIndex;
-Model.dayIndex = dayIndex;
-Model.stepIndex = stepIndex;
-Model.levelIndex = levelIndex;
-Model.numberOfDays = variableStatusModel[0].StatusDayLevel[yearIndex][monthIndex].Count;
-string fileName = apiCaller.fileNameBuilderByDay(variableName, Model.year, monthIndex + 1, dayIndex + 1) + ".nc";
-Model.gridValues = apiCaller.GetDayValues(fileName);
-Model.variableName = variableName;
-*/
 
                 Model.JassGrid = db.JassGrids.Find(Model.JassGridID);
+
+                apiCaller.DownloadFile2DiskIfNotThere(Model.fileName, apiCaller.AppDataFolder + "\\" + Model.fileName);
                 Model.gridValues = apiCaller.GetDayValues(Model.JassGrid, Model.fileName);
                 return View(Model);
             }
@@ -149,11 +124,11 @@ Model.variableName = variableName;
         public ActionResult ShowDashBoard4DayForm()  //list container
         {
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
-            ShowDashBoard4DayViewModel Model = new ShowDashBoard4DayViewModel();
+            JassWeatherAPI.VariableValueModel Model = new JassWeatherAPI.VariableValueModel();
             return View(Model);
         }
 
-        public ActionResult ShowDashBoard4DayForm(ShowDashBoard4DayViewModel Model)  //list container
+        public ActionResult ShowDashBoard4DayForm(JassWeatherAPI.VariableValueModel Model)  //list container
         {
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
             Model.gridValues = apiCaller.GetDayValues(Model.fileName);

@@ -41,6 +41,12 @@ namespace JassWeather.Controllers
 
             }
 
+            if (Session["LatLonGroup"] == null)
+            {
+                Session["LatLonGroupName"] = "KeyCitiesQAPage";
+                Session["LatLonGroupID"] = 1;
+            }
+
             storageConnectionString = (string)Session["StorageConnectionString"];
             apiCaller = new JassWeatherAPI(this.ServerName, HttpContext.Server.MapPath("~/App_Data"), storageConnectionString);
 

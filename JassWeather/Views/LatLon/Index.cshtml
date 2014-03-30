@@ -4,9 +4,7 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
-Total Number of Sherindan Stations: @ViewBag.TotalNumberOfStations
-Total Stations GeoCoded: @ViewBag.Count
+<h2>Index (@ViewBag.LatLonGroup) </h2>
 
 <p>
     @Html.ActionLink("Create New", "Create")
@@ -25,6 +23,9 @@ Total Stations GeoCoded: @ViewBag.Count
         <th>
             @Html.DisplayNameFor(model => model.Lon)
         </th>
+        <th>
+            @Html.DisplayNameFor(model => model.JassLatLonGroup.Name)
+        </th>
         <th></th>
     </tr>
 
@@ -41,6 +42,9 @@ Total Stations GeoCoded: @ViewBag.Count
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Lon)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.JassLatLonGroup.Name)
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.JassLatLonID }) |

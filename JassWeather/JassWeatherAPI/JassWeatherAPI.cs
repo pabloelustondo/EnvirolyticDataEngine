@@ -3741,6 +3741,111 @@ v(np)  =   ---------------------------------------------------------------------
             return schemaString;
         }
 
+        public class VariableValueModel
+        {
+            public string fileName { get; set; }
+            public string schema { get; set; }
+            public string keyVariable { get; set; }
+            public string generalMetadata { get; set; } 
+            public JassGrid JassGrid { get; set; }
+            public int? JassGridID { get; set; }
+            public int year { get; set; }
+            public int yearIndex { get; set; }
+            public int monthIndex { get; set; }
+            public int dayIndex { get; set; }
+            public int stepIndex { get; set; }
+            public int levelIndex { get; set; }
+            public int numberOfDays { get; set; }
+            public int stepsInADay { get; set; }
+            public string variableName { get; set; }
+            public JassGridValues gridValues { get; set; }
+            public string message { get; set; }
+            public DateTime startingDate { get; set; }
+            public DateTime endingDate { get; set; }
+
+        }
+
+        public VariableValueModel AnalyzeFileOnDisk(string filename)
+        {
+            VariableValueModel vm = new VariableValueModel();
+            vm.fileName = filename;
+            string downloadedFilePath = AppDataFolder + "\\" + filename;
+            string schemaString = "";
+            string dimensionsString = "";
+            vm.message = "file structure could not be mapped to a known grid";
+
+            var jassgrids = db.JassGrids;
+
+            try
+            {
+
+                using (var dataset = DataSet.Open(downloadedFilePath))
+                {
+
+                    var schema = dataset.GetSchema();
+
+                    foreach (var v in schema.Variables)
+                    {
+                        if (v.Name != "" && v.Dimensions.Count > 2)
+                        {
+                            vm.keyVariable = v.Name;
+                            schemaString += v.Name;
+                            dimensionsString = "  ";
+                            foreach (var d in v.Dimensions)
+                            {
+                                dimensionsString += "(" + d.Name + "," + d.Length + ")";
+                            }
+                            schemaString += dimensionsString;
+                        }
+                    }//for each var
+                    vm.generalMetadata = "";
+                    foreach (var m in dataset.Metadata)
+                    {
+                        vm.generalMetadata = "" + m.Key + ":" + m.Value;
+                        if (m.Key == "title" && (string)m.Value == "8x Daily NARR"){
+                            vm.JassGrid = db.JassGrids.Where(g => g.Name == "NARR-32km-3hr-ByDay").First();
+                            vm.JassGridID = vm.JassGrid.JassGridID;
+                        }
+                    }
+
+                    try
+                    {
+                        if (vm.JassGrid.Type == "NARR")
+                        {
+                            double[] time = dataset.GetData<double[]>("time");
+                            DateTime day1800 = DateTime.Parse("1800-01-01 00:00:00");
+
+                            var beginingHours = time[0];
+                            var endigingHours = beginingHours + (time.Length-1) * 3;
+                            vm.startingDate = day1800.AddHours(time[0]);
+
+                            vm.endingDate = day1800.AddHours(endigingHours);
+                            vm.year = vm.startingDate.Year;
+                            vm.monthIndex = vm.startingDate.Month;
+                            vm.dayIndex = vm.startingDate.Day;
+                            vm.message = "successfully parsed as a NARR Grid";
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        vm.message = e.Message;
+                    }
+                }//using
+
+
+
+            }//try
+            catch (Exception e)
+            {
+                vm.message = e.Message;
+                return vm;
+            }//catch
+
+
+            vm.schema = schemaString;
+            return vm;
+
+        }
         public string store2table_0(string downloadedFilePath, int max)
         {
             string schemaString = "";

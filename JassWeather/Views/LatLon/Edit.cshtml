@@ -47,6 +47,14 @@
             @Html.ValidationMessageFor(model => model.Lon)
         </div>
 
+        <div class="editor-label">
+            @Html.LabelFor(model => model.JassLatLonGroupID, "JassLatLonGroup")
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("JassLatLonGroupID", String.Empty)
+            @Html.ValidationMessageFor(model => model.JassLatLonGroupID)
+        </div>
+
         <p>
             <input type="submit" value="Save" />
         </p>

@@ -9,7 +9,7 @@ using JassWeather.Models;
 
 namespace JassWeather.Controllers
 {
-    public class LatLonGroupController : Controller
+    public class LatLonGroupController : JassController
     {
         private JassWeatherContext db = new JassWeatherContext();
 
@@ -18,22 +18,25 @@ namespace JassWeather.Controllers
 
         public ActionResult Index()
         {
+            ViewBag.LatLonGroup = Session["LatLonGroupName"];
             return View(db.JassLatLonGroups.ToList());
         }
 
         //
         // GET: /LatLonGroup/Details/5
 
-        public ActionResult Details(int id = 0)
+        public ActionResult Set(int id = 0)
         {
             JassLatLonGroup jasslatlongroup = db.JassLatLonGroups.Find(id);
+            Session["LatLonGroupName"] = jasslatlongroup.Name;
+            Session["LatLonGroupID"] = id;
+            
             if (jasslatlongroup == null)
             {
                 return HttpNotFound();
             }
-            return View(jasslatlongroup);
+            return RedirectToAction("Index");
         }
-
         //
         // GET: /LatLonGroup/Create
 

@@ -37,6 +37,13 @@
     <div class="display-field">
         @Html.DisplayFor(model => model.Lon)
     </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.JassLatLonGroup.Name)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.JassLatLonGroup.Name)
+    </div>
 </fieldset>
 @using (Html.BeginForm()) {
     @Html.AntiForgeryToken()
