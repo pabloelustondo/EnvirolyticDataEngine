@@ -5,37 +5,6 @@
 
 <h2>Locations Status for @Model.latlonGroup.Name</h2>
 @Model.Message
-
-@using (Html.BeginForm()) {
-    @Html.ValidationSummary(true)
-
-    <fieldset>
-        <legend>JassBuilder</legend>
-        <div class="editor-label">
-            Year
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.year)
-            @Html.ValidationMessageFor(model => model.year)
-        </div>
-                <div class="editor-label">
-            Month
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.month)
-            @Html.ValidationMessageFor(model => model.month)
-            @Html.LabelFor(model => model.day)
-            @Html.EditorFor(model => model.day)
-            @Html.ValidationMessageFor(model => model)
-        </div>
-
-
-
-         <p>
-            <input type="submit" value="Submit" />
-        </p>
-     </fieldset>
-}
 @{
     int numberOfLocations = Model.latlonGroup.JassLatLons.Count;
     int numberOfVariables = Model.gridValues.Count;
@@ -64,3 +33,45 @@
     </tr>
         }
 </table>
+
+<br />
+<br />
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>JassBuilder</legend>
+        <div class="editor-label">
+            Year
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.year)
+            @Html.ValidationMessageFor(model => model.year)
+        </div>
+                <div class="editor-label">
+            Month
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.month)
+            @Html.ValidationMessageFor(model => model.month)
+            @Html.LabelFor(model => model.day)
+            @Html.EditorFor(model => model.day)
+            @Html.ValidationMessageFor(model => model)
+        </div>
+
+            @for (int v = 0; v < Model.variableChoices.Length; v++)
+        {
+        <div class="editor-field">
+            @Html.DisplayFor(model => model.variables[v].Name)
+            @Html.CheckBoxFor(model => model.variableChoices[v])
+        </div>
+
+        }
+
+         <p>
+            <input type="submit" value="Submit" />
+        </p>
+     </fieldset>
+}
+
+

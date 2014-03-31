@@ -29,6 +29,14 @@
             @Html.ValidationMessageFor(model => model)
         </div>
 
+        @for (int v = 0; v < Model.variableChoices.Length; v++)
+        {
+        <div class="editor-field">
+            @Html.DisplayFor(model => model.variables[v].Name)
+            @Html.CheckBoxFor(model => model.variableChoices[v])
+        </div>
+
+        }
 
 
          <p>
