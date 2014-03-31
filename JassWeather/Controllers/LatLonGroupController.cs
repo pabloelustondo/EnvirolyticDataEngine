@@ -68,7 +68,10 @@ namespace JassWeather.Controllers
                 model.Message = "An error has occured, make sure that you ask for an available day" + e.Message;
                 return View(model);
             }
-
+            finally
+            {
+               apiCaller.cleanAppData();
+            }
         }
 
         //

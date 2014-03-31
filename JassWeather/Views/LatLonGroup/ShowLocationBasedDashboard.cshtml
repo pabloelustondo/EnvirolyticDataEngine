@@ -6,7 +6,36 @@
 <h2>Locations Status for @Model.latlonGroup.Name</h2>
 @Model.Message
 
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
 
+    <fieldset>
+        <legend>JassBuilder</legend>
+        <div class="editor-label">
+            Year
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.year)
+            @Html.ValidationMessageFor(model => model.year)
+        </div>
+                <div class="editor-label">
+            Month
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.month)
+            @Html.ValidationMessageFor(model => model.month)
+            @Html.LabelFor(model => model.day)
+            @Html.EditorFor(model => model.day)
+            @Html.ValidationMessageFor(model => model)
+        </div>
+
+
+
+         <p>
+            <input type="submit" value="Submit" />
+        </p>
+     </fieldset>
+}
 @{
     int numberOfLocations = Model.latlonGroup.JassLatLons.Count;
     int numberOfVariables = Model.gridValues.Count;
@@ -16,10 +45,10 @@
 
 <table>
     <tr>
-        <td></td>
+        <td></td><td></td>
               @for (int v = 0; v < variables.Count; v++)
                     {
-                        <td>@variables[v].VariableName</td>                     
+                        <td>@variables[v].VariableName</td>  
                     }
 
     </tr>
@@ -27,6 +56,7 @@
         {
     <tr>
         <td>@locations[l].Name</td>
+        <td>y:@locations[l].narrY, x:@locations[l].narrX</td>
                     @for (int v = 0; v < variables.Count; v++)
                     {
                         <td>@variables[v].measure[0,0,locations[l].narrY, locations[l].narrX]</td>                     
