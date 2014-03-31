@@ -29,6 +29,7 @@
         <div class="editor-field">
             Day Range: FROM @Html.DisplayFor(model => model.startingDate) TO  @Html.DisplayFor(model => model.endingDate)  
         </div>
+        @Html.HiddenFor(model => model.startingDate) TO  @Html.HiddenFor(model => model.endingDate)  
         <div class="editor-label">
             @Html.LabelFor(model => model.JassGridID, "JassGrid")
         </div>

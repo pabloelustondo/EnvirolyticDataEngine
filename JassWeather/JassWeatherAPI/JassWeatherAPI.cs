@@ -3889,6 +3889,7 @@ v(np)  =   ---------------------------------------------------------------------
                             var endingHours2 = time[time.Length - 1];
 
                             vm.endingDate = day1800.AddHours(endingHours);
+                            vm.startingDate = day1800.AddHours(beginingHours);
                             vm.endingDate2 = day1800.AddHours(endingHours2);
 
                             if (vm.envirolyticFile)
@@ -4576,7 +4577,7 @@ v(np)  =   ---------------------------------------------------------------------
             return listOfValues;
         }
 
-        public JassGridValues GetDayValues(JassGrid grid, string fileName)
+        public JassGridValues GetDayValues(JassGrid grid, string fileName, DateTime startingDate, DateTime requestDate)
         {
             //HERE
 
@@ -4652,6 +4653,8 @@ v(np)  =   ---------------------------------------------------------------------
                 }
                 double[] time = new double[grid.Timesize];
 
+                int timeIndex = Convert.ToInt32((requestDate - startingDate).TotalDays * grid.Timesize);
+               
                 Single[] level = new Single[1];
 
                 //IMPORTANT WE ARE SAMPLING ONLY 3 LEVELS OF PRESSURE
@@ -4675,7 +4678,7 @@ v(np)  =   ---------------------------------------------------------------------
                     try
                     {
                         values = dataset1.GetData<Int16[, , ,]>(keyVariable.Name,
-                                 DataSet.Range(0, time.Length-1),
+                                 DataSet.Range(timeIndex, timeIndex +time.Length - 1),
                                  DataSet.Range(0, level.Length-1),
                                  DataSet.Range(0, y.Length-1),
                                  DataSet.Range(0, x.Length-1) );
@@ -4683,7 +4686,7 @@ v(np)  =   ---------------------------------------------------------------------
                     catch (Exception)
                     {
                         values = dataset1.GetData<Single[, , ,]>(keyVariable.Name,
-                                 DataSet.Range(0, time.Length-1),
+                                 DataSet.Range(timeIndex, timeIndex+time.Length - 1),
                                  DataSet.Range(0, level.Length-1),
                                  DataSet.Range(0, y.Length-1),
                                  DataSet.Range(0, x.Length-1) );
@@ -4723,7 +4726,7 @@ v(np)  =   ---------------------------------------------------------------------
                     try
                     {
                         values = dataset1.GetData<Int16[, ,]>(keyVariable.Name,
-                                 DataSet.Range(0, time.Length - 1),
+                                 DataSet.Range(timeIndex, timeIndex + time.Length - 1),
                                  DataSet.Range(0, y.Length - 1),
                                  DataSet.Range(0, x.Length - 1));
                     }
@@ -4732,14 +4735,14 @@ v(np)  =   ---------------------------------------------------------------------
                         try
                         {
                             values = dataset1.GetData<Single[, ,]>(keyVariable.Name,
-                                 DataSet.Range(0, time.Length - 1),
+                                 DataSet.Range(timeIndex, timeIndex+time.Length - 1),
                                  DataSet.Range(0, y.Length - 1),
                                  DataSet.Range(0, x.Length - 1));
                         }
                         catch (Exception e)
                         {
                             values = dataset1.GetData<Int16[,]>(keyVariable.Name,
-                                       DataSet.Range(0, time.Length - 1),
+                                       DataSet.Range(timeIndex, timeIndex+time.Length - 1),
                                        DataSet.Range(0, y.Length - 1));
                         }
                     }

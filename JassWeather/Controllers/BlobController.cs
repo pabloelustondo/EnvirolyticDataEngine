@@ -105,7 +105,8 @@ namespace JassWeather.Controllers
                 Model.JassGrid = db.JassGrids.Find(Model.JassGridID);
 
                 apiCaller.DownloadFile2DiskIfNotThere(Model.fileName, apiCaller.AppDataFolder + "\\" + Model.fileName);
-                Model.gridValues = apiCaller.GetDayValues(Model.JassGrid, Model.fileName);
+                DateTime requestDate = new DateTime(Model.year, Model.monthIndex, Model.dayIndex);
+                Model.gridValues = apiCaller.GetDayValues(Model.JassGrid, Model.fileName, Model.startingDate, requestDate);
                 return View(Model);
             }
             else

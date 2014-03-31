@@ -80,9 +80,9 @@ Color Scale
         </td>
            @for (int x = 0; x < Model.gridValues.xLength; x++ ){
                JassWeather.Models.JassRGB rgb;
-               if (Model.gridValues.measure[timeIndex, 0, y, x] != null)
+               if (Model.gridValues.measure[Model.stepIndex, 0, y, x] != null)
                {
-                   double scaledValue = ((double)Model.gridValues.measure[timeIndex + Model.stepIndex, 0, y, x] - Model.gridValues.measureMin[0]) * myfactor;
+                   double scaledValue = ((double)Model.gridValues.measure[Model.stepIndex, 0, y, x] - Model.gridValues.measureMin[0]) * myfactor;
                    rgb = JassWeather.Models.JassWeatherAPI.rgb(scaledValue, 0, 1024);
                }
                else
@@ -91,7 +91,7 @@ Color Scale
                }
         <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b)">
             @y,@x
-            @Model.gridValues.measure[timeIndex+Model.stepIndex,0,y,x]
+            @Model.gridValues.measure[Model.stepIndex,0,y,x]
         </td>
             }
     </tr>
