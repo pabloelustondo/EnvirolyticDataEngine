@@ -3805,6 +3805,9 @@ v(np)  =   ---------------------------------------------------------------------
             public string message { get; set; }
             public DateTime startingDate { get; set; }
             public DateTime endingDate { get; set; }
+            public DateTime startingDate2 { get; set; }
+            public DateTime endingDate2 { get; set; }
+            public Boolean envirolyticFile { get; set; }
 
         }
 
@@ -3816,6 +3819,7 @@ v(np)  =   ---------------------------------------------------------------------
             string schemaString = "";
             string dimensionsString = "";
             vm.message = "file structure could not be mapped to a known grid";
+            vm.envirolyticFile = false;
 
             var jassgrids = db.JassGrids;
 
@@ -3852,6 +3856,7 @@ v(np)  =   ---------------------------------------------------------------------
                         //horrible hack to make this work for now. need to add metadata to file.
                         if (m.Key == "Name" && (string)m.Value == "")
                         {
+                            vm.envirolyticFile = true;
                             vm.JassGrid = db.JassGrids.Where(g => g.Name == "NARR-32km-3hr-ByDay").First();
                             vm.JassGridID = vm.JassGrid.JassGridID;
 
@@ -3875,15 +3880,30 @@ v(np)  =   ---------------------------------------------------------------------
                             double[] time = dataset.GetData<double[]>("time");
                             DateTime day1800 = DateTime.Parse("1800-01-01 00:00:00");
 
-                            var beginingHours = time[0];
-                            var endigingHours = beginingHours + (time.Length-1) * 3;
-                            vm.startingDate = day1800.AddHours(time[0]);
 
-                            vm.endingDate = day1800.AddHours(endigingHours);
+
+                            var beginingHours = time[0];
+                            var endingHours = beginingHours + (time.Length-1) * 3;
+                            var endingHours2 = time[time.Length - 1];
+
+                            vm.endingDate = day1800.AddHours(endingHours);
+                            vm.endingDate2 = day1800.AddHours(endingHours2);
+
+                            if (vm.envirolyticFile)
+                            {
+                                //here we will hack the starting date.. based on file due to problem.
+                                vm.startingDate2 = vm.startingDate;
+                                vm.startingDate = getDateTimeFromFileName(filename);
+                                
+                            }
+                           
                             vm.year = vm.startingDate.Year;
                             vm.monthIndex = vm.startingDate.Month;
                             vm.dayIndex = vm.startingDate.Day;
                             vm.message = "successfully parsed as a NARR Grid";
+
+                            if (vm.endingDate != vm.endingDate2) vm.message = " ending date discrepancy: " + vm.endingDate2.ToShortDateString();
+                            if (vm.startingDate != vm.startingDate2) vm.message = " starting date discrepancy: " + vm.startingDate2.ToShortDateString();
                         }
                     }
                     catch (Exception e)
@@ -3906,6 +3926,22 @@ v(np)  =   ---------------------------------------------------------------------
             return vm;
 
         }
+
+        public DateTime getDateTimeFromFileName(string filename)
+        {
+            int indexOf_1 = filename.IndexOf("_");
+            string yearString = filename.Substring(indexOf_1+1, 4);
+            string monthString = filename.Substring(indexOf_1+6, 2);
+            string dayString = filename.Substring(indexOf_1+9, 2);
+
+            int year = Convert.ToInt16(yearString);           
+            int month = Convert.ToInt16(monthString);
+            int day = Convert.ToInt16(dayString);
+
+            DateTime result = new DateTime(year, month, day);
+            return result;
+        }
+
         public string store2table_0(string downloadedFilePath, int max)
         {
             string schemaString = "";
