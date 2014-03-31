@@ -9,7 +9,7 @@ using JassWeather.Models;
 
 namespace JassWeather.Controllers
 {
-    public class LatLonController : Controller
+    public class LatLonController : JassController
     {
         private JassWeatherContext db = new JassWeatherContext();
 
@@ -57,8 +57,10 @@ namespace JassWeather.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.JassLatLons.Add(jasslatlon);
+                jasslatlon = apiCaller.MapLatLonToNarr(jasslatlon);
+                db.JassLatLons.Add(jasslatlon);                
                 db.SaveChanges();
+
                 return RedirectToAction("Index");
             }
 
@@ -89,6 +91,7 @@ namespace JassWeather.Controllers
         {
             if (ModelState.IsValid)
             {
+                jasslatlon = apiCaller.MapLatLonToNarr(jasslatlon);
                 db.Entry(jasslatlon).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");

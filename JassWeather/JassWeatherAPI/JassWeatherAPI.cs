@@ -1458,6 +1458,49 @@ v(np)  =   ---------------------------------------------------------------------
             return v_mp1;
         }
 
+        public  JassLatLon MapLatLonToNarr(JassLatLon latlon)
+        {
+            double MaxDistance = 200;
+
+            //open narr file
+            //loop on narr grid finding the closest point
+
+            string narrFile = AppFilesFolder + "\\Narr_Grid.nc";
+            Single[] narrY=null;
+            Single[] narrX=null;
+            Single[,] narrLat = null;
+            Single[,] narrLon = null;
+            using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
+            {
+                narrY = narrDataSet.GetData<Single[]>("y");
+                narrX = narrDataSet.GetData<Single[]>("x");
+                narrLat = narrDataSet.GetData<Single[,]>("lat");
+                narrLon = narrDataSet.GetData<Single[,]>("lon");
+            }
+            double minDistance = MaxDistance;
+            int minY = 999;
+            int minX = 999;
+
+            for (int y = 0; y < narrY.Length; y++)
+            {
+                for (int x = 0; x < narrX.Length; x++)
+                {
+                    var distance = HaversineDistance(latlon.Lat, latlon.Lon, narrLat[y, x], narrLon[y, x]);
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        minY = y;
+                        minX = x;
+                    }
+                }
+            }
+
+            latlon.narrY = minY;
+            latlon.narrX = minX;
+            return latlon;
+        }
+
+
         public JassMaccNarrGridsCombo MapGridNarr2GridFromFile(string fileNameInputGrid, string gridLatName, string gridLonName, string fileNameNarr, string fileNameMapper, bool testAroundToronto, bool sher)
         {
             JassBuilder builder = new JassBuilder();

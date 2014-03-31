@@ -5,6 +5,31 @@
 }
 
 <h2>Edit</h2>
+<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDY0kkJiTPVd2U7aTOAwhc9ySH6oHxOIYM&sensor=false">
+</script>
+
+<script>
+function initialize()
+{
+var mapProp = {
+  center:new google.maps.LatLng(@Model.Lat, @Model.Lon),
+  zoom:10,
+  mapTypeId:google.maps.MapTypeId.ROADMAP
+  };
+var map=new google.maps.Map(document.getElementById("googleMap")
+  , mapProp);
+
+var marker = new google.maps.Marker({
+    position: new google.maps.LatLng(@Model.Lat , @Model.Lon )
+});
+
+marker.setMap(map);
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+
+<div id="googleMap" style="width:500px;height:380px;"></div>
 
 @using (Html.BeginForm()) {
     @Html.AntiForgeryToken()
@@ -16,22 +41,21 @@
         @Html.HiddenFor(model => model.JassLatLonID)
 
         <div class="editor-label">
-            @Html.LabelFor(model => model.StationCode)
+            @Html.LabelFor(model => model.Name)
         </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.StationCode)
-            @Html.ValidationMessageFor(model => model.StationCode)
+            @Html.EditorFor(model => model.Name)
+            @Html.ValidationMessageFor(model => model.Name)
         </div>
 
         <div class="editor-label">
             @Html.LabelFor(model => model.Info)
         </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.Info)
+            @Html.TextAreaFor(model => model.Info)
             @Html.ValidationMessageFor(model => model.Info)
         </div>
-
-        <div class="editor-label">
+                <div class="editor-label">
             @Html.LabelFor(model => model.Lat)
         </div>
         <div class="editor-field">
@@ -45,6 +69,12 @@
         <div class="editor-field">
             @Html.EditorFor(model => model.Lon)
             @Html.ValidationMessageFor(model => model.Lon)
+        </div>
+
+
+        <div class="editor-label">
+            narr Y:   @Html.DisplayFor(model => model.narrY)
+            narr X:   @Html.DisplayFor(model => model.narrX)
         </div>
 
         <div class="editor-label">

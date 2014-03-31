@@ -12,7 +12,7 @@
 <table>
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.StationCode)
+            @Html.DisplayNameFor(model => model.Name)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Info)
@@ -22,6 +22,12 @@
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Lon)
+        </th>
+                <th>
+            @Html.DisplayNameFor(model => model.narrY)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.narrX)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.JassLatLonGroup.Name)
@@ -44,11 +50,17 @@
             @Html.DisplayFor(modelItem => item.Lon)
         </td>
         <td>
+            @Html.DisplayFor(modelItem => item.narrY)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.narrX
+            )
+        </td>
+        <td>
             @Html.DisplayFor(modelItem => item.JassLatLonGroup.Name)
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.JassLatLonID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.JassLatLonID }) |
             @Html.ActionLink("Delete", "Delete", new { id=item.JassLatLonID })
         </td>
     </tr>

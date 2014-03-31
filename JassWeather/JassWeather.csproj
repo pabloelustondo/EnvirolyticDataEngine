@@ -571,6 +571,14 @@
     <Compile Include="Migrations\201403281710549_latlonrelationwithgroups.Designer.cs">
       <DependentUpon>201403281710549_latlonrelationwithgroups.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201403302345382_locations.cs" />
+    <Compile Include="Migrations\201403302345382_locations.Designer.cs">
+      <DependentUpon>201403302345382_locations.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201403310038209_latlonname.cs" />
+    <Compile Include="Migrations\201403310038209_latlonname.Designer.cs">
+      <DependentUpon>201403310038209_latlonname.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -1085,6 +1093,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201403281710549_latlonrelationwithgroups.resx">
       <DependentUpon>201403281710549_latlonrelationwithgroups.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403302345382_locations.resx">
+      <DependentUpon>201403302345382_locations.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201403310038209_latlonname.resx">
+      <DependentUpon>201403310038209_latlonname.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -14,18 +14,18 @@
         <legend>JassLatLon</legend>
 
         <div class="editor-label">
-            @Html.LabelFor(model => model.StationCode)
+            @Html.LabelFor(model => model.Name)
         </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.StationCode)
-            @Html.ValidationMessageFor(model => model.StationCode)
+            @Html.EditorFor(model => model.Name)
+            @Html.ValidationMessageFor(model => model.Name)
         </div>
 
         <div class="editor-label">
             @Html.LabelFor(model => model.Info)
         </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.Info)
+            @Html.TextAreaFor(model => model.Info)
             @Html.ValidationMessageFor(model => model.Info)
         </div>
 
