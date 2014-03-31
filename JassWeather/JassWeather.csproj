@@ -858,6 +858,7 @@
     <Content Include="Views\LatLon\Edit.cshtml" />
     <Content Include="Views\LatLon\Delete.cshtml" />
     <Content Include="Views\LatLonGroup\ShowLocationBasedDashboard.cshtml" />
+    <Content Include="Views\LatLonGroup\ShowLocationBasedDashboardFirst.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -23,22 +23,52 @@ namespace JassWeather.Controllers
         }
 
         public class ShowLocationBasedDashboardModel{
+            public string Message { get; set; }
             public int year { get; set; }
             public int month { get; set; }
             public int day { get; set; }
 
             public JassLatLonGroup latlonGroup { get; set; }
             //we sould have a variable group as well
-
+            public List<JassGridValues> gridValues { get; set; }
         }
+
 
         public ActionResult ShowLocationBasedDashboard()
         {
-            ViewBag.LatLonGroupID = Session["LatLonGroupID"];
             ShowLocationBasedDashboardModel model = new ShowLocationBasedDashboardModel();
+            ViewBag.LatLonGroupID = Session["LatLonGroupID"];
             model.latlonGroup = db.JassLatLonGroups.Find(ViewBag.LatLonGroupID);
+            model.year = 2013;
+            model.month = 1;
+            model.day = 1;
+            return View("ShowLocationBasedDashboardFirst", model);
+        }
+        [HttpPost]
+        public ActionResult ShowLocationBasedDashboard(ShowLocationBasedDashboardModel model)
+        {
+            try
+            {
+                ViewBag.LatLonGroupID = Session["LatLonGroupID"];
+                model.gridValues = new List<JassGridValues>();
+                model.latlonGroup = db.JassLatLonGroups.Find(ViewBag.LatLonGroupID);
+                //will hardcode a few variables.. and then generalize
+                string dayString = apiCaller.fileNameBuilderByDay("Temperature2m", model.year, model.month, model.day) + ".nc";
+                model.gridValues.Add(apiCaller.GetDayValues(dayString));
+                dayString = apiCaller.fileNameBuilderByDay("WindUSpeed10m", model.year, model.month, model.day) + ".nc";
+                model.gridValues.Add(apiCaller.GetDayValues(dayString));
+                dayString = apiCaller.fileNameBuilderByDay("WindVSpeed10m", model.year, model.month, model.day) + ".nc";
+                model.gridValues.Add(apiCaller.GetDayValues(dayString));
+                dayString = apiCaller.fileNameBuilderByDay("WindChill", model.year, model.month, model.day) + ".nc";
+                model.gridValues.Add(apiCaller.GetDayValues(dayString));
+                return View(model);
+            }
+            catch (Exception e)
+            {
+                model.Message = "An error has occured, make sure that you ask for an available day" + e.Message;
+                return View(model);
+            }
 
-            return View(model);
         }
 
         //

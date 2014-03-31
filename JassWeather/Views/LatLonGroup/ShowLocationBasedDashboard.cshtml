@@ -3,29 +3,33 @@
     ViewBag.Title = "ShowLocationBasedDashboard";
 }
 
-<h2>ShowLocationBasedDashboard for @Model.latlonGroup.Name</h2>
+<h2>Locations Status for @Model.latlonGroup.Name</h2>
+@Model.Message
 
-    The idea here is to on show a matrix of various locations crossed by various variables.
-    Something like this
 
 @{
     int numberOfLocations = Model.latlonGroup.JassLatLons.Count;
-    int numberOfVariables = 8;
+    int numberOfVariables = Model.gridValues.Count;
     var locations = Model.latlonGroup.JassLatLons;
-    var variables = new List<string>();
-    for (int v = 0; v < numberOfVariables; v++)
-    { variables.Add("var" + v); }
-}
+    var variables = Model.gridValues;
+    }
 
 <table>
+    <tr>
+        <td></td>
+              @for (int v = 0; v < variables.Count; v++)
+                    {
+                        <td>@variables[v].VariableName</td>                     
+                    }
+
+    </tr>
             @for (int l = 0; l < locations.Count; l++)
         {
     <tr>
         <td>@locations[l].Name</td>
                     @for (int v = 0; v < variables.Count; v++)
                     {
-                        <td>@variables[v]</td>
-                        
+                        <td>@variables[v].measure[0,0,locations[l].narrY, locations[l].narrX]</td>                     
                     }
     </tr>
         }

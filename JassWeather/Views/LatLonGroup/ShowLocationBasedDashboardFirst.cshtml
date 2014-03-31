@@ -1,0 +1,39 @@
+﻿@model JassWeather.Controllers.LatLonGroupController.ShowLocationBasedDashboardModel
+
+
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>JassBuilder</legend>
+        <div class="editor-label">
+            Year
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.year)
+            @Html.ValidationMessageFor(model => model.year)
+        </div>
+                <div class="editor-label">
+            Month
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.month)
+            @Html.ValidationMessageFor(model => model.month)
+        </div>
+                <div class="editor-label">
+            @Html.LabelFor(model => model.day)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.day)
+            @Html.ValidationMessageFor(model => model)
+        </div>
+
+
+
+         <p>
+            <input type="submit" value="Submit" />
+        </p>
+     </fieldset>
+}
+
