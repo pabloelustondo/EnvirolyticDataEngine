@@ -3849,6 +3849,23 @@ v(np)  =   ---------------------------------------------------------------------
                             vm.JassGrid = db.JassGrids.Where(g => g.Name == "NARR-32km-3hr-ByDay").First();
                             vm.JassGridID = vm.JassGrid.JassGridID;
                         }
+                        //horrible hack to make this work for now. need to add metadata to file.
+                        if (m.Key == "Name" && (string)m.Value == "")
+                        {
+                            vm.JassGrid = db.JassGrids.Where(g => g.Name == "NARR-32km-3hr-ByDay").First();
+                            vm.JassGridID = vm.JassGrid.JassGridID;
+
+                            if (schemaString.Contains("(level,5)"))
+                            {
+                                vm.JassGrid = db.JassGrids.Where(g => g.Name == "NARR-32km-3hr-5level-ByDay").First();
+                               vm.JassGridID = vm.JassGrid.JassGridID;
+                            } else
+                            if (schemaString.Contains("(level,29)"))
+                            {
+                                    vm.JassGrid = db.JassGrids.Where(g => g.Name == "NARR-32km-3hr-29level-ByDay").First();
+                                    vm.JassGridID = vm.JassGrid.JassGridID;
+                            }
+                        }
                     }
 
                     try

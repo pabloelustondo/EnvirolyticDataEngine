@@ -33,12 +33,16 @@
                                   <li>@Html.ActionLink("About", "Index", "Home")</li>
                             } 
                             <li>@Html.ActionLink("Dashboard", "ShowDashBoardExt", "Blob")</li>   
-                            <li>@Html.ActionLink("LocationsStatus", "ShowLocationBasedDashboard", "LatLonGroup")</li>   
+                            <li>@Html.ActionLink("LocationsStatus", "ShowLocationBasedDashboard", "LatLonGroup")</li> 
+                            <li>@Html.ActionLink("Locations", "Index", "LatLon")</li>  
+                            <li>@Html.ActionLink("LocationGroups", "Index", "LatLonGroup")</li>  
+                            <li>@Html.ActionLink("Blobs", "Index", "Blob")</li>  
+                            <li>@Html.ActionLink("Disk", "ShowAppData", "Blob")</li> 
    
                            
                                @if(User.IsInRole("Envirolytic")){         
                             <li>@Html.ActionLink("Dashboard(Dev)", "ShowDashBoard", "Blob")</li>  
-                            <li>@Html.ActionLink("Blobs", "Index", "Blob")</li> 
+
                                }
                                @if(User.IsInRole("Admin")){                  
                             <li>@Html.ActionLink("Sources", "Index", "RequestSet")</li>
@@ -49,9 +53,6 @@
                             <li>@Html.ActionLink("Variables", "Index", "Variable")</li>
                             <li>@Html.ActionLink("Grids", "Index", "Grid")</li>
                             <li>@Html.ActionLink("Partitions", "Index", "Partition")</li>
-                            <li>@Html.ActionLink("Locations", "Index", "LatLon")</li>  
-                            <li>@Html.ActionLink("LocationGroups", "Index", "LatLonGroup")</li>  
-                            <li>@Html.ActionLink("Disk", "ShowAppData", "Blob")</li>
                             <li>@Html.ActionLink("Logs", "Index", "BuilderLog")</li>
                             <li>@Html.ActionLink("Tools", "Tools", "Home")</li>
                             <li>@Html.ActionLink("InspectFile", "ShowDashBoard4DayFromFile", "Blob")</li>
