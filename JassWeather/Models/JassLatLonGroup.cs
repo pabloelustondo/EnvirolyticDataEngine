@@ -10,5 +10,6 @@ namespace JassWeather.Models
         public int JassLatLonGroupID { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public virtual List<JassLatLon> JassLatLons { get; set; }
     }
 }

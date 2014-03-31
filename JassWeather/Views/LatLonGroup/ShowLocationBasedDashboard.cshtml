@@ -1,5 +1,5 @@
 ﻿@model JassWeather.Controllers.LatLonGroupController.ShowLocationBasedDashboardModel
-{
+@{
     ViewBag.Title = "ShowLocationBasedDashboard";
 }
 
@@ -9,11 +9,9 @@
     Something like this
 
 @{
-    int numberOfLocations = 10;
+    int numberOfLocations = Model.latlonGroup.JassLatLons.Count;
     int numberOfVariables = 8;
-    var locations = new List<string>();
-    for (int l = 0; l < numberOfLocations; l++)
-    { locations.Add("loc" + l);}
+    var locations = Model.latlonGroup.JassLatLons;
     var variables = new List<string>();
     for (int v = 0; v < numberOfVariables; v++)
     { variables.Add("var" + v); }
@@ -23,7 +21,7 @@
             @for (int l = 0; l < locations.Count; l++)
         {
     <tr>
-        <td>@locations[l]</td>
+        <td>@locations[l].Name</td>
                     @for (int v = 0; v < variables.Count; v++)
                     {
                         <td>@variables[v]</td>
