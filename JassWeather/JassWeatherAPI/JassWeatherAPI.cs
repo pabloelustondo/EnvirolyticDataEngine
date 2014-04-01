@@ -116,6 +116,7 @@ namespace JassWeather.Models
     {
         private JassWeatherContext db = new JassWeatherContext();
         public string AppDataFolder;
+        public string AppTempFilesFolder;
         public string AppFilesFolder;
         public string ServerNameJass;
         public string storageConnectionString;
@@ -127,6 +128,7 @@ namespace JassWeather.Models
             this.storageConnectionString = storageConnectionStringIn;
             this.AppDataFolder = appDataFolder;
             this.AppFilesFolder = appDataFolder + "\\..\\App_Files";
+            this.AppTempFilesFolder = appDataFolder + "\\..\\App_TempFiles";
             this.ServerNameJass = ServerNameIn;
           }
 
@@ -4464,6 +4466,18 @@ v(np)  =   ---------------------------------------------------------------------
             return array1.ToList();
         
          }
+
+
+        public List<string> listFiles_in_AppTempFiles()
+        {
+            List<string> response = new List<string>();
+
+
+            string[] array1 = Directory.GetFiles(AppTempFilesFolder);
+
+            return array1.ToList();
+
+        }
 
         public List<string> listTables()
         {

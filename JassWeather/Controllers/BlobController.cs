@@ -164,6 +164,21 @@ namespace JassWeather.Controllers
             return View(files);
         }
 
+        public ActionResult ShowAppTempFiles()
+        {
+            List<string> files = new List<string>();
+            try
+            {
+                files = apiCaller.listFiles_in_AppTempFiles();
+            }
+            catch (Exception e)
+            {
+                ViewBag.Message = e.Message;
+
+            }
+            return View(files);
+        }
+
         public ActionResult ShowTables()
         {
             List<string> files = apiCaller.listTables();
