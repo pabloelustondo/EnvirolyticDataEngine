@@ -15,6 +15,7 @@ namespace JassWeather.Models
         public double Lon { get; set; }
         public int narrY { get; set; }
         public int narrX { get; set; }
+        public int hrDifference { get; set; }
 
         public int? JassLatLonGroupID { get; set; }
         public JassLatLonGroup JassLatLonGroup { get; set; }

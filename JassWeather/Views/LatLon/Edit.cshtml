@@ -55,6 +55,13 @@ google.maps.event.addDomListener(window, 'load', initialize);
             @Html.TextAreaFor(model => model.Info)
             @Html.ValidationMessageFor(model => model.Info)
         </div>
+        <div class="editor-label">
+            @Html.LabelFor(model => model.hrDifference)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.hrDifference)
+            @Html.ValidationMessageFor(model => model.hrDifference)
+        </div>
                 <div class="editor-label">
             @Html.LabelFor(model => model.Lat)
         </div>

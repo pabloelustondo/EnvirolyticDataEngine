@@ -30,6 +30,15 @@
         </div>
 
         <div class="editor-label">
+            @Html.LabelFor(model => model.hrDifference)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.hrDifference)
+            @Html.ValidationMessageFor(model => model.hrDifference)
+        </div>
+
+
+        <div class="editor-label">
             @Html.LabelFor(model => model.Lat)
         </div>
         <div class="editor-field">

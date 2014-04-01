@@ -14,10 +14,10 @@
 
 
             @for (int l = 0; l < locations.Count; l++)
-        {
+        { <H1>@locations[l].Name</H1><p>y:@locations[l].narrY, x:@locations[l].narrX, hrDifference: @locations[l].hrDifference</p>
     <table>
     <tr>
-        <td>@locations[l].Name</td><td>y:@locations[l].narrY, x:@locations[l].narrX</td>
+        <td>UTC hr</td><td>Loc hr</td>
               @for (int v = 0; v < variables.Count; v++)
                     {
                         <td>@variables[v].VariableName</td>  
@@ -29,8 +29,8 @@
         {
             DateTime day = new DateTime();          
     <tr>
-        <td>UTC hr: @(day.Hour+s*3)</td>
-        <td>Loc hr: @(day.Hour+s*3)</td>
+        <td>@(day.Hour+s*3)</td>@{int d = day.Hour + s * 3 + locations[l].hrDifference;}
+        <td>@((d>0)?d:24-d)</td>
                     @for (int v = 0; v < variables.Count; v++)
                     {
                         <td>@Math.Round((decimal)variables[v].measure[s, 0, locations[l].narrY, locations[l].narrX],7)</td>                     
