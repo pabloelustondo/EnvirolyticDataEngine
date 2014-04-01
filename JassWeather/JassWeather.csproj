@@ -859,6 +859,8 @@
     <Content Include="Views\LatLon\Delete.cshtml" />
     <Content Include="Views\LatLonGroup\ShowLocationBasedDashboard.cshtml" />
     <Content Include="Views\LatLonGroup\ShowLocationBasedDashboardFirst.cshtml" />
+    <Content Include="Views\Blob\DeleteBlobRange.cshtml" />
+    <Content Include="Views\Blob\DeleteBlobRangeFirst.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

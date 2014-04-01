@@ -12,27 +12,34 @@
     var variables = Model.gridValues;
     }
 
-<table>
+
+            @for (int l = 0; l < locations.Count; l++)
+        {
+    <table>
     <tr>
-        <td></td><td></td>
+        <td>@locations[l].Name</td><td>y:@locations[l].narrY, x:@locations[l].narrX</td>
               @for (int v = 0; v < variables.Count; v++)
                     {
                         <td>@variables[v].VariableName</td>  
                     }
 
     </tr>
-            @for (int l = 0; l < locations.Count; l++)
+     
+        @for (int s = 0; s < 8; s++)
         {
+            DateTime day = new DateTime();          
     <tr>
-        <td>@locations[l].Name</td>
-        <td>y:@locations[l].narrY, x:@locations[l].narrX</td>
+        <td>UTC hr: @(day.Hour+s*3)</td>
+        <td>Loc hr: @(day.Hour+s*3)</td>
                     @for (int v = 0; v < variables.Count; v++)
                     {
-                        <td>@variables[v].measure[0,0,locations[l].narrY, locations[l].narrX]</td>                     
+                        <td>@Math.Round((decimal)variables[v].measure[s, 0, locations[l].narrY, locations[l].narrX],7)</td>                     
                     }
     </tr>
         }
-</table>
+        </table>
+        }
+
 
 <br />
 <br />

@@ -1,0 +1,39 @@
+﻿@model JassWeather.Controllers.BlobController.DeleteBlobRangeModel
+@{
+    ViewBag.Title = "DeleteBlobRange";
+}
+
+<h2>DeleteBlobRange</h2>
+
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>JassBuilder</legend>
+        <div class="editor-label">
+            Variable
+        </div>
+        <div class="editor-field">
+            @Html.TextAreaFor(model => model.VariableName)
+            @Html.ValidationMessageFor(model => model.VariableName)
+        </div>
+                <div class="editor-label">
+            Start Date
+        </div>
+        <div class="editor-field">
+            @Html.TextAreaFor(model => model.startDate)
+            @Html.ValidationMessageFor(model => model.startDate)
+        </div>
+                <div class="editor-label">
+            End Date
+        </div>
+        <div class="editor-field">
+            @Html.TextAreaFor(model => model.endDate)
+            @Html.ValidationMessageFor(model => model.endDate)
+        </div>
+         <p>
+            <input type="submit" value="Submit" />
+        </p>
+     </fieldset>
+}

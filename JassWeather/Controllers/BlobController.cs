@@ -190,6 +190,40 @@ namespace JassWeather.Controllers
             return View();
         }
 
+        public class DeleteBlobRangeModel
+        {
+            public string VariableName { get; set; }
+            public DateTime startDate { get; set; }
+            public DateTime endDate { get; set; }
+        }
+        public ActionResult DeleteBlobRange()
+        {
+
+            //string result = apiCaller.deleteBlob(name, containerName);
+            ViewBag.Message = "Hi";
+
+            var Model = new DeleteBlobRangeModel();
+            return View("DeleteBlobRangeFirst", Model);
+        }
+        [HttpPost]
+        public ActionResult DeleteBlobRange(DeleteBlobRangeModel Model)
+        {
+
+            DateTime day = Model.startDate;
+            int totalDays = (int)(Model.endDate - Model.startDate).TotalDays;
+            string name;
+            string containerName = Model.VariableName.ToLower();
+            string allNames = "";
+            for (int d = 0; d < totalDays; d++)
+            {
+                name = apiCaller.fileNameBuilderByDay(containerName, day.Year, day.Month, day.Day) + ".nc";
+                allNames = allNames + name;
+            }
+            //string result = apiCaller.deleteBlob(name, containerName);
+            ViewBag.Message = allNames;
+            return View(Model);
+        }
+
         public ActionResult DeleteFromAppData(string fileName)
         {
             bool result = apiCaller.deleteFile_in_AppData(fileName);
