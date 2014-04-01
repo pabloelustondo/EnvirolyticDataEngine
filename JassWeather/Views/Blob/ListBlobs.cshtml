@@ -35,6 +35,7 @@
 
          <td>
             @Html.ActionLink("Inspect", "ShowDashBoard4DayFromFile", "Blob", new { fileName=item.Name },null)
+            @Html.ActionLink("Download2Disk", "Download2Disk", "Blob", new { fileName=item.Name },null)
         </td>
     </tr>
 }

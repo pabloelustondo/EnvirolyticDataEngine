@@ -64,6 +64,7 @@ namespace JassWeather.Controllers
         {
             if (ModelState.IsValid)
             {
+                jasslatlon = apiCaller.MapLatLonToNarr(jasslatlon);
                 db.JassLatLons.Add(jasslatlon);
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -96,6 +97,7 @@ namespace JassWeather.Controllers
         {
             if (ModelState.IsValid)
             {
+                jasslatlon = apiCaller.MapLatLonToNarr(jasslatlon);
                 db.Entry(jasslatlon).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");

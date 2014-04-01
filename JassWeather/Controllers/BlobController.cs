@@ -45,8 +45,21 @@ namespace JassWeather.Controllers
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
             return View(variableStatusModel);
         }
+        //Download2Disk
 
-
+        public ActionResult Download2Disk(string fileName)  //list container
+        {
+            try
+            {
+                apiCaller.DownloadFile2DiskIfNotThere(fileName, apiCaller.AppDataFolder + "\\" + fileName);
+                ViewBag.message = "ok";
+                return View();
+            }
+            catch (Exception e) {
+                ViewBag.message = e.Message;
+                return View();
+            }
+        }
         public ActionResult ShowDashBoard4Year(int yearIndex)  //list container
         {
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();

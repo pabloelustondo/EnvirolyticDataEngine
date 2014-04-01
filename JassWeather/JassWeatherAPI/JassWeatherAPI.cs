@@ -4495,7 +4495,15 @@ v(np)  =   ---------------------------------------------------------------------
             {
                 int index = fileName.IndexOf("_");
 
-                string ContainerName = fileName.Substring(0,index).ToLower();
+                string ContainerName;
+
+                if (index > 0)
+                {
+                    ContainerName = fileName.Substring(0, index).ToLower();
+                }
+                else {
+                    ContainerName = "ftp";
+                }
                 string BlobName = fileName;
                 downloadBlob(ContainerName,BlobName,filePath);
             }
