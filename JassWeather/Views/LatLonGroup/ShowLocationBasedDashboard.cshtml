@@ -30,7 +30,7 @@
             DateTime day = new DateTime();          
     <tr>
         <td>@(day.Hour+s*3)</td>@{int d = day.Hour + s * 3 + locations[l].hrDifference;}
-        <td>@((d>0)?d:24-d)</td>
+        <td>@((d<0)?24+d:d)</td>
                     @for (int v = 0; v < variables.Count; v++)
                     {
                         <td>@Math.Round((decimal)variables[v].measure[s, 0, locations[l].narrY, locations[l].narrX],7)</td>                     
