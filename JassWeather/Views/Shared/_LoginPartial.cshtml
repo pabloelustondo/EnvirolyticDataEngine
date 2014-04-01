@@ -2,7 +2,7 @@
     int? CurrentRequestSetId = (int?)Session["CurrentRequestSetId"];
     string CurrentRequestSetName = (string)Session["CurrentRequestSetName"];
 }
-
+<a href="/elmah.axd">logs</a>
 @if (Request.IsAuthenticated) {
     
         <text>User: </text>@Html.ActionLink(User.Identity.Name, "Manage", "Account", routeValues: null, htmlAttributes: new { @class = "username", title = "Manage" })                                                                                                                                                                          

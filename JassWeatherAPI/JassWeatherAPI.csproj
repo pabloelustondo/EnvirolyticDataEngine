@@ -37,6 +37,9 @@
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Research\Scientific DataSet 1.3\ChunkedStorageCore.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Elmah">
+      <HintPath>..\packages\elmah.corelibrary.1.2.2\lib\Elmah.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Ccr.Core, Version=2.2.76.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Research\Scientific DataSet 1.3\Microsoft.Ccr.Core.dll</HintPath>
@@ -88,6 +91,9 @@
     <None Include="App.config" />
     <None Include="Data\Tutorial.csv" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_Readme\Elmah.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

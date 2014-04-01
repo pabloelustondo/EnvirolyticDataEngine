@@ -33,7 +33,7 @@ namespace JassWeather.Controllers
 
         public ActionResult ErrorPage(JassErrorPageModel model)
         {
-            return View(model);
+            throw new Exception("this is a test exception");
         }
 
         public ActionResult Index()

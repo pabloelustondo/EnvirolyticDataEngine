@@ -48,6 +48,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Windows\Microsoft.NET\assembly\GAC_32\DirectXWrapper\v4.0_1.3.14517.0__31bf3856ad364e35\DirectXWrapper.dll</HintPath>
     </Reference>
+    <Reference Include="Elmah">
+      <HintPath>..\packages\elmah.corelibrary.1.2.2\lib\Elmah.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Ccr.Core, Version=2.2.76.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Research\Scientific DataSet 1.3\Microsoft.Ccr.Core.dll</HintPath>
@@ -253,6 +256,7 @@
     <Compile Include="Controllers\PartitionController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\VariableController.cs" />
+    <Compile Include="Filters\Class1.cs" />
     <Compile Include="JassWeatherAPI\JassWeatherAPI.cs" />
     <Compile Include="App_Start\AuthConfig.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -614,6 +618,7 @@
     <Compile Include="ViewModels\JassErrorPageModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Readme\Elmah.txt" />
     <Content Include="bin\Microsoft.Research.Science.Data.EsriGrid.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
