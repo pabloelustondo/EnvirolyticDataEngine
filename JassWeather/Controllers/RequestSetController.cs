@@ -10,7 +10,7 @@ using JassWeather.Models;
 namespace JassWeather.Controllers
 {
     [Authorize]
-    public class RequestSetController : Controller
+    public class RequestSetController : JassController
     {
         private JassWeatherContext db = new JassWeatherContext();
 

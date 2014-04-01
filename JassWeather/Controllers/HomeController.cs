@@ -12,6 +12,7 @@ using Microsoft.Research.Science.Data;
 using Microsoft.Research.Science.Data.Imperative;
 using Microsoft.Research.Science.Data.Azure;
 using System.Reflection;
+using JassWeather.ViewModels;
 
 namespace JassWeather.Controllers
 {
@@ -26,6 +27,13 @@ namespace JassWeather.Controllers
 
             //Response.Redirect("ControllerName/ActionName");
             return RedirectToAction("ShowDashBoard", "Blob");
+        }
+
+        
+
+        public ActionResult ErrorPage(JassErrorPageModel model)
+        {
+            return View(model);
         }
 
         public ActionResult Index()

@@ -9,7 +9,7 @@ using JassWeather.Models;
 
 namespace JassWeather.Controllers
 {
-    public class FormulaController : Controller
+    public class FormulaController : JassController
     {
         private JassWeatherContext db = new JassWeatherContext();
 

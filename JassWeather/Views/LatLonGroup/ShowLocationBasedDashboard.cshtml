@@ -33,7 +33,7 @@
         <td>@((d<0)?24+d:d)</td>
                     @for (int v = 0; v < variables.Count; v++)
                     {
-                        <td>@Math.Round((decimal)variables[v].measure[s, 0, locations[l].narrY, locations[l].narrX],7)</td>                     
+                        <td>@Math.Round((decimal)variables[v].measure[s, 0, (int)locations[l].narrY, (int)locations[l].narrX],7)</td>                     
                     }
     </tr>
         }

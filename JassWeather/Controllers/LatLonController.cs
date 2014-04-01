@@ -18,12 +18,19 @@ namespace JassWeather.Controllers
 
         public ActionResult Index()
         {
+            try{
             int latLonGroupID = (int)Session["LatLonGroupID"];
             ViewBag.LatLonGroup = Session["LatLonGroupName"];
             JassLatLonGroup jasslatlongroup = db.JassLatLonGroups.Find(latLonGroupID);
 
-            var jasslatlons = db.JassLatLons.Include(j => j.JassLatLonGroup).Where(j => j.JassLatLonGroupID==latLonGroupID);
+            var jasslatlons = db.JassLatLons.Include(j => j.JassLatLonGroup).Where(j => j.JassLatLonGroupID == latLonGroupID);
             return View(jasslatlons.ToList());
+            }
+            catch(Exception e){               
+                 List<JassLatLon> fakelist = new List<JassLatLon>();
+                 ViewBag.Message = e.Message;
+                 return View();                
+                }
         }
 
         //
@@ -44,7 +51,7 @@ namespace JassWeather.Controllers
 
         public ActionResult Create()
         {
-            ViewBag.JassLatLonGroupID = new SelectList(db.JassLatLonGroups, "JassLatLonGroupID", "Name");
+            ViewBag.JassLatLonGroupID = new SelectList(db.JassLatLonGroups, "JassLatLonGroupID", "Name", (int)Session["LatLonGroupID"]);
             return View();
         }
 
@@ -57,10 +64,8 @@ namespace JassWeather.Controllers
         {
             if (ModelState.IsValid)
             {
-                jasslatlon = apiCaller.MapLatLonToNarr(jasslatlon);
-                db.JassLatLons.Add(jasslatlon);                
+                db.JassLatLons.Add(jasslatlon);
                 db.SaveChanges();
-
                 return RedirectToAction("Index");
             }
 
@@ -91,7 +96,6 @@ namespace JassWeather.Controllers
         {
             if (ModelState.IsValid)
             {
-                jasslatlon = apiCaller.MapLatLonToNarr(jasslatlon);
                 db.Entry(jasslatlon).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");

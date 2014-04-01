@@ -583,6 +583,10 @@
     <Compile Include="Migrations\201404010129412_hr-difference.Designer.cs">
       <DependentUpon>201404010129412_hr-difference.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201404011802310_something1.cs" />
+    <Compile Include="Migrations\201404011802310_something1.Designer.cs">
+      <DependentUpon>201404011802310_something1.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -607,6 +611,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\JassErrorPageModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="bin\Microsoft.Research.Science.Data.EsriGrid.xml">
@@ -694,6 +699,8 @@
     <None Include="Properties\PublishProfiles\envirolytic3 - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic4 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic4 - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolyticmark - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolyticmark - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
     <Content Include="Images\POC Explanation.png" />
     <Content Include="Scripts\jquery-1.8.2.js" />
@@ -860,15 +867,16 @@
     <Content Include="Views\LatLonGroup\Create.cshtml" />
     <Content Include="Views\LatLonGroup\Edit.cshtml" />
     <Content Include="Views\LatLonGroup\Delete.cshtml" />
+    <Content Include="Views\LatLonGroup\ShowLocationBasedDashboard.cshtml" />
+    <Content Include="Views\LatLonGroup\ShowLocationBasedDashboardFirst.cshtml" />
+    <Content Include="Views\Blob\DeleteBlobRange.cshtml" />
+    <Content Include="Views\Blob\DeleteBlobRangeFirst.cshtml" />
+    <Content Include="Views\Home\ErrorPage.cshtml" />
     <Content Include="Views\LatLon\Index.cshtml" />
     <Content Include="Views\LatLon\Details.cshtml" />
     <Content Include="Views\LatLon\Create.cshtml" />
     <Content Include="Views\LatLon\Edit.cshtml" />
     <Content Include="Views\LatLon\Delete.cshtml" />
-    <Content Include="Views\LatLonGroup\ShowLocationBasedDashboard.cshtml" />
-    <Content Include="Views\LatLonGroup\ShowLocationBasedDashboardFirst.cshtml" />
-    <Content Include="Views\Blob\DeleteBlobRange.cshtml" />
-    <Content Include="Views\Blob\DeleteBlobRangeFirst.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1113,6 +1121,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201404010129412_hr-difference.resx">
       <DependentUpon>201404010129412_hr-difference.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201404011802310_something1.resx">
+      <DependentUpon>201404011802310_something1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

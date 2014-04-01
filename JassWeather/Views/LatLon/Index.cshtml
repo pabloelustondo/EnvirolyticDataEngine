@@ -3,8 +3,9 @@
 @{
     ViewBag.Title = "Index";
 }
+@ViewBag.Message
 
-<h2>Index (@ViewBag.LatLonGroup) </h2>
+<h2>Index</h2>
 
 <p>
     @Html.ActionLink("Create New", "Create")
@@ -18,19 +19,19 @@
             @Html.DisplayNameFor(model => model.Info)
         </th>
         <th>
-            hrDiff
-        </th>
-        <th>
             @Html.DisplayNameFor(model => model.Lat)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Lon)
         </th>
-                <th>
+        <th>
             @Html.DisplayNameFor(model => model.narrY)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.narrX)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.hrDifference)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.JassLatLonGroup.Name)
@@ -47,9 +48,6 @@
             @Html.DisplayFor(modelItem => item.Info)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.hrDifference)
-        </td>
-        <td>
             @Html.DisplayFor(modelItem => item.Lat)
         </td>
         <td>
@@ -59,14 +57,17 @@
             @Html.DisplayFor(modelItem => item.narrY)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.narrX
-            )
+            @Html.DisplayFor(modelItem => item.narrX)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.hrDifference)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.JassLatLonGroup.Name)
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.JassLatLonID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.JassLatLonID }) |
             @Html.ActionLink("Delete", "Delete", new { id=item.JassLatLonID })
         </td>
     </tr>
