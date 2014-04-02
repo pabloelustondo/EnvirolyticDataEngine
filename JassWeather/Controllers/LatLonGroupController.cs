@@ -102,8 +102,14 @@ namespace JassWeather.Controllers
                     {
                         if (model.variableChoices[v])
                         {
-                            string dayString = apiCaller.fileNameBuilderByDay(model.variables[v].Name, model.year, model.month, model.day) + ".nc";
-                            model.gridValues.Add(apiCaller.GetDayValues(dayString));
+                            try
+                            {
+                                string dayString = apiCaller.fileNameBuilderByDay(model.variables[v].Name, model.year, model.month, model.day) + ".nc";
+                                model.gridValues.Add(apiCaller.GetDayValues(dayString));
+                            }                        catch (Exception e)
+                        {
+                            model.Message += model.variables[v].Name + " could not be retrieved";
+                        
                         }
                     }
                 }
