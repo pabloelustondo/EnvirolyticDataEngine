@@ -60,6 +60,20 @@ namespace JassWeather.Controllers
                 return View();
             }
         }
+        public ActionResult Download2TempDisk(string fileName)  //list container
+        {
+            try
+            {
+                apiCaller.DownloadFile2DiskIfNotThere(fileName, apiCaller.AppTempFilesFolder + "\\" + fileName);
+                ViewBag.message = "ok";
+                return View();
+            }
+            catch (Exception e)
+            {
+                ViewBag.message = e.Message;
+                return View();
+            }
+        }
         public ActionResult ShowDashBoard4Year(int yearIndex)  //list container
         {
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();

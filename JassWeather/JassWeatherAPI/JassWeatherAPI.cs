@@ -20,7 +20,7 @@ using Microsoft.WindowsAzure;
 using System.Web.Helpers;
 
 namespace JassWeather.Models
-{
+{    
     public class JassBlob {
         public string url { get; set; }
         public int length { get; set; }   
@@ -123,6 +123,67 @@ namespace JassWeather.Models
         DateTime startTotalTime = DateTime.UtcNow;
         DateTime endTotalTime = DateTime.UtcNow;
         public static JassRGB[] colors = getColors();
+
+        #region Generate Testing File
+
+        public string generateOutputTestFile(List<JassGridValues> gridValues, List<JassLatLon> locations, DateTime startDate, DateTime endDate ){
+
+            //this function will create a file with the specified data using a file format
+
+        TimeSpan timeSpan = endDate.AddDays(1) - startDate;
+        int totalDays = (int)timeSpan.TotalDays;
+
+        for (int l = 0; l < locations.Count; l++)
+        {
+            JassLatLon location = locations[l];
+            string header = "locationName, lat, lon, startDate, endDate";
+            string headerContent = location.Name + "," + location.Lat + "," + location.Lon + "," + startDate + "," + endDate;
+
+            string outputFilePath = AppTempFilesFolder + "/report_"+ location.Name +".csv";
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(outputFilePath))
+            {
+                file.WriteLine(header);
+                file.WriteLine(headerContent);
+                file.WriteLine("");
+
+                string tableHeader = "Date/Time,	Year,	Month,	Day,	Time";
+                for (int v = 0; v < gridValues.Count; v++)
+                {
+                    tableHeader = tableHeader + "," + gridValues[v].VariableName;
+                }
+                string tableLine;
+                file.WriteLine(tableHeader);
+
+
+                DateTime day = startDate; int step=0;
+                for( int d=0; d< totalDays; d++){
+                    for (int t = 0; t < 24; t++)
+                    {
+                        step = (int)t / 3;
+                        string dayString = day.Month + "/" + day.Day + "/" + day.Year + " " + t + ":00";
+                        tableLine = dayString + "," + day.Year + "," + day.Month + "," + day.Day + "," + t+"("+step+")";
+
+                        for (int v = 0; v < gridValues.Count; v++)
+                        {
+                            tableLine = tableLine + "," + gridValues[v].measure[d*8+step,0,(int)location.narrY,(int)location.narrX];
+                        }
+
+                        file.WriteLine(tableLine);
+                    }
+                    day = day.AddHours(1);
+                }
+            }
+
+        }
+
+        return "report for " + locations.Count + "locations where successfully generated";
+        }
+
+#endregion
+
+
+
+
 
         public JassWeatherAPI(string ServerNameIn, string appDataFolder, string storageConnectionStringIn){
             this.storageConnectionString = storageConnectionStringIn;

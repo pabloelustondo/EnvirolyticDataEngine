@@ -7,6 +7,16 @@
 
     <fieldset>
         <legend>JassBuilder</legend>
+
+        <div class="editor-field">
+            Generate File?
+            @Html.EditorFor(model => model.generateFiles)
+            @Html.ValidationMessageFor(model => model.generateFiles)
+            Use Fixed Columns?
+            @Html.EditorFor(model => model.generateFilesWithFixedColumns)
+            @Html.ValidationMessageFor(model => model.generateFilesWithFixedColumns)
+        </div>
+
         <div class="editor-label">
             Year
         </div>
@@ -21,12 +31,34 @@
             @Html.EditorFor(model => model.month)
             @Html.ValidationMessageFor(model => model.month)
         </div>
-                <div class="editor-label">
-            @Html.LabelFor(model => model.day)
+        <div class="editor-label">
+            Day
         </div>
         <div class="editor-field">
             @Html.EditorFor(model => model.day)
-            @Html.ValidationMessageFor(model => model)
+            @Html.ValidationMessageFor(model => model.year)
+        </div>
+        If only interested in one day, leave the next one as 0
+        <div class="editor-label">
+            Year
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.yearEnd)
+            @Html.ValidationMessageFor(model => model.yearEnd)
+        </div>
+        <div class="editor-label">
+            Month
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.monthEnd)
+            @Html.ValidationMessageFor(model => model.monthEnd)
+        </div>
+        <div class="editor-label">
+            Day
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.dayEnd)
+            @Html.ValidationMessageFor(model => model.dayEnd)
         </div>
 
         @for (int v = 0; v < Model.variableChoices.Length; v++)

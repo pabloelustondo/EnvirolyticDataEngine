@@ -28,6 +28,13 @@ namespace JassWeather.Controllers
             public int month { get; set; }
             public int day { get; set; }
 
+            public int yearEnd { get; set; }
+            public int monthEnd { get; set; }
+            public int dayEnd { get; set; }
+
+            public Boolean generateFiles { get; set; }
+            public Boolean generateFilesWithFixedColumns { get; set; }
+
             public Boolean[] variableChoices { get; set; }
             public List<JassVariable> variables { get; set; }
 
@@ -60,21 +67,66 @@ namespace JassWeather.Controllers
                 model.latlonGroup = db.JassLatLonGroups.Find(ViewBag.LatLonGroupID);
                 //will hardcode a few variables.. and then generalize
 
-                for (int v = 0; v < model.variables.Count; v++)
-                {
-                    if (model.variableChoices[v])
+                if (model.generateFilesWithFixedColumns) {
+
+                    string[] variables = new string[5];
+                    variables[0] = "Temperature2m";
+                    variables[1] = "DewPointTemperature";
+                    variables[2] = "HumidityRelative";
+                    variables[3] = "WindUSpeed10m";
+                    variables[4] = "WindVSpeed10m";
+
+                      
+
+
+
+
+                    for (int v = 0; v < variables.Length; v++)
                     {
-                        string dayString = apiCaller.fileNameBuilderByDay(model.variables[v].Name, model.year, model.month, model.day) + ".nc";
-                        model.gridValues.Add(apiCaller.GetDayValues(dayString));
+                        try
+                        {
+                            string dayString = apiCaller.fileNameBuilderByDay(variables[v], model.year, model.month, model.day) + ".nc";
+                            model.gridValues.Add(apiCaller.GetDayValues(dayString));
+                        }
+                        catch (Exception e)
+                        {
+                            model.Message += variables[v] + " could not be retrieved";
+                        }
+                    }
+                
+                
+                }
+                else
+                {
+                    for (int v = 0; v < model.variables.Count; v++)
+                    {
+                        if (model.variableChoices[v])
+                        {
+                            string dayString = apiCaller.fileNameBuilderByDay(model.variables[v].Name, model.year, model.month, model.day) + ".nc";
+                            model.gridValues.Add(apiCaller.GetDayValues(dayString));
+                        }
                     }
                 }
 
+                DateTime startDate = new DateTime(model.year,model.month,model.day);
+                if (model.yearEnd == 0) model.yearEnd = model.year;
+                if (model.monthEnd == 0) model.monthEnd = model.month;
+                if (model.dayEnd == 0) model.dayEnd = model.day;
+
+                DateTime endDate = new DateTime(model.yearEnd,model.monthEnd,model.dayEnd);
+                if (endDate < startDate) { endDate = startDate; }
+
+                if (model.generateFiles)
+                {
+                    string resultFromFileGeneration = apiCaller.generateOutputTestFile(model.gridValues, model.latlonGroup.JassLatLons, startDate, endDate);
+                    model.Message += resultFromFileGeneration;
+                }
 
                 return View(model);
             }
             catch (Exception e)
             {
-                model.Message = "An error has occured, make sure that you ask for an available day" + e.Message;
+                model.Message += "An error has occured, make sure that you ask for an available day" + e.Message;
                 return View(model);
             }
             finally
