@@ -23,7 +23,7 @@ namespace JassWeather.Controllers
             return View(jassgrids.ToList());
         }
 
-        [AllowAnonymous]
+       
         public ActionResult MapMacc2NarrTest()
         {
             JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2MaccFromFile(
@@ -31,19 +31,22 @@ namespace JassWeather.Controllers
                 "ftp___ftp.cdc.noaa.gov_Datasets_NARR_pressure_air.201201.nc");
             return View("MapGrid2NarrTest",result);
         }
-        [AllowAnonymous]
+   
         public ActionResult MapCFSR2NarrTest()
         {
+            DateTime startTime = DateTime.Now;
             JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
                 "pgbhnl.gdas.20101201-20101205.grb2.nc",
                 "lat",
                 "lon",
                 "Narr_Grid.nc",
                 "Narr_2_CFSR_Grid_Mapper.nc", true, false);
+            DateTime endTime = DateTime.Now;
+            ViewBag.elapsedTime = (endTime - startTime);
             return View("MapGrid2NarrTest",result);
         }
 
-        [AllowAnonymous]
+      
         public ActionResult MapCFSR2NarrReal()
         {
             JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
@@ -55,7 +58,6 @@ namespace JassWeather.Controllers
             return View("MapGrid2NarrTest", result);
         }
 
-        [AllowAnonymous]
         public ActionResult MapSher2NarrTest()
         {
             JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
@@ -67,7 +69,7 @@ namespace JassWeather.Controllers
             return View("MapSher2NarrTest", result);
         }
 
-        [AllowAnonymous]
+     
         public ActionResult MapSher2NarrReal()
         {
             JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
@@ -78,11 +80,18 @@ namespace JassWeather.Controllers
                 "Narr_2_SHER_Grid_Mapper.nc", false, true);
             return View("MapSher2NarrTest", result);
         }
-        [AllowAnonymous]
+
         public ActionResult ShowGridMap()
         {
             JassWeather.Models.JassWeatherAPI.SmartGridMap result = apiCaller.getMapComboFromMapFile("Narr_2_CFSR_Grid_Mapper.nc");
             return View(result);
+        }
+
+
+        public ActionResult CreateEnvirolyticNarrGrid()
+        {
+            apiCaller.CreateEnvirolyticNarrGrid();
+            return View();
         }
 
         //

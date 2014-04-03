@@ -1,0 +1,32 @@
+﻿@model List<string>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Files on Website App_TempFiles </h2>
+
+       @Html.ActionLink("DeleteAll", "CleanAppData")
+
+<table>
+    <tr>
+        <th>
+            File Name
+        </th>
+        <th>
+            Action
+        </th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+         <td>
+            @item
+        </td>
+        <td>
+            @Html.ActionLink("Del", "DeleteFromAppData", new { fileName=item })
+        </td>
+    </tr>
+}
+
+</table>

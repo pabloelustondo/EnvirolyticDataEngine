@@ -280,6 +280,13 @@ namespace JassWeather.Controllers
             return View(files);
         }
 
+        public ActionResult CleanAppTempFiles()
+        {
+            bool result = apiCaller.cleanAppTempFiles();
+            List<string> files = apiCaller.listFiles_in_AppTempFiles();
+            return View(files);
+        }
+
         public ActionResult DeleteTable(string fileName)
         {
             bool result = apiCaller.deleteTable(fileName);

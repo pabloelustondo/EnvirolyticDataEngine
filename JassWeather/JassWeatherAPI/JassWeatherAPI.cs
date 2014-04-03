@@ -126,7 +126,7 @@ namespace JassWeather.Models
 
         #region Generate Testing File
 
-        public string generateOutputTestFile(List<JassGridValues> gridValues, List<JassLatLon> locations, DateTime startDate, DateTime endDate ){
+        public string generateOutputTestFile(List<List<List<JassGridValues>>> gridValues, List<JassLatLon> locations, DateTime startDate, DateTime endDate ){
 
             //this function will create a file with the specified data using a file format
 
@@ -146,10 +146,10 @@ namespace JassWeather.Models
                 file.WriteLine(headerContent);
                 file.WriteLine("");
 
-                string tableHeader = "Date/Time,	Year,	Month,	Day,	Time";
-                for (int v = 0; v < gridValues.Count; v++)
+                string tableHeader = "Year,	Month,	Day, Date Time Index, UTC Time, LocalTime";
+                for (int v = 0; v < gridValues[0][0].Count; v++)
                 {
-                    tableHeader = tableHeader + "," + gridValues[v].VariableName;
+                    tableHeader = tableHeader + "," + gridValues[0][l][v].VariableName;
                 }
                 string tableLine;
                 file.WriteLine(tableHeader);
@@ -160,23 +160,25 @@ namespace JassWeather.Models
                     for (int t = 0; t < 24; t++)
                     {
                         step = (int)t / 3;
+                        int lt = t + locations[l].hrDifference;
+                        if( lt<0 ) lt=24+lt;
                         string dayString = day.Month + "/" + day.Day + "/" + day.Year + " " + t + ":00";
-                        tableLine = dayString + "," + day.Year + "," + day.Month + "," + day.Day + "," + t+"("+step+")";
+                        tableLine = day.Year + "," + day.Month + "," + day.Day + "," + step + "," + t + "," + lt;
 
-                        for (int v = 0; v < gridValues.Count; v++)
+                        for (int v = 0; v < gridValues[d][l].Count; v++)
                         {
-                            tableLine = tableLine + "," + gridValues[v].measure[d*8+step,0,(int)location.narrY,(int)location.narrX];
+                            tableLine = tableLine + "," + gridValues[d][l][v].measure[step,0,0,0];
                         }
 
                         file.WriteLine(tableLine);
                     }
-                    day = day.AddHours(1);
+                    day = day.AddDays(1);
                 }
             }
 
         }
 
-        return "report for " + locations.Count + "locations where successfully generated";
+        return "report for " + locations.Count + " locations where successfully generated";
         }
 
 #endregion
@@ -355,75 +357,91 @@ namespace JassWeather.Models
             public double distance { get; set; }
         }
 
-        public static JassMaccNarrGridsCombo MapGridNarr2Macc(JassMaccNarrGridsCombo gc)
+        public JassMaccNarrGridsCombo MapGridNarr2Macc(JassMaccNarrGridsCombo gc)
         {
+            int maxDistance = 200;
             JassBuilder builder = new JassBuilder();
             DateTime start = DateTime.Now;
-            JassWeatherAPI apiCaller2 = new JassWeatherAPI("","","");
-            JassBuilderLog builderLog = apiCaller2.createBuilderLog(builder, "mapGridStart", "", "", new TimeSpan(), true);
+            JassBuilderLog builderLog = this.createBuilderLog(builder, "mapGridStart", "", "", new TimeSpan(), true);
 
+            TimeSpan timeCalculatingDistance = start-start;
+ 
             double minDistance, minDistance2, minDistance3, minDistance4;
             for (int y = gc.narrYMin; y < gc.narrYMax; y++)
             {
-                JassBuilderLog builderLog2 = apiCaller2.createBuilderLog(builder, "mapGridY:" + y, "", "", DateTime.Now - start , true);
+ 
                 start = DateTime.Now;
                 for (int x = gc.narrXMin; x < gc.narrXMax; x++)
                 {
-                    minDistance = 2000; minDistance2 = 2000; minDistance3 = 2000; minDistance4 = 2000;
+                    minDistance = maxDistance; minDistance2 = maxDistance; minDistance3 = maxDistance; minDistance4 = maxDistance;
+                    
                     for (int lat = gc.maccLatMin; lat < gc.maccLatMax; lat++)   //161
                     {
-                         for (int lon = gc.maccLonMin; lon < gc.maccLonMax; lon++)  //320
+                         float bestCase = Math.Abs((gc.narrLat[y, x] - gc.maccLat[lat]))*100; //this is aproximatelly in KM                         if (bestCase < maxDistance || true)
                          {
-                               double distance = HaversineDistance(gc.maccLat[lat], gc.maccLon[lon], gc.narrLat[y, x], gc.narrLon[y, x]);
-                               if (distance < minDistance) { 
-                                   minDistance = distance;
-                                   gc.map4[y, x] = gc.map3[y, x];
-                                   gc.map3[y, x] = gc.map2[y, x];
-                                   gc.map2[y, x] = gc.map[y, x];
-                                   gc.map[y, x] = new JassGridLocation();
-                                   gc.map[y, x].distance = distance;
-                                   gc.map[y, x].lat = lat;
-                                   gc.map[y, x].lon = lon;
-                                   gc.map[y, x].latitud = gc.maccLat[lat];
-                                   gc.map[y, x].longitud = gc.maccLon[lon];
-                               } else
-                                   if (distance < minDistance2)
-                                   {
-                                       minDistance2 = distance;
-                                       gc.map4[y, x] = gc.map3[y, x];
-                                       gc.map3[y, x] = gc.map2[y, x];
-                                       gc.map2[y, x] = new JassGridLocation();
-                                       gc.map2[y, x].distance = distance;
-                                       gc.map2[y, x].lat = lat;
-                                       gc.map2[y, x].lon = lon;
-                                       gc.map2[y, x].latitud = gc.maccLat[lat];
-                                       gc.map2[y, x].longitud = gc.maccLon[lon];
-                                   } else
-                                   if (distance < minDistance3)
-                                   {
-                                       minDistance3 = distance;
-                                       gc.map4[y, x] = gc.map3[y, x];
-                                       gc.map3[y, x] = new JassGridLocation();
-                                       gc.map3[y, x].distance = distance;
-                                       gc.map3[y, x].lat = lat;
-                                       gc.map3[y, x].lon = lon;
-                                       gc.map3[y, x].latitud = gc.maccLat[lat];
-                                       gc.map3[y, x].longitud = gc.maccLon[lon];
-                                   }
-                                   else
-                                       if (distance < minDistance4)
-                                       {
-                                           minDistance4 = distance;
-                                           gc.map4[y, x] = new JassGridLocation();
-                                           gc.map4[y, x].distance = distance;
-                                           gc.map4[y, x].lat = lat;
-                                           gc.map4[y, x].lon = lon;
-                                           gc.map4[y, x].latitud = gc.maccLat[lat];
-                                           gc.map4[y, x].longitud = gc.maccLon[lon];
-                                       }
-                         }
+                             for (int lon = gc.maccLonMin; lon < gc.maccLonMax; lon++)  //320
+                             {
+                                 DateTime beforeDistance = DateTime.Now;
+                                 double distance = HaversineDistance(gc.maccLat[lat], gc.maccLon[lon], gc.narrLat[y, x], gc.narrLon[y, x]);
+                                 timeCalculatingDistance = timeCalculatingDistance + (DateTime.Now - beforeDistance);
+                                 if (Math.Abs(distance) != distance || Math.Abs(distance) < bestCase)
+                                 {
+                                     throw new Exception("what??");
+                                 }
+                                 if (distance < minDistance)
+                                 {
+                                     minDistance = distance;
+                                     gc.map4[y, x] = gc.map3[y, x];
+                                     gc.map3[y, x] = gc.map2[y, x];
+                                     gc.map2[y, x] = gc.map[y, x];
+                                     gc.map[y, x] = new JassGridLocation();
+                                     gc.map[y, x].distance = distance;
+                                     gc.map[y, x].lat = lat;
+                                     gc.map[y, x].lon = lon;
+                                     gc.map[y, x].latitud = gc.maccLat[lat];
+                                     gc.map[y, x].longitud = gc.maccLon[lon];
+                                 }
+                                 else
+                                     if (distance < minDistance2)
+                                     {
+                                         minDistance2 = distance;
+                                         gc.map4[y, x] = gc.map3[y, x];
+                                         gc.map3[y, x] = gc.map2[y, x];
+                                         gc.map2[y, x] = new JassGridLocation();
+                                         gc.map2[y, x].distance = distance;
+                                         gc.map2[y, x].lat = lat;
+                                         gc.map2[y, x].lon = lon;
+                                         gc.map2[y, x].latitud = gc.maccLat[lat];
+                                         gc.map2[y, x].longitud = gc.maccLon[lon];
+                                     }
+                                     else
+                                         if (distance < minDistance3)
+                                         {
+                                             minDistance3 = distance;
+                                             gc.map4[y, x] = gc.map3[y, x];
+                                             gc.map3[y, x] = new JassGridLocation();
+                                             gc.map3[y, x].distance = distance;
+                                             gc.map3[y, x].lat = lat;
+                                             gc.map3[y, x].lon = lon;
+                                             gc.map3[y, x].latitud = gc.maccLat[lat];
+                                             gc.map3[y, x].longitud = gc.maccLon[lon];
+                                         }
+                                         else
+                                             if (distance < minDistance4)
+                                             {
+                                                 minDistance4 = distance;
+                                                 gc.map4[y, x] = new JassGridLocation();
+                                                 gc.map4[y, x].distance = distance;
+                                                 gc.map4[y, x].lat = lat;
+                                                 gc.map4[y, x].lon = lon;
+                                                 gc.map4[y, x].latitud = gc.maccLat[lat];
+                                                 gc.map4[y, x].longitud = gc.maccLon[lon];
+                                             }
+                             }
+                         }//end if best case less then max
                     }
                 }
+                JassBuilderLog builderLog2 = createBuilderLog(builder, "mapGridY: with timeCalcualting distance" + y, "", "", timeCalculatingDistance, true);
             }
 
             return gc;
@@ -1628,17 +1646,19 @@ v(np)  =   ---------------------------------------------------------------------
  
 
                         //mapp the grids
-
+                        DateTime beforeGrid = DateTime.Now;
                         if (sher)
                         {
                             gc = JassWeather.Models.JassWeatherAPI.MapGridNarr2Sher(gc);
                         }
                         else
                         {
-                            gc = JassWeather.Models.JassWeatherAPI.MapGridNarr2Macc(gc);
+                            gc = MapGridNarr2Macc(gc);
                         }
+                        DateTime afterGrid = DateTime.Now;
+                        TimeSpan gridMappingTime = afterGrid - beforeGrid;
 
-                        JassBuilderLog builderLog2 = createBuilderLog(builder, "mapGridAfterGC", "", "", DateTime.Now - start, true);
+                        JassBuilderLog builderLog2 = createBuilderLog(builder, "after mapping grid with time", "", "", gridMappingTime, true);
 
                         gc.narrYMin = 0;
                         gc.narrYMax = narrY.Length;
@@ -1841,7 +1861,7 @@ v(np)  =   ---------------------------------------------------------------------
 
                             //mapp the grids
 
-                            gc = JassWeather.Models.JassWeatherAPI.MapGridNarr2Macc(gc);
+                            gc = MapGridNarr2Macc(gc);
 
                             //build the resulting dataset
                             //dataset3.Add<double[]>("time", timeday, "time");
@@ -2119,6 +2139,55 @@ v(np)  =   ---------------------------------------------------------------------
             JassBuilderLog jassBuilderLog = new JassBuilderLog();
 
             jassBuilderLog.JassBuilderID = (builder.JassBuilderID > 0) ? builder.JassBuilderID : (int?)null;
+            jassBuilderLog.EventType = eventType;
+            jassBuilderLog.ServerName = ServerNameJass;
+            jassBuilderLog.Label = eventType;
+            jassBuilderLog.startTotalTime = DateTime.Now;
+            jassBuilderLog.Message = Message;
+            jassBuilderLog.spanTotalTime = span;
+            jassBuilderLog.Success = success;
+
+            db.JassBuilderLogs.Add(jassBuilderLog);
+            db.SaveChanges();
+
+            return jassBuilderLog;
+        }
+
+        public void CreateEnvirolyticNarrGrid()
+        {
+            string narrFile = AppFilesFolder + "/Narr_Grid.nc";
+            string newNarrFile = AppFilesFolder + "/Narr_Grid_New.nc";
+
+            using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
+            {
+
+                Single[] narrY = narrDataSet.GetData<Single[]>("y");
+                Single[] narrX = narrDataSet.GetData<Single[]>("x");
+
+                Single[,] narrLon = narrDataSet.GetData<Single[,]>("lon");
+                Single[,] narrLat = narrDataSet.GetData<Single[,]>("lat");
+
+                using (var newNarrDataSet = DataSet.Open(newNarrFile + "?openMode=create"))
+                {
+
+
+                    newNarrDataSet.Add<Single[]>("y", narrY, "y");
+                    newNarrDataSet.Add<Single[]>("x", narrX, "x");
+
+                    newNarrDataSet.Add<Single[,]>("lat", narrLat, "y", "x");
+                    newNarrDataSet.Add<Single[,]>("lon", narrLon, "y", "x");
+                }
+
+
+
+            }
+        }
+
+        public JassBuilderLog createBuilderLog(string eventType, string Label, string Message, TimeSpan span, Boolean success)
+        {
+            JassBuilderLog jassBuilderLog = new JassBuilderLog();
+
+            jassBuilderLog.JassBuilderID = null;
             jassBuilderLog.EventType = eventType;
             jassBuilderLog.ServerName = ServerNameJass;
             jassBuilderLog.Label = eventType;
@@ -4874,6 +4943,7 @@ v(np)  =   ---------------------------------------------------------------------
         public JassGridValues GetDayValues(string fileName) 
             //this method is old and may become obsolete. It assumes our data is formated with our own grid.
         {
+           
             //HERE
             JassGridValues dayGridValues;
             string filePath = AppDataFolder + "/" + fileName;
@@ -5004,6 +5074,168 @@ v(np)  =   ---------------------------------------------------------------------
             return dayGridValues;
         }
 
+        public JassGridValues GetDayValues(string fileName, JassLatLon location)
+        //this method is old and may become obsolete. It assumes our data is formated with our own grid.
+        {
+
+            //HERE
+
+            int locX = (int)location.narrX;  //this will throw an exception if not..
+            int locY = (int)location.narrY;
+
+            JassGridValues dayGridValues;
+            string filePath = AppDataFolder + "/" + fileName;
+            DownloadFile2DiskIfNotThere(fileName, filePath);
+            using (var dataset1 = DataSet.Open(filePath + "?openMode=open"))
+            {
+                var schema1 = dataset1.GetSchema();
+
+                //first let's select the key variable by having various dimensions
+                VariableSchema keyVariable = null;
+                Boolean hasLevel = false;
+
+                foreach (var v in schema1.Variables)
+                {
+                    if (v.Dimensions.Count > 2)
+                    {
+                        keyVariable = v;
+                    }
+                    if (v.Name == "level")
+                    {
+                        hasLevel = true;
+                    }
+                }
+
+                double scale_factor = 1;
+                double add_offset = 0;
+                double missing_value = 32766;
+                double FillValue = 32766;
+
+                try { scale_factor = Convert.ToDouble(keyVariable.Metadata["scale_factor"]); }
+                catch (Exception e)
+                {
+                    var n = e;
+                };
+                try { add_offset = Convert.ToDouble(keyVariable.Metadata["add_offset"]); }
+                catch (Exception e)
+                {
+                    var n = e;
+                };
+                try { missing_value = Convert.ToDouble(keyVariable.Metadata["missing_value"]); }
+                catch (Exception e)
+                {
+                    var n = e;
+                };
+
+                try { FillValue = Convert.ToDouble(keyVariable.Metadata["FillValue"]); }
+                catch (Exception e)
+                {
+                    var n = e;
+                };
+                try { FillValue = Convert.ToDouble(keyVariable.Metadata["_FillValue"]); }
+                catch (Exception e)
+                {
+                    var n = e;
+                };
+
+                Single[] y = dataset1.GetData<Single[]>("y");
+                Single[] x = dataset1.GetData<Single[]>("x");
+                double[] time = dataset1.GetData<double[]>("time");
+                Single[] level = new Single[1];
+                if (hasLevel) level = dataset1.GetData<Single[]>("level");
+
+                dayGridValues = new JassGridValues(keyVariable.Metadata, keyVariable.Name, time.Length, level.Length, 1, 1);
+
+                //how to get the scale/factor value.
+
+                string outPutString = schema2string(schema1);
+
+                for (int ll = 0; ll < level.Length; ll++)
+                {
+                    dayGridValues.measureMin[ll] = add_offset + scale_factor * 32768;
+                    dayGridValues.measureMax[ll] = add_offset + scale_factor * (-32768);
+                }
+
+                if (hasLevel)
+                {
+                    Int16[, , ,] values = dataset1.GetData<Int16[, , ,]>(keyVariable.Name,
+     DataSet.FromToEnd(0), /* time*/
+     DataSet.FromToEnd(0), /* level */
+     DataSet.Range(locY, locY + 1),
+     DataSet.Range(locX, locX + 1));
+
+                    for (int tt = 0; tt < time.Length; tt++)
+                    {
+                        for (int ll = 0; ll < level.Length; ll++)
+                        {
+                            for (int yy= 0; yy < 1; yy++)
+                            {
+                                for (int xx = 0; xx < 1; xx++)
+                                {
+                                    if (values[tt, ll, yy, xx] != missing_value &&
+                                        values[tt, ll, yy, xx] != FillValue)
+                                    {
+                                        dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, ll, yy, xx];
+
+                                        if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax[ll])
+                                        {
+                                            dayGridValues.measureMax[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
+                                            dayGridValues.maxX[ll] = xx; dayGridValues.maxY[ll] = yy; dayGridValues.maxT[ll] = tt;
+                                        }
+                                        if (dayGridValues.measure[tt, ll, yy, xx] < dayGridValues.measureMin[ll])
+                                        {
+                                            dayGridValues.measureMin[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
+                                            dayGridValues.minX[ll] = xx; dayGridValues.minY[ll] = yy; dayGridValues.minT[ll] = tt;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Int16[, ,] values = dataset1.GetData<Int16[, ,]>(keyVariable.Name,
+                        DataSet.FromToEnd(0), /* time*/
+                        DataSet.Range(locY, locY + 1),
+                        DataSet.Range(locX, locX + 1));
+                    for (int tt = 0; tt < time.Length; tt++)
+                    {
+                        for (int ll = 0; ll < 1; ll++)
+                        {
+                            for (int yy = 0; yy < 1; yy++)
+                            {
+                                for (int xx = 0; xx < 1; xx++)
+                                {
+                                    if (values[tt, yy, xx] != missing_value &&
+                                        values[tt, yy, xx] != FillValue)
+                                    {
+                                        dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, yy, xx];
+                                        //0.0500015563699208
+
+
+                                        if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax[ll])
+                                        {
+                                            dayGridValues.measureMax[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
+                                            dayGridValues.maxX[ll] = xx; dayGridValues.maxY[ll] = yy; dayGridValues.maxT[ll] = tt;
+                                        }
+                                        if (dayGridValues.measure[tt, ll, yy, xx] < dayGridValues.measureMin[ll])
+                                        {
+                                            dayGridValues.measureMin[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
+                                            dayGridValues.minX[ll] = xx; dayGridValues.minY[ll] = yy; dayGridValues.minT[ll] = tt;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            return dayGridValues;
+        }
+
         public List<string> listTableValues(string tableName)
         {
             List<string> response = new List<string>();
@@ -5052,6 +5284,16 @@ v(np)  =   ---------------------------------------------------------------------
         public bool cleanAppData()
         {
             foreach(string fileName in Directory.GetFiles(AppDataFolder)){
+                File.Delete(fileName);
+            }
+
+            return true;
+        }
+
+        public bool cleanAppTempFiles()
+        {
+            foreach (string fileName in Directory.GetFiles(AppTempFilesFolder))
+            {
                 File.Delete(fileName);
             }
 

@@ -4,11 +4,11 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Files on Website App_Data (@ViewBag.Path) </h2>
+<h2>Files on folder App_TempFiles (@ViewBag.Path) </h2>
 
 @ViewBag.Message
 
-       @Html.ActionLink("DeleteAll", "CleanAppData")
+       @Html.ActionLink("DeleteAll", "CleanAppTempFiles")
 
 <table>
     <tr>

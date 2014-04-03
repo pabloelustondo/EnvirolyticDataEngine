@@ -4,6 +4,7 @@
 }
 
 <h2>Locations Status for @Model.latlonGroup.Name</h2>
+Note: the pae only shows 1 day of data, rest of data is in the files
 @Model.Message
 @if (Model.generateFiles)
 {
@@ -11,9 +12,9 @@
 }
 @{
     int numberOfLocations = Model.latlonGroup.JassLatLons.Count;
-    int numberOfVariables = Model.gridValues.Count;
-    var locations = Model.latlonGroup.JassLatLons;
-    var variables = Model.gridValues;
+    int numberOfVariables = Model.gridValues[0].Count;
+    var locations = Model.locations;
+    var variables = Model.gridValues[0];
     }
 
 
@@ -22,9 +23,9 @@
     <table>
     <tr>
         <td>UTC hr</td><td>Loc hr</td>
-              @for (int v = 0; v < variables.Count; v++)
+              @for (int v = 0; v < variables[l].Count; v++)
                     {
-                        <td>@variables[v].VariableName</td>  
+                        <td>@variables[l][v].VariableName</td>  
                     }
 
     </tr>
@@ -35,9 +36,9 @@
     <tr>
         <td>@(day.Hour+s*3)</td>@{int d = day.Hour + s * 3 + locations[l].hrDifference;}
         <td>@((d<0)?24+d:d)</td>
-                    @for (int v = 0; v < variables.Count; v++)
+                    @for (int v = 0; v < variables[l].Count; v++)
                     {
-                        <td>@Math.Round((decimal)variables[v].measure[s, 0, (int)locations[l].narrY, (int)locations[l].narrX],7)</td>                     
+                        <td>@Math.Round((decimal)variables[l][v].measure[s, 0, 0, 0],7)</td>                     
                     }
     </tr>
         }
@@ -61,6 +62,14 @@
             Use Fixed Columns?
             @Html.EditorFor(model => model.generateFilesWithFixedColumns)
             @Html.ValidationMessageFor(model => model.generateFilesWithFixedColumns)
+        </div>
+
+        <div class="editor-label">
+            Choose Location or leave empty for all location in current group
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("JassLatLonID", String.Empty)
+            @Html.ValidationMessageFor(model => model.JassLatLonID)
         </div>
 
         <div class="editor-label">

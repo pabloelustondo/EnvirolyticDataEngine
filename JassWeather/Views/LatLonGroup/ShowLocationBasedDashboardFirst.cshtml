@@ -18,6 +18,14 @@
         </div>
 
         <div class="editor-label">
+            Choose Location or leave empty for all location in current group
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("JassLatLonID", String.Empty)
+            @Html.ValidationMessageFor(model => model.JassLatLonID)
+        </div>
+
+        <div class="editor-label">
             Year
         </div>
         <div class="editor-field">

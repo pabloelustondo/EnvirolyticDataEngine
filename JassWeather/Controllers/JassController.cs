@@ -41,7 +41,7 @@ namespace JassWeather.Controllers
 
             }
 
-            if (Session["LatLonGroup"] == null)
+            if (Session["LatLonGroupID"] == null)
             {
                 Session["LatLonGroupName"] = "KeyCitiesQAPage";
                 Session["LatLonGroupID"] = 1;

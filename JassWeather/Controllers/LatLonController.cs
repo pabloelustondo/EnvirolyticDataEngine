@@ -28,7 +28,7 @@ namespace JassWeather.Controllers
             }
             catch(Exception e){               
                  List<JassLatLon> fakelist = new List<JassLatLon>();
-                 ViewBag.Message = e.Message;
+                 ViewBag.JassMessage = e.Message;
                  return View();                
                 }
         }
@@ -62,16 +62,25 @@ namespace JassWeather.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(JassLatLon jasslatlon)
         {
-            if (ModelState.IsValid)
+            try
             {
-                jasslatlon = apiCaller.MapLatLonToNarr(jasslatlon);
-                db.JassLatLons.Add(jasslatlon);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
+                if (ModelState.IsValid)
+                {
+                    jasslatlon = apiCaller.MapLatLonToNarr(jasslatlon);
+                    db.JassLatLons.Add(jasslatlon);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
 
-            ViewBag.JassLatLonGroupID = new SelectList(db.JassLatLonGroups, "JassLatLonGroupID", "Name", jasslatlon.JassLatLonGroupID);
-            return View(jasslatlon);
+            }
+            catch (Exception e)
+            {   
+                apiCaller.createBuilderLog("EXCEPTION", "Location", e.Message, new TimeSpan(), false);
+                ViewBag.JassMessage = "ERROR when creating";
+            }
+            
+              ViewBag.JassLatLonGroupID = new SelectList(db.JassLatLonGroups, "JassLatLonGroupID", "Name", jasslatlon.JassLatLonGroupID);
+              return View(jasslatlon);
         }
 
         //
@@ -95,15 +104,25 @@ namespace JassWeather.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(JassLatLon jasslatlon)
         {
-            if (ModelState.IsValid)
+            try
             {
-                jasslatlon = apiCaller.MapLatLonToNarr(jasslatlon);
-                db.Entry(jasslatlon).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    jasslatlon = apiCaller.MapLatLonToNarr(jasslatlon);
+                    db.Entry(jasslatlon).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+                ViewBag.JassLatLonGroupID = new SelectList(db.JassLatLonGroups, "JassLatLonGroupID", "Name", jasslatlon.JassLatLonGroupID);
+
             }
-            ViewBag.JassLatLonGroupID = new SelectList(db.JassLatLonGroups, "JassLatLonGroupID", "Name", jasslatlon.JassLatLonGroupID);
-            return View(jasslatlon);
+              catch (Exception e)
+            {   
+                apiCaller.createBuilderLog("EXCEPTION", "Location", e.Message, new TimeSpan(), false);
+                ViewBag.message = "ERROR when editing";
+            }
+
+               return View(jasslatlon);
         }
 
         //

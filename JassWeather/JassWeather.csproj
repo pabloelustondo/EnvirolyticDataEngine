@@ -692,7 +692,9 @@
     <Content Include="App_Files\sheridan-stations.csv" />
     <Content Include="App_Files\sheridan_stations.nc" />
     <Content Include="App_Files\sheridan-history.nc" />
-    <Content Include="App_TempFiles\sheridan-stations.csv" />
+    <Content Include="App_Files\Narr_2_Macc_Grid_Mapper.nc" />
+    <Content Include="App_Files\Narr_2_SHER_Grid_Mapper.nc" />
+    <Content Include="App_Files\Narr_Grid.nc" />
     <None Include="Properties\PublishProfiles\envirolytic - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic-mark - FTP.pubxml" />
@@ -887,9 +889,12 @@
     <Content Include="Views\LatLon\Delete.cshtml" />
     <Content Include="Views\Blob\Download2Disk.cshtml" />
     <Content Include="Views\Blob\ShowAppTempFiles.cshtml" />
+    <Content Include="Views\Blob\CleanAppTempFiles.cshtml" />
+    <Content Include="Views\Grid\CreateEnvirolyticNarrGrid.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="App_TempFiles\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
