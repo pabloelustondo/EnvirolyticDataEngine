@@ -5,14 +5,16 @@
 
 <h2>Show Map Grid</h2>
 
+Max Distance: @Model.maxDistance at x:@Model.maxY Y:@Model.maxX
+
 Color Scale
 
 <table><tr>
 @{
    double range = 0;
 
-    for (int y = 136-1; y >= 128 ; y--){
-        for (int x = 230; x < 250; x++)
+    for (int y = 276; y >= 0; y--){
+        for (int x = 0; x < 349; x++)
         {
                 if (Model.mapDistance[y, x] != null && Model.mapDistance[y, x] > range)   {
                     range = Model.mapDistance[y, x];
@@ -40,14 +42,16 @@ Color Scale
 </tr></table>
 
 <table>
-@for (int y = 136-1; y >= 128 ; y--)
+@for (int y = 276; y >= 0 ; y--)
 {
     <tr>
         <td>
             @y
         </td>
-           @for (int x = 230; x < 250; x++ ){
+           @for (int x = 0; x < 349; x++ ){
                JassWeather.Models.JassRGB rgb;
+               string borderStyle = "none";
+               if (y == 133 || x == 241) { borderStyle = "solid"; }
                if (Model.mapDistance[y, x] != null && Model.mapDistance[y, x] <= range)
                {
                    double scaledValue = (double)Model.mapDistance[y, x] * myfactor;
@@ -57,12 +61,15 @@ Color Scale
                {
                    rgb = new JassWeather.Models.JassRGB(0,0,0);
                }
-        <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b)">
+        <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b); border-style:@borderStyle">
             @y,@x:
             @if (Model.mapDistance[y, x] != null && Model.mapDistance[y, x] < range){
-            @Model.mapDistance[y,x]
-            @Model.mapLatY[y,x]
-            @Model.mapLonX[y,x]
+                
+            <p>d: @Model.mapDistance[y,x] </p>
+            <p>y: @Model.mapLatY[y,x]   x: @Model.mapLonX[y,x] </p>
+            <p>d2:@Model.map2Distance[y,x] </p>
+            <p>y2: @Model.map2LatY[y,x]   x2: @Model.map2LonX[y,x] </p>
+                
             }
         </td>
             }

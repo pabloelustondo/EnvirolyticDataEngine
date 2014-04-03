@@ -1416,6 +1416,10 @@ namespace JassWeather.Models
 
         public class SmartGridMap
         {
+            public double maxDistance = 0;
+            public int maxX = 0;
+            public int maxY = 0;
+            
             public double[,] mapDistance;
             public int[,] mapLatY;
             public int[,] mapLonX;
@@ -1461,11 +1465,17 @@ namespace JassWeather.Models
                 sgm.map4LonX = mapDataSet.GetData<int[,]>("map4LonX");
 
 
-                for (int y = 128; y < 136; y++)
+                for (int y = 0; y < 277; y++)
                 {
-                    for (int x = 230; x < 250; x++)
+                    for (int x = 0; x < 349; x++)
                     {
                         var mapDistance = sgm.mapDistance[y,x];
+                        if (mapDistance > sgm.maxDistance)
+                        {
+                            sgm.maxY = y;
+                            sgm.maxX = x;
+                            sgm.maxDistance = mapDistance;
+                        }
                         var mapLatY = sgm.mapLatY[y, x];
                         var mapLonX = sgm.mapLonX[y, x];
                     }

@@ -66,6 +66,7 @@ namespace JassWeather.Controllers
 
         #endregion
 
+
         public ActionResult Index()
         {
             var jassgrids = db.JassGrids.Include(j => j.JassPartition);
@@ -130,9 +131,9 @@ namespace JassWeather.Controllers
             return View("MapSher2NarrTest", result);
         }
 
-        public ActionResult ShowGridMap()
+        public ActionResult ShowGridMap(string mapperFileName)
         {
-            JassWeather.Models.JassWeatherAPI.SmartGridMap result = apiCaller.getMapComboFromMapFile("Narr_2_CFSR_Grid_Mapper.nc");
+            JassWeatherAPI.SmartGridMap result = apiCaller.getMapComboFromMapFile(mapperFileName);
             return View(result);
         }
 

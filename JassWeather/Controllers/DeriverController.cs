@@ -37,18 +37,38 @@ namespace JassWeather.Controllers
 
         public ActionResult ProcessDeriverLocallyNoClean(int id = 0)
         {
-            JassDeriver jassderiver = db.JassDerivers.Find(id);
+            JassWeatherAPI.ProcessDeriverModel result = new JassWeatherAPI.ProcessDeriverModel();
+            try
+            {
 
-            var result = apiCaller.processDeriverAll(jassderiver,false,false);
+                JassDeriver jassderiver = db.JassDerivers.Find(id);
 
-            return View("ProcessDeriver",result);
+                result = apiCaller.processDeriverAll(jassderiver, false, false);
+            }
+             catch (Exception e)
+            {   
+                apiCaller.createBuilderLog("EXCEPTION", "Deriver Local", e.Message + e.StackTrace, new TimeSpan(), false);
+                ViewBag.JassMessage = "ERROR when creating";
+            }
+
+            return View("ProcessDeriver", result);
         }
 
         public ActionResult ProcessDeriverUpLoadClean(int id = 0)
         {
-            JassDeriver jassderiver = db.JassDerivers.Find(id);
+            JassWeatherAPI.ProcessDeriverModel result = new JassWeatherAPI.ProcessDeriverModel();
+            try
+            {
+                JassDeriver jassderiver = db.JassDerivers.Find(id);
 
-            var result = apiCaller.processDeriverAll(jassderiver, true, true);
+                result = apiCaller.processDeriverAll(jassderiver, true, true);
+               
+            }
+            catch (Exception e)
+            {
+                apiCaller.createBuilderLog("EXCEPTION", "Deriver Clean", e.Message + e.StackTrace, new TimeSpan(), false);
+                ViewBag.JassMessage = "ERROR when creating";
+            }
 
             return View("ProcessDeriver", result);
         }
