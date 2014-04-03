@@ -13,9 +13,58 @@ namespace JassWeather.Controllers
     public class GridController : JassController
     {
         private JassWeatherContext db = new JassWeatherContext();
+       
+        
+        #region Testing Grids
 
-        //
-        // GET: /Grid/
+
+        public class PlotGridPointsAroundLocationModel
+        {
+            public JassLatLon JassLatLon { get; set; }
+            public int JassLatLonId { get; set; }
+            public JassWeatherAPI.JassMaccNarrGridsCombo GridNarrCombo { get; set; }
+
+        }
+
+        public ActionResult PlotGridPointsAroundLocation()
+        {
+            //The purpose of this method is to make sure we are mapping grids correctly
+            //one way of doing this is by taking one location.
+            //ploting google maps points in one grid then on another grid. OS basicaly, it relies on ploting
+            //so i will start by that, taking a location, and ploting it on the google map. something i almost have   
+
+            #region location selector
+            ViewBag.LatLonGroupID = Session["LatLonGroupID"];
+            int LatLonGroupID = (int)ViewBag.LatLonGroupID;
+            var locationChoices = db.JassLatLons.Where(l => l.JassLatLonGroupID == LatLonGroupID);
+            ViewBag.JassLatLonID = new SelectList(locationChoices, "JassLatLonID", "Name");
+            #endregion
+
+            PlotGridPointsAroundLocationModel model = new PlotGridPointsAroundLocationModel();
+ 
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult PlotGridPointsAroundLocation(PlotGridPointsAroundLocationModel model)
+        {
+            //The purpose of this method is to make sure we are mapping grids correctly
+            //one way of doing this is by taking one location.
+            //ploting google maps points in one grid then on another grid. OS basicaly, it relies on ploting
+            //so i will start by that, taking a location, and ploting it on the google map. something i almost have   
+
+            #region location selector
+            ViewBag.LatLonGroupID = Session["LatLonGroupID"];
+            int LatLonGroupID = (int)ViewBag.LatLonGroupID;
+            var locationChoices = db.JassLatLons.Where(l => l.JassLatLonGroupID == LatLonGroupID);
+            ViewBag.JasslatLonID = new SelectList(locationChoices, "JasslatLonID", "Name");
+            #endregion
+
+            return View(model);
+        }
+
+
+        #endregion
 
         public ActionResult Index()
         {

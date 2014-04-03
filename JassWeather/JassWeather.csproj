@@ -246,6 +246,7 @@
     <Compile Include="Controllers\BlobController.cs" />
     <Compile Include="Controllers\BuilderController.cs" />
     <Compile Include="Controllers\BuilderLogController.cs" />
+    <Compile Include="Controllers\BoilerPlateController.cs" />
     <Compile Include="Controllers\DeriverController.cs" />
     <Compile Include="Controllers\FormulaController.cs" />
     <Compile Include="Controllers\GridController.cs" />
@@ -891,6 +892,7 @@
     <Content Include="Views\Blob\ShowAppTempFiles.cshtml" />
     <Content Include="Views\Blob\CleanAppTempFiles.cshtml" />
     <Content Include="Views\Grid\CreateEnvirolyticNarrGrid.cshtml" />
+    <Content Include="Views\Grid\PlotGridPointsAroundLocation.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

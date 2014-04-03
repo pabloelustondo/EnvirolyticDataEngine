@@ -119,6 +119,22 @@
             @Html.ValidationMessageFor(model => model.YearStart)
         </div>
 
+         <div class="editor-label">
+            @Html.LabelFor(model => model.MonthStart)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.MonthStart)
+            @Html.ValidationMessageFor(model => model.MonthStart)
+        </div>
+
+         <div class="editor-label">
+            @Html.LabelFor(model => model.DayStart)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.DayStart)
+            @Html.ValidationMessageFor(model => model.DayStart)
+        </div>
+
         <div class="editor-label">
             @Html.LabelFor(model => model.YearEnd)
         </div>
@@ -128,27 +144,11 @@
         </div>
 
         <div class="editor-label">
-            @Html.LabelFor(model => model.MonthStart)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.MonthStart)
-            @Html.ValidationMessageFor(model => model.MonthStart)
-        </div>
-
-        <div class="editor-label">
             @Html.LabelFor(model => model.MnnthEnd)
         </div>
         <div class="editor-field">
             @Html.EditorFor(model => model.MnnthEnd)
             @Html.ValidationMessageFor(model => model.MnnthEnd)
-        </div>
-
-        <div class="editor-label">
-            @Html.LabelFor(model => model.DayStart)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.DayStart)
-            @Html.ValidationMessageFor(model => model.DayStart)
         </div>
 
         <div class="editor-label">

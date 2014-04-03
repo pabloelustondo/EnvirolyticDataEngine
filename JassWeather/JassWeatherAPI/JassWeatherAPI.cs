@@ -377,7 +377,8 @@ namespace JassWeather.Models
                     
                     for (int lat = gc.maccLatMin; lat < gc.maccLatMax; lat++)   //161
                     {
-                         float bestCase = Math.Abs((gc.narrLat[y, x] - gc.maccLat[lat]))*100; //this is aproximatelly in KM                         if (bestCase < maxDistance || true)
+                         float bestCase = Math.Abs((gc.narrLat[y, x] - gc.maccLat[lat]))*100; //this is aproximatelly in KM  
+                         if (bestCase < maxDistance)
                          {
                              for (int lon = gc.maccLonMin; lon < gc.maccLonMax; lon++)  //320
                              {
@@ -2444,6 +2445,11 @@ v(np)  =   ---------------------------------------------------------------------
 
                         //first open the necessary file with something like process source.
 
+                 Boolean X1 = (deriver.X1 != null);
+                 Boolean X2 = (deriver.X2 != null);
+                 Boolean X3 = (deriver.X3 != null);
+
+
                          outputFileName = fileNameBuilderByDay(deriver.JassVariable.Name, year, month, day) + ".nc";
                          outputFilePath = AppDataFolder + "\\" + outputFileName;
                          X1FileName = fileNameBuilderByDay(deriver.X1, year, month, day) + ".nc";
@@ -2453,87 +2459,98 @@ v(np)  =   ---------------------------------------------------------------------
                          X2FilePath = AppDataFolder + "\\" + X2FileName;
                          X3FilePath = AppDataFolder + "\\" + X3FileName;
 
-                         DownloadFile2DiskIfNotThere(X1FileName, X1FilePath);
-                         DownloadFile2DiskIfNotThere(X2FileName, X2FilePath);
-                         DownloadFile2DiskIfNotThere(X3FileName, X3FilePath);
+                         if (X1) DownloadFile2DiskIfNotThere(X1FileName, X1FilePath);
+                         if (X2) DownloadFile2DiskIfNotThere(X2FileName, X2FilePath);
+                         if (X3) DownloadFile2DiskIfNotThere(X3FileName, X3FilePath);
 
                          //Now, we will iterate on our grid (we know we are on our grid) and apply the formula
                          //here we need to open the files
 
-                         dynamic x1Values;
-                         KeyMetadataModel x1Meta;
-                         using (var x1DataSet = DataSet.Open(X1FilePath + "?openMode=open")) {
-
-                             yDim = x1DataSet.GetData<Single[]>("y");
-                             xDim = x1DataSet.GetData<Single[]>("x");
-                             timeDim = x1DataSet.GetData<double[]>("time");
-
-                             x1Meta = getKeyMetadata(x1DataSet);
-
-                             //NOTE: This version cannot handle multiple presure.. generalize!
-                             if (deriver.X1Level == null)
-                             {
-                                 x1Values = x1DataSet.GetData<Int16[, ,]>(deriver.X1,
-                                       DataSet.FromToEnd(0),
-                                       DataSet.FromToEnd(0),
-                                       DataSet.FromToEnd(0));
-                             }
-                             else
-                             {
-                                 x1Values = x1DataSet.GetData<Int16[, ,]>(deriver.X1,
-                                 DataSet.FromToEnd(0),
-                                 DataSet.ReduceDim((int)deriver.X1Level),
-                                 DataSet.FromToEnd(0),
-                                 DataSet.FromToEnd(0));
-                             }
-                         }
-
-                         dynamic x2Values;
-                         KeyMetadataModel x2Meta;
-                         using (var x2DataSet = DataSet.Open(X2FilePath + "?openMode=open"))
+                         dynamic x1Values=null;
+                         KeyMetadataModel x1Meta=null;
+                         if (X1)
                          {
-                             x2Meta = getKeyMetadata(x2DataSet);
-                             //NOTE: This version cannot handle multiple presure.. generalize!
-                             if (deriver.X2Level == null)
+                             using (var x1DataSet = DataSet.Open(X1FilePath + "?openMode=open"))
                              {
-                                 x2Values = x2DataSet.GetData<Int16[, ,]>(deriver.X2,
-                                       DataSet.FromToEnd(0),
-                                       DataSet.FromToEnd(0),
-                                       DataSet.FromToEnd(0));
-                             }
-                             else {
-                                 x2Values = x2DataSet.GetData<Int16[, ,]>(deriver.X2,
-                                 DataSet.FromToEnd(0),
-                                 DataSet.ReduceDim((int)deriver.X2Level),
-                                 DataSet.FromToEnd(0),
-                                 DataSet.FromToEnd(0));                            
+
+                                 yDim = x1DataSet.GetData<Single[]>("y");
+                                 xDim = x1DataSet.GetData<Single[]>("x");
+                                 timeDim = x1DataSet.GetData<double[]>("time");
+
+                                 x1Meta = getKeyMetadata(x1DataSet);
+
+                                 //NOTE: This version cannot handle multiple presure.. generalize!
+                                 if (deriver.X1Level == null)
+                                 {
+                                     x1Values = x1DataSet.GetData<Int16[, ,]>(deriver.X1,
+                                           DataSet.FromToEnd(0),
+                                           DataSet.FromToEnd(0),
+                                           DataSet.FromToEnd(0));
+                                 }
+                                 else
+                                 {
+                                     x1Values = x1DataSet.GetData<Int16[, ,]>(deriver.X1,
+                                     DataSet.FromToEnd(0),
+                                     DataSet.ReduceDim((int)deriver.X1Level),
+                                     DataSet.FromToEnd(0),
+                                     DataSet.FromToEnd(0));
+                                 }
                              }
                          }
 
-                         dynamic x3Values;
-                         KeyMetadataModel x3Meta;
-                         using (var x3DataSet = DataSet.Open(X3FilePath + "?openMode=open"))
+                         dynamic x2Values=null;
+                         KeyMetadataModel x2Meta=null;
+                         if (X2)
                          {
-                             x3Meta = getKeyMetadata(x3DataSet);
-                             //NOTE: This version cannot handle multiple presure.. generalize!
-                             if (deriver.X3Level == null)
+                             using (var x2DataSet = DataSet.Open(X2FilePath + "?openMode=open"))
                              {
-                                 x3Values = x3DataSet.GetData<Int16[, ,]>(deriver.X3,
-                                       DataSet.FromToEnd(0),
-                                       DataSet.FromToEnd(0),
-                                       DataSet.FromToEnd(0));
-                             }
-                             else
-                             {
-                                 x3Values = x3DataSet.GetData<Int16[, ,]>(deriver.X3,
-                                 DataSet.FromToEnd(0),
-                                 DataSet.ReduceDim((int)deriver.X3Level),
-                                 DataSet.FromToEnd(0),
-                                 DataSet.FromToEnd(0));
+                                 x2Meta = getKeyMetadata(x2DataSet);
+                                 //NOTE: This version cannot handle multiple presure.. generalize!
+                                 if (deriver.X2Level == null)
+                                 {
+                                     x2Values = x2DataSet.GetData<Int16[, ,]>(deriver.X2,
+                                           DataSet.FromToEnd(0),
+                                           DataSet.FromToEnd(0),
+                                           DataSet.FromToEnd(0));
+                                 }
+                                 else
+                                 {
+                                     x2Values = x2DataSet.GetData<Int16[, ,]>(deriver.X2,
+                                     DataSet.FromToEnd(0),
+                                     DataSet.ReduceDim((int)deriver.X2Level),
+                                     DataSet.FromToEnd(0),
+                                     DataSet.FromToEnd(0));
+                                 }
                              }
                          }
 
-                         dynamic x1Value, x2Value, x3Value, resultValue;
+                         dynamic x3Values=null;
+                         KeyMetadataModel x3Meta=null;
+                         if (X3)
+                         {
+                             using (var x3DataSet = DataSet.Open(X3FilePath + "?openMode=open"))
+                             {
+                                 x3Meta = getKeyMetadata(x3DataSet);
+                                 //NOTE: This version cannot handle multiple presure.. generalize!
+                                 if (deriver.X3Level == null)
+                                 {
+                                     x3Values = x3DataSet.GetData<Int16[, ,]>(deriver.X3,
+                                           DataSet.FromToEnd(0),
+                                           DataSet.FromToEnd(0),
+                                           DataSet.FromToEnd(0));
+                                 }
+                                 else
+                                 {
+                                     x3Values = x3DataSet.GetData<Int16[, ,]>(deriver.X3,
+                                     DataSet.FromToEnd(0),
+                                     DataSet.ReduceDim((int)deriver.X3Level),
+                                     DataSet.FromToEnd(0),
+                                     DataSet.FromToEnd(0));
+                                 }
+                             }
+                         }
+
+                         dynamic x1Value=null, x2Value=null, x3Value=null, resultValue;
 
                              if (deriver.JassGrid.Levelsize==0){
                          resultValues = new Int16[deriver.JassGrid.Timesize, deriver.JassGrid.Ysize, deriver.JassGrid.Xsize];
@@ -2551,17 +2568,20 @@ v(np)  =   ---------------------------------------------------------------------
                                      {
                                          //add_offset + scale_factor * values[tt, ll, yy, xx];
 
-                                         if (x1Values[t, y, x] != x1Meta.missing_value &&
-                                             x1Values[t, y, x] != x1Meta.FillValue &&
-                                             x2Values[t, y, x] != x2Meta.missing_value &&
-                                             x2Values[t, y, x] != x2Meta.FillValue &&
-                                             x3Values[t, y, x] != x3Meta.missing_value &&
-                                             x3Values[t, y, x] != x3Meta.FillValue
+                                         if (
+                                             (!X1 || x1Values[t, y, x] != x1Meta.missing_value &&
+                                             x1Values[t, y, x] != x1Meta.FillValue)                                        
+                                             &&
+                                             (!X2 || x2Values[t, y, x] != x2Meta.missing_value &&
+                                             x2Values[t, y, x] != x2Meta.FillValue)
+                                             &&
+                                             (!X3 || x3Values[t, y, x] != x3Meta.missing_value &&
+                                             x3Values[t, y, x] != x3Meta.FillValue)
                                              )
                                          {
-                                             x1Value = x1Meta.add_offset + x1Meta.scale_factor * x1Values[t, y, x];
-                                             x2Value = x2Meta.add_offset + x2Meta.scale_factor * x2Values[t, y, x];
-                                             x3Value = x3Meta.add_offset + x3Meta.scale_factor * x3Values[t, y, x];
+                                             if (X1) x1Value = x1Meta.add_offset + x1Meta.scale_factor * x1Values[t, y, x];
+                                             if (X2) x2Value = x2Meta.add_offset + x2Meta.scale_factor * x2Values[t, y, x];
+                                             if (X3) x3Value = x3Meta.add_offset + x3Meta.scale_factor * x3Values[t, y, x];
                                              resultValue = applyDeriverFormula(deriver, x1Value, x2Value, x3Value);
                                          }
                                          else
