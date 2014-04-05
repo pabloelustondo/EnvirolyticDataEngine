@@ -56,7 +56,7 @@ namespace JassWeather.Controllers
           
             JassBuilderLog builderLog = apiCaller.createBuilderLog(tempJassBuilder, "ProcessBuilder_Start", "Manual from Request Controller", "Start", new TimeSpan(), true);
 
-            var result = apiCaller.processSource(tempJassBuilder, (int)apiRequest.sampleYear, (int)apiRequest.sampleMonth,  true, false, builderLog);
+            var result = apiCaller.processSource(tempJassBuilder, (int)apiRequest.sampleYear, (int)apiRequest.sampleMonth, (int)apiRequest.sampleWeeky, true, false, builderLog);
 
             ViewBag.Message = result;
 
@@ -453,9 +453,11 @@ namespace JassWeather.Controllers
             DataSetSchema schema = null;
             try
             {
-                int year = (int)source.sampleYear;
-                int month = (int)source.sampleMonth;
-                string url = apiCaller.replaceURIPlaceHolders(source.url, year, month);
+                int year = (source.sampleYear!=null)? (int)source.sampleYear:0;
+                int month = (source.sampleMonth != null) ? (int)source.sampleMonth : 0;
+                int weeky = (source.sampleWeeky != null) ? (int)source.sampleWeeky : 0;
+                int day = (source.sampleDay != null) ? (int)source.sampleDay : 0;
+                string url = apiCaller.replaceURIPlaceHolders(source.url, year, month,weeky,day);
                 string safeFileName = url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
 
                 string downloadedFilePath = HttpContext.Server.MapPath("~/App_Data/" + safeFileName);

@@ -68,6 +68,22 @@
             @Html.ValidationMessageFor(model => model.sampleMonth)
         </div>
    
+                            <div class="editor-label">
+            @Html.LabelFor(model => model.sampleWeeky)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.sampleWeeky)
+            @Html.ValidationMessageFor(model => model.sampleWeeky)
+        </div>
+
+                        <div class="editor-label">
+            @Html.LabelFor(model => model.sampleDay)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.sampleDay)
+            @Html.ValidationMessageFor(model => model.sampleDay)
+        </div>
+
         <div class="editor-label">
             @Html.LabelFor(model => model.schema)
         </div>

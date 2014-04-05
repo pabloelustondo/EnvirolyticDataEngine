@@ -239,7 +239,7 @@ namespace JassWeather.Models
             return fileOnBlob;
         }
 
-        public string processSource(JassBuilder builder, int year, int month, Boolean upload, Boolean overWrite, JassBuilderLog builderAllLog)
+        public string processSource(JassBuilder builder, int year, int month, int weeky, Boolean upload, Boolean overWrite, JassBuilderLog builderAllLog)
         {
             //this method will be idempotent... if nothing to do does nothing.
             //this method is to help processBulder and will produce the file on disk
@@ -249,7 +249,7 @@ namespace JassWeather.Models
             //Check whether the file is on disk
 
                 APIRequest source = builder.APIRequest;
-                string url = replaceURIPlaceHolders(source.url, year, month);
+                string url = replaceURIPlaceHolders(source.url, year, month,weeky,0);
 
                 string fileName = safeFileNameFromUrl(url);
                 string filePath = AppDataFolder + "/" + fileName;
@@ -559,8 +559,8 @@ namespace JassWeather.Models
        // JassBuilder builder, int year, int month, Boolean upload, Boolean overWrite, JassBuilderLog builderAllLog
         public string processGridMappingMaccToNarr(int year, int month, string fileNameMaccTemp)
         {
-            string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month);
-            string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month);
+            string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month,0,0);
+            string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month,0,0);
 
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
             string maccFile = AppDataFolder + "/" + fileNameMacc;
@@ -835,10 +835,12 @@ namespace JassWeather.Models
 
         // public JassMaccNarrGridsCombo MapFromMaccToNarr(int year, int month, string fileNameMaccTemp, string fileNameNarrTemp)
         // JassBuilder builder, int year, int month, Boolean upload, Boolean overWrite, JassBuilderLog builderAllLog
-        public string processGridMappingCFSRToNarr(int year, int month, int weeky, string fileNameMaccTemp)
+        public processGridMappingCFSRToNarrModel processGridMappingCFSRToNarr(int year, int month, int weeky, string fileNameMaccTemp)
         {
-            string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month);
-            string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month);
+            processGridMappingCFSRToNarrModel result = new processGridMappingCFSRToNarrModel();
+
+            string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month,weeky,0);
+            string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month,weeky,0);
 
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
             string maccFile = AppDataFolder + "/" + fileNameMacc;
@@ -846,6 +848,8 @@ namespace JassWeather.Models
             string mapFile = AppFilesFolder + "/Narr_2_CFSR_Grid_Mapper.nc";
 
             string smonth = (month < 10) ? "0" + month : "" + month;
+            int weekyNumber = (weeky - 1) * 5 + 1;
+            string sweeky = (weekyNumber < 10) ? "0" + weekyNumber : "" + weekyNumber;
             string outputFileName = null;
             string outputFilePath = null;
 
@@ -865,7 +869,8 @@ namespace JassWeather.Models
 
                 Single[] narrY = narrDataSet.GetData<Single[]>("y");
                 Single[] narrX = narrDataSet.GetData<Single[]>("x");
-                double[] narrTime = narrDataSet.GetData<double[]>("time");
+                Single[, , ,] maccVariable;
+                Single[, , ,] outputVariable;
 
                 using (var maccDataSet = DataSet.Open(maccFile + "?openMode=open"))
                 {
@@ -886,24 +891,29 @@ namespace JassWeather.Models
                         };
                     }
 
-                    outputFileName = VariableName + "_macc2narr_" + year + "_" + smonth + ".nc";
+                    outputFileName = VariableName + "_macc2narr_" + year + smonth + sweeky + ".nc";
                     outputFilePath = AppDataFolder + "\\" + outputFileName;
 
-                    Int32[] maccTime = maccDataSet.GetData<Int32[]>("time");
-                    double[] maccNarrTime = new double[maccTime.Length];
 
-                    DateTime day1900 = DateTime.Parse("1900-01-01 00:00:00");
+                    Single[] maccTime = maccDataSet.GetData<Single[]>("time");
+                    Single[] maccLevel = maccDataSet.GetData<Single[]>("level0");
+
+                    DateTime ahora = DateTime.Now;
+                    var ahora1 = ahora.AddHours(-maccTime[0]);
+
+               //     double[] maccNarrTime = new double[maccTime.Length*2]; //this is two convert from 4 points a day to 8 points a day
+
+                    double[] maccNarrTime = new double[8]; //this is two convert from 4 points a day to 8 points a day
+
+
                     DateTime day1800 = DateTime.Parse("1800-01-01 00:00:00");
 
-                    TimeSpan diff19001800 = day1900 - day1800;
-
-                    int hours19001800 = (int)diff19001800.TotalHours;
-
+  
                     DateTime maccDay;
                     DateTime narrDay;
                     double narrNumber;
 
-                    DateTime maccDayStart = day1900.AddHours(maccTime[0]);
+                    DateTime maccDayStart = new DateTime(year, month, weekyNumber);
                     DateTime narrDayStart = new DateTime(maccDayStart.Year, maccDayStart.Month, maccDayStart.Day);
 
                     if (maccDayStart.Year != year || maccDayStart.Month != month)
@@ -914,19 +924,12 @@ namespace JassWeather.Models
                     double narrDayStartHours = (narrDayStart - day1800).TotalHours;
 
                     double narrDayHours = narrDayStartHours;
-                    for (int t = 0; t < maccTime.Length; t++)
+                    for (int t = 0; t < 8; t++)
                     {
                         maccNarrTime[t] = narrDayHours;
                         narrDayHours += 3;
                     }
 
-                    for (int t = 0; t < maccTime.Length; t++)
-                    {
-                        if (maccNarrTime[t] != narrTime[t])
-                        {
-                            var crap = 1;
-                        }
-                    }
 
                     //At this point we have the time dimension in the variable maccNarrTime
                     //we do not need the time dimension from narr anymore.
@@ -940,8 +943,8 @@ namespace JassWeather.Models
                         gc.narrSchema = schema2string(narrSchema);
                         gc.maccSchema = schema2string(maccSchema);
 
-                        gc.maccLat = maccDataSet.GetData<Single[]>("latitude");
-                        gc.maccLon = maccDataSet.GetData<Single[]>("longitude");
+                        gc.maccLat = maccDataSet.GetData<Single[]>("lat");
+                        gc.maccLon = maccDataSet.GetData<Single[]>("lon");
 
                         gc.narrLon = narrDataSet.GetData<Single[,]>("lon");
                         gc.narrLat = narrDataSet.GetData<Single[,]>("lat");
@@ -1029,99 +1032,263 @@ namespace JassWeather.Models
                             Single[] narrX = narrDataSet.GetData<Single[]>("x");
                             double[] narrTime = narrDataSet.GetData<double[]>("time");
                          */
-                        Int16[, ,] maccVariable = maccDataSet.GetData<Int16[, ,]>(VariableName,
+
+                        GC.Collect();
+                        var MemoryInitial = GC.GetTotalMemory(true);
+                        startTotalTime = DateTime.Now;
+                        maccVariable = maccDataSet.GetData<Single[,,,]>(VariableName,
+                                DataSet.Range(0,3),
                                 DataSet.FromToEnd(0),
                                 DataSet.FromToEnd(0),
                                 DataSet.FromToEnd(0));
 
-                        ////filling up the array
-                        Int16[, ,] outputVariable = new Int16[maccNarrTime.Length, narrY.Length, narrX.Length];
 
-                        for (int t = 0; t < maccNarrTime.Length; t++)
+                        var MemoryAfterMacc = GC.GetTotalMemory(true);
+                        startTotalTime = DateTime.Now;
+
+                        ////filling up the array
+                        outputVariable = new Single[8, maccLevel.Length, narrY.Length, narrX.Length];
+
+                        int tt;
+                        //  outputVariable[t, l, y, x] = (Int16)interpolateValueCSFR(t, l, y, x, maccVariable, gc, missingValue, fillValue);
+
+                        Single v_mp1;
+                        Single d_np_mp1;
+                        bool go1;
+
+                        Single v_mp2;
+                        Single d_np_mp2;
+                        bool go2; 
+
+                        Single v_mp3;
+                        Single d_np_mp3 ;
+                        bool go3;
+
+                        Single v_mp4;
+                        Single d_np_mp4;
+                        bool go4;
+
+                        var MemoryAfterNarr = GC.GetTotalMemory(true);
+                        TimeSpan timeSpent = new TimeSpan();
+
+                        Single value = 0;
+                        Single valueMax = 0;
+                        Single valueMin = 0;
+
+                        for (int t = 0; t < 8; t++)
                         {
-                            for (int y = 0; y < narrY.Length; y++)
+                            for (int l = 0; l < maccLevel.Length; l++)
                             {
-                                for (int x = 0; x < narrX.Length; x++)
+                                DateTime now = DateTime.Now;
+
+                                for (int y = 0; y < narrY.Length; y++)
                                 {
-                                    try
+
+                                    for (int x = 0; x < narrX.Length; x++)
                                     {
-                                        outputVariable[t, y, x] = (Int16)interpolateValue(t, y, x, maccVariable, gc, missingValue, fillValue);
+                                       
+                                        try
+                                        {
+                                           
+                                           tt = Convert.ToInt32(t / 2);
+
+                                         //  outputVariable[t, l, y, x] = (Int16)interpolateValueCSFR(t, l, y, x, maccVariable, gc, missingValue, fillValue);
+                                           if (tt == t/2)
+                                           {
+                                               v_mp1 = maccVariable[tt, l, gc.map[y, x].lat, gc.map[y, x].lon];
+                                               d_np_mp1 = (Single)gc.map[y, x].distance;
+                                               go1 = (v_mp1 == missingValue || v_mp1 == missingValue) ? false : true;
+
+                                               v_mp2 = maccVariable[tt, l, gc.map2[y, x].lat, gc.map2[y, x].lon];
+                                               d_np_mp2 = (Single)gc.map2[y, x].distance;
+                                               go2 = (v_mp2 == missingValue || v_mp2 == missingValue) ? false : true;
+
+                                               v_mp3 = maccVariable[tt, l, gc.map3[y, x].lat, gc.map3[y, x].lon];
+                                               d_np_mp3 = (Single)gc.map3[y, x].distance;
+                                               go3 = (v_mp3 == missingValue || v_mp3 == missingValue) ? false : true;
+
+                                               v_mp4 = maccVariable[tt, l, gc.map4[y, x].lat, gc.map4[y, x].lon];
+                                               d_np_mp4 = (Single)gc.map4[y, x].distance;
+                                               go4 = (v_mp4 == missingValue || v_mp4 == missingValue) ? false : true;
+
+                                             
+
+                                               if (d_np_mp1 < 10)
+
+                                               { value = v_mp1; }
+                                               else
+                                               {
+                                                   value = ((go1?v_mp1 / d_np_mp1:0) +
+                                                            (go2?v_mp2 / d_np_mp2:0) +
+                                                            (go3?v_mp3 / d_np_mp3:0) +
+                                                            (go4?v_mp4 / d_np_mp4:0)) /
+
+                                                            ((go1? 1/d_np_mp1:0) +
+                                                            (go2? 1/d_np_mp2:0) +
+                                                            (go3? 1/d_np_mp3:0) +
+                                                            (go4? 1/d_np_mp4:0));
+                                               };
+
+                                               outputVariable[t, l, y, x] = value;
+                                               if (value > valueMax) valueMax = value;
+                                               if (value < valueMin) valueMin = value;
+                                           }
+                                           else {
+                                               outputVariable[t, l, y, x] = outputVariable[t-1, l, y, x];
+                                           
+                                           }
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            var dosomething = 1;
+                                        }
+
                                     }
-                                    catch (Exception e)
-                                    {
-                                        var dosomething = 1;
-                                    }
+
                                 }
-                            }
+                           }
                         }
                         /////// Writting results into file
                         //   dataset3.Add<Int16[, ,]>(builder.JassVariable.Name, dataset, "time", "y", "x");
 
                         //we will enter year/month as parameter
 
-                        using (var outputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
-                        {
-                            /*
-                             * 
-            Single[] narrY = narrDataSet.GetData<Single[]>("y");
-            Single[] narrX = narrDataSet.GetData<Single[]>("x");
-            double[] narrTime = narrDataSet.GetData<double[]>("time");
-                             */
 
 
-                            outputDataSet.Add<double[]>("time", maccNarrTime, "time");
-                            foreach (var attr in narrVars["time"]) { if (attr.Key != "Name") outputDataSet.PutAttr("time", attr.Key, attr.Value); }
-                            outputDataSet.Add<Single[]>("y", narrY, "y");
-                            foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("y", attr.Key, attr.Value); }
-                            outputDataSet.Add<Single[]>("x", narrX, "x");
-                            foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("x", attr.Key, attr.Value); }
-                            outputDataSet.Add<Int16[, ,]>(VariableName, outputVariable, "time", "y", "x");
-                            foreach (var attr in maccVars[VariableName])
-                            {
-                                if (attr.Key != "Name")
+
+
+                            //    outputDataSet.Add<double[]>("time", maccNarrTime, "time");
+                           //     foreach (var attr in narrVars["time"]) { if (attr.Key != "Name") outputDataSet.PutAttr("time", attr.Key, attr.Value); }
+
+                                result.time = maccNarrTime;
+
+                           //     outputDataSet.Add<Single[]>("level", maccLevel, "level");
+                           //     foreach (var attr in maccVars["level0"]) { if (attr.Key != "Name") outputDataSet.PutAttr("level", attr.Key, attr.Value); }
+
+                                result.level = maccLevel;
+
+                           //     outputDataSet.Add<Single[]>("y", narrY, "y");
+                           //     foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("y", attr.Key, attr.Value); }
+
+                                result.y = narrY;
+
+                          //      outputDataSet.Add<Single[]>("x", narrX, "x");
+                          //      foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("x", attr.Key, attr.Value); }
+
+                                result.x = narrX;
+
+                                result.Variable = outputVariable;
+
+                          //      outputDataSet.Add<Single[, , ,]>(VariableName,"time", "level", "y", "x");
+                          //      outputDataSet.PutData<Single[,,,]>(VariableName, outputVariable);
+                          //      outputDataSet.Commit();
+/*
+                                foreach (var attr in maccVars[VariableName])
                                 {
-                                    if (attr.Key != "_FillValue")
+                                    if (attr.Key != "Name")
                                     {
-                                        outputDataSet.PutAttr(VariableName, attr.Key, attr.Value);
-                                    }
-                                    else
-                                    {
-                                        outputDataSet.PutAttr(VariableName, "FillValue", attr.Value);
+                                        if (attr.Key != "_FillValue")
+                                        {
+                                            outputDataSet.PutAttr(VariableName, attr.Key, attr.Value);
+                                        }
+                                        else
+                                        {
+                                            outputDataSet.PutAttr(VariableName, "FillValue", attr.Value);
+                                        }
                                     }
                                 }
-                            }
-
-                        }
+ * */
 
 
-                        //now let's test 
-                        using (var testDataSet = DataSet.Open(outputFilePath + "?openMode=open"))
-                        {
 
-                            Int16[, ,] testVariable = testDataSet.GetData<Int16[, ,]>(VariableName,
-                                    DataSet.FromToEnd(0),
-                                    DataSet.FromToEnd(0),
-                                    DataSet.FromToEnd(0));
-
-                            Single[] testY = testDataSet.GetData<Single[]>("y");
-                            Single[] testX = testDataSet.GetData<Single[]>("x");
-                            double[] testTime = testDataSet.GetData<double[]>("time");
-
-                        }
 
 
                     }
                 }
             }
 
-            //return gc;
-            return outputFilePath;
+            result.outputFilePath = outputFilePath;
+            return result;
+        }
+
+        public string saveprocessGridMappingCFSRToNarrModel(processGridMappingCFSRToNarrModel model){
+
+            using (var outputDataSet = DataSet.Open(model.outputFilePath + "?openMode=create"))
+            {
+                try {
+
+                    outputDataSet.Add<double[]>("time", model.time, "time");
+                    //     foreach (var attr in narrVars["time"]) { if (attr.Key != "Name") outputDataSet.PutAttr("time", attr.Key, attr.Value); }
+                    outputDataSet.Add<Single[]>("level", model.level, "level");
+                    //     foreach (var attr in maccVars["level0"]) { if (attr.Key != "Name") outputDataSet.PutAttr("level", attr.Key, attr.Value); }
+                    outputDataSet.Add<Single[]>("y", model.y, "y");
+                    //     foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("y", attr.Key, attr.Value); }
+                    //      outputDataSet.Add<Single[]>("x", narrX, "x");
+                    //      foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("x", attr.Key, attr.Value); }
+                   
+                    outputDataSet.Add<Single[, , ,]>("Vorticity",model.Variable,"time", "level", "y", "x");
+                    /*
+                                                    foreach (var attr in maccVars[VariableName])
+                                                    {
+                                                        if (attr.Key != "Name")
+                                                        {
+                                                            if (attr.Key != "_FillValue")
+                                                            {
+                                                                outputDataSet.PutAttr(VariableName, attr.Key, attr.Value);
+                                                            }
+                                                            else
+                                                            {
+                                                                outputDataSet.PutAttr(VariableName, "FillValue", attr.Value);
+                                                            }
+                                                        }
+                                                    }
+                     * */               
+                
+                
+                
+                }
+                catch (Exception e)
+                {
+                    var dosomethinf = 1;
+                }
+            }
+
+/*
+            //now let's test 
+            using (var testDataSet = DataSet.Open(outputFilePath + "?openMode=open"))
+            {
+
+                Int16[, ,] testVariable = testDataSet.GetData<Int16[, ,]>(VariableName,
+                        DataSet.FromToEnd(0),
+                        DataSet.FromToEnd(0),
+                        DataSet.FromToEnd(0));
+
+                Single[] testY = testDataSet.GetData<Single[]>("y");
+                Single[] testX = testDataSet.GetData<Single[]>("x");
+                double[] testTime = testDataSet.GetData<double[]>("time");
+
+            }
+
+*/
+            return model.outputFilePath;
+        }
+
+
+        public class processGridMappingCFSRToNarrModel {
+
+            public string outputFilePath { get; set; }
+            public double[] time { get; set; }
+            public Single[] level { get; set; }
+            public Single[] y { get; set; }
+            public Single[] x { get; set; }
+            public Single[,,,] Variable { get; set; }
+    
         }
 
         public string processGridMappingSHERToNarr(int year, int month, int weeky, string fileNameMaccTemp)
         {
-            string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month);
-            string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month);
+            string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month,weeky,0);
+            string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month,weeky,0);
 
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
             string sherFile = AppDataFolder + "/" + fileNameMacc;
@@ -1530,6 +1697,54 @@ v(np)  =   ---------------------------------------------------------------------
                              go3 / d_np_mp3 + 
                              go4 / d_np_mp4);
                 };
+
+            return value;
+
+        }
+
+        public double interpolateValueCSFR(int t, int l, int y, int x, Single[, , ,] maccValues, JassMaccNarrGridsCombo gc, Int16 missValue, Int16 fillValue)
+        {
+
+            /*
+             *  
+              v(mp1) / d(np, mp1)  + v(mp2) / d(np, mp2) + v(mp3) / d(np, mp3)        
+v(np)  =   ------------------------------------------------------------------------------------
+               1 / d(np, mp1)  + 1 / d(np, mp2) + 1 / d(np, mp3)
+             */
+
+            Single v_mp1 = maccValues[t, l, gc.map[y, x].lat, gc.map[y, x].lon];
+            double d_np_mp1 = gc.map[y, x].distance;
+            int go1 = (v_mp1 == missValue || v_mp1 == missValue) ? 0 : 1;
+
+            Single v_mp2 = maccValues[t, l, gc.map2[y, x].lat, gc.map2[y, x].lon];
+            double d_np_mp2 = gc.map2[y, x].distance;
+            int go2 = (v_mp2 == missValue || v_mp2 == missValue) ? 0 : 1;
+
+            Single v_mp3 = maccValues[t, l, gc.map3[y, x].lat, gc.map3[y, x].lon];
+            double d_np_mp3 = gc.map3[y, x].distance;
+            int go3 = (v_mp3 == missValue || v_mp3 == missValue) ? 0 : 1;
+
+            Single v_mp4 = maccValues[t, l, gc.map4[y, x].lat, gc.map4[y, x].lon];
+            double d_np_mp4 = gc.map4[y, x].distance;
+            int go4 = (v_mp4 == missValue || v_mp4 == missValue) ? 0 : 1;
+
+            double value;
+
+            if (d_np_mp1 < 10)
+
+            { value = v_mp1; }
+            else
+            {
+                value = (go1 * v_mp1 / d_np_mp1 +
+                         go2 * v_mp2 / d_np_mp2 +
+                         go3 * v_mp3 / d_np_mp3 +
+                         go4 * v_mp4 / d_np_mp4) /
+
+                        (go1 / d_np_mp1 +
+                         go2 / d_np_mp2 +
+                         go3 / d_np_mp3 +
+                         go4 / d_np_mp4);
+            };
 
             return value;
 
@@ -2124,7 +2339,8 @@ v(np)  =   ---------------------------------------------------------------------
             return Message;
         }
 
-        public string replaceURIPlaceHolders(string urlTemplate, int year, int month)
+
+        public string replaceURIPlaceHolders(string urlTemplate, int year, int month, int weeky, int day)
         {
             string url = String.Copy(urlTemplate);
             if (year != 0)
@@ -2139,11 +2355,28 @@ v(np)  =   ---------------------------------------------------------------------
                 url = url.Replace("$MM", monthString);
             }
 
+            if (weeky != 0)
+            {
+                var weekyNumber = (weeky - 1) * 5 + 1;
+                string weekyString = "" + weekyNumber;
+                if (weekyNumber < 10) weekyString = "0" + weekyNumber;
+                url = url.Replace("$WW", weekyString);
+            }
+
+            if (day != 0)
+            {
+                string dayString = "" + day;
+                if (day < 10) dayString = "0" + day;
+                url = url.Replace("$MM", dayString);
+            }
+
             int index = url.IndexOf("$");
             if (index > -1) throw new Exception("url still has template variables, forgot to put year or month?");
             return url;
 
         }
+
+
 
         public JassBuilderLog createBuilderLog(JassBuilder builder, string eventType, string Label, string Message, TimeSpan span, Boolean success)
         {
@@ -2294,7 +2527,7 @@ v(np)  =   ---------------------------------------------------------------------
 
                         //here is where we start the real builder
                         DateTime startedAt = DateTime.Now;
-                        JassBuilderLog childBuilderLog0 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_Start", builder.JassVariable.Name, "", new TimeSpan(), true);
+                        JassBuilderLog childBuilderLog0 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_Start weeky" + weeky, builder.JassVariable.Name, "", new TimeSpan(), true);
 
                         try
                         {
@@ -2710,7 +2943,7 @@ v(np)  =   ---------------------------------------------------------------------
                 DateTime startTimeProcessSource = DateTime.Now;
                 JassBuilderLog childBuilderLog0 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_BeforeProcessSource", builder.JassVariable.Name, "", startTimeProcessSource - startTimeProcessSource, true);
                 #endregion logs
-                string inputFile1 = processSource(builder, year, month, upload, false, builderAllLog);
+                string inputFile1 = processSource(builder, year, month, weeky, upload, false, builderAllLog);
                 #region logs
                 JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterProcessSource", builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, true);
                 #endregion logs
@@ -2729,7 +2962,8 @@ v(np)  =   ---------------------------------------------------------------------
                         if (builder.APIRequest.JassGrid.Type == "CFSR")
                         {
                             string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
-                            inputFile1 = processGridMappingCFSRToNarr(year, month, weeky, inputFileTemplateBeforeTransformation);
+                            processGridMappingCFSRToNarrModel result = processGridMappingCFSRToNarr(year, month, weeky, inputFileTemplateBeforeTransformation);
+                            inputFile1 = saveprocessGridMappingCFSRToNarrModel(result);
                         }else
 
                             if (builder.APIRequest.JassGrid.Type == "SHER")

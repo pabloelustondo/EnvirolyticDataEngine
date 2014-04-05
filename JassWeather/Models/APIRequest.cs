@@ -23,6 +23,8 @@ namespace JassWeather.Models
 
         public int? sampleYear { get; set; }
         public int? sampleMonth { get; set; }
+        public int? sampleWeeky { get; set; }
+        public int? sampleDay { get; set; }
 
         [DataType(DataType.MultilineText)]
         public string urlTemplate { get; set; }
