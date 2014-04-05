@@ -835,7 +835,7 @@ namespace JassWeather.Models
 
         // public JassMaccNarrGridsCombo MapFromMaccToNarr(int year, int month, string fileNameMaccTemp, string fileNameNarrTemp)
         // JassBuilder builder, int year, int month, Boolean upload, Boolean overWrite, JassBuilderLog builderAllLog
-        public processGridMappingCFSRToNarrModel processGridMappingCFSRToNarr(int year, int month, int weeky, string fileNameMaccTemp)
+        public processGridMappingCFSRToNarrModel processGridMappingCFSRToNarr(string EnvyVariableName, int year, int month, int weeky, int day, string fileNameMaccTemp)
         {
             processGridMappingCFSRToNarrModel result = new processGridMappingCFSRToNarrModel();
 
@@ -856,11 +856,10 @@ namespace JassWeather.Models
             Int16 missingValue = -32767;
             Int16 fillValue = -32767;
 
-            string VariableName = null;
-            Dictionary<string, MetadataDictionary> vars =
+               Dictionary<string, MetadataDictionary> vars =
                         new Dictionary<string, MetadataDictionary>();
 
-
+               string VariableName=null;
 
             using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
             {
@@ -891,17 +890,12 @@ namespace JassWeather.Models
                         };
                     }
 
-                    outputFileName = VariableName + "_macc2narr_" + year + smonth + sweeky + ".nc";
+                    outputFileName = fileNameBuilderByDay(EnvyVariableName,year,month,weekyNumber+day)+".nc";
                     outputFilePath = AppDataFolder + "\\" + outputFileName;
 
 
                     Single[] maccTime = maccDataSet.GetData<Single[]>("time");
                     Single[] maccLevel = maccDataSet.GetData<Single[]>("level0");
-
-                    DateTime ahora = DateTime.Now;
-                    var ahora1 = ahora.AddHours(-maccTime[0]);
-
-               //     double[] maccNarrTime = new double[maccTime.Length*2]; //this is two convert from 4 points a day to 8 points a day
 
                     double[] maccNarrTime = new double[8]; //this is two convert from 4 points a day to 8 points a day
 
@@ -913,7 +907,7 @@ namespace JassWeather.Models
                     DateTime narrDay;
                     double narrNumber;
 
-                    DateTime maccDayStart = new DateTime(year, month, weekyNumber);
+                    DateTime maccDayStart = new DateTime(year, month, weekyNumber+day);
                     DateTime narrDayStart = new DateTime(maccDayStart.Year, maccDayStart.Month, maccDayStart.Day);
 
                     if (maccDayStart.Year != year || maccDayStart.Month != month)
@@ -2962,8 +2956,11 @@ v(np)  =   ---------------------------------------------------------------------
                         if (builder.APIRequest.JassGrid.Type == "CFSR")
                         {
                             string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
-                            processGridMappingCFSRToNarrModel result = processGridMappingCFSRToNarr(year, month, weeky, inputFileTemplateBeforeTransformation);
-                            inputFile1 = saveprocessGridMappingCFSRToNarrModel(result);
+                            for (int d = 0; d < 5; d++)
+                            {
+                                processGridMappingCFSRToNarrModel result = processGridMappingCFSRToNarr(builder.JassVariable.Name,year, month, weeky, d, inputFileTemplateBeforeTransformation);
+                                inputFile1 = saveprocessGridMappingCFSRToNarrModel(result);
+                            }
                         }else
 
                             if (builder.APIRequest.JassGrid.Type == "SHER")
