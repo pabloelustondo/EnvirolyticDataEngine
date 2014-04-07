@@ -838,6 +838,7 @@ namespace JassWeather.Models
         public processGridMappingCFSRToNarrModel processGridMappingCFSRToNarr(string EnvyVariableName, int year, int month, int weeky, int day, string fileNameMaccTemp)
         {
             processGridMappingCFSRToNarrModel result = new processGridMappingCFSRToNarrModel();
+            result.variableName = EnvyVariableName;
 
             string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month,weeky,0);
             string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month,weeky,0);
@@ -891,6 +892,7 @@ namespace JassWeather.Models
                     }
 
                     outputFileName = fileNameBuilderByDay(EnvyVariableName,year,month,weekyNumber+day)+".nc";
+                    result.outputFileName = outputFileName;
                     outputFilePath = AppDataFolder + "\\" + outputFileName;
 
 
@@ -1015,11 +1017,6 @@ namespace JassWeather.Models
                         }
 
 
-                        //Ok, now let's process the file converting from Macc to Narr at the measure level.
-
-                        int thinking = 1;//
-
-
                         ////////  getting all the dimensions from Narr
                         /* this was before
                             Single[] narrY = narrDataSet.GetData<Single[]>("y");
@@ -1030,8 +1027,11 @@ namespace JassWeather.Models
                         GC.Collect();
                         var MemoryInitial = GC.GetTotalMemory(true);
                         startTotalTime = DateTime.Now;
+                        int startTimeStep = day * 4;
+                        int endTimeStep = startTimeStep + 3;
+
                         maccVariable = maccDataSet.GetData<Single[,,,]>(VariableName,
-                                DataSet.Range(0,3),
+                                DataSet.Range(startTimeStep,endTimeStep),
                                 DataSet.FromToEnd(0),
                                 DataSet.FromToEnd(0),
                                 DataSet.FromToEnd(0));
@@ -1217,10 +1217,10 @@ namespace JassWeather.Models
                     //     foreach (var attr in maccVars["level0"]) { if (attr.Key != "Name") outputDataSet.PutAttr("level", attr.Key, attr.Value); }
                     outputDataSet.Add<Single[]>("y", model.y, "y");
                     //     foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("y", attr.Key, attr.Value); }
-                    //      outputDataSet.Add<Single[]>("x", narrX, "x");
+                    outputDataSet.Add<Single[]>("x", model.x, "x");
                     //      foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("x", attr.Key, attr.Value); }
                    
-                    outputDataSet.Add<Single[, , ,]>("Vorticity",model.Variable,"time", "level", "y", "x");
+                    outputDataSet.Add<Single[, , ,]>(model.variableName,model.Variable,"time", "level", "y", "x");
                     /*
                                                     foreach (var attr in maccVars[VariableName])
                                                     {
@@ -1264,13 +1264,15 @@ namespace JassWeather.Models
             }
 
 */
-            return model.outputFilePath;
+            return model.outputFileName;
         }
 
 
         public class processGridMappingCFSRToNarrModel {
 
             public string outputFilePath { get; set; }
+            public string outputFileName { get; set; }
+            public string variableName { get; set; }
             public double[] time { get; set; }
             public Single[] level { get; set; }
             public Single[] y { get; set; }
@@ -1375,6 +1377,7 @@ namespace JassWeather.Models
 
                     outputFileName = VariableName + "_sher2narr_" + year + "_" + smonth + ".nc";
                     outputFilePath = AppDataFolder + "\\" + outputFileName;
+                  
 
                     double[] sherNarrTime = new double[sherTime.Length*8];
 
@@ -2955,6 +2958,7 @@ v(np)  =   ---------------------------------------------------------------------
 
                         if (builder.APIRequest.JassGrid.Type == "CFSR")
                         {
+
                             int firstDayOfWeeky = (weeky-1)*5 + 1;
                             DateTime firstDateToProcess = new DateTime(year, month, firstDayOfWeeky);
                             DateTime firstDateOfMonth = new DateTime(year, month,1);
@@ -2967,9 +2971,23 @@ v(np)  =   ---------------------------------------------------------------------
                             for (int d = 0; d < daysInWeeky; d++)
                             {
                                 var x = d;
-                                processGridMappingCFSRToNarrModel result = processGridMappingCFSRToNarr(builder.JassVariable.Name,year, month, weeky, d, inputFileTemplateBeforeTransformation);
+                                processGridMappingCFSRToNarrModel result = processGridMappingCFSRToNarr(builder.JassVariable.Name, year, month, weeky, d, inputFileTemplateBeforeTransformation);
                                 inputFile1 = saveprocessGridMappingCFSRToNarrModel(result);
+                                createBuilderLogChild(builderAllLog, builder, year, month, "transfor+generate weeky: " + weeky + " d:" + d, builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, true);
+
+
+                                if (upload)
+                                {
+                                    uploadBlob(builder.JassVariable.Name, inputFile1, this.AppDataFolder + "/" + inputFile1);
+                                    createBuilderLogChild(builderAllLog, builder, year, month, " UPLOAD weeky: " + weeky + " d:" + d, builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, true);
+
+                                }
+
                             }
+
+                            return Message;
+
+
                         }else
 
                             if (builder.APIRequest.JassGrid.Type == "SHER")
