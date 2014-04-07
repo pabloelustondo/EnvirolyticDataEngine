@@ -2955,9 +2955,18 @@ v(np)  =   ---------------------------------------------------------------------
 
                         if (builder.APIRequest.JassGrid.Type == "CFSR")
                         {
+                            int firstDayOfWeeky = (weeky-1)*5 + 1;
+                            DateTime firstDateToProcess = new DateTime(year, month, firstDayOfWeeky);
+                            DateTime firstDateOfMonth = new DateTime(year, month,1);
+                            DateTime firstDateNextMonth = firstDateOfMonth.AddMonths(1);
+                            int daysInMonth = (int)(firstDateNextMonth - firstDateOfMonth).TotalDays;
+                            int daysInWeeky = 5;
+                            if (firstDayOfWeeky > 25) daysInWeeky = daysInMonth - 25;
+
                             string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
-                            for (int d = 0; d < 5; d++)
+                            for (int d = 0; d < daysInWeeky; d++)
                             {
+                                var x = d;
                                 processGridMappingCFSRToNarrModel result = processGridMappingCFSRToNarr(builder.JassVariable.Name,year, month, weeky, d, inputFileTemplateBeforeTransformation);
                                 inputFile1 = saveprocessGridMappingCFSRToNarrModel(result);
                             }
