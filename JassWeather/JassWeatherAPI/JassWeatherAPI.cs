@@ -2471,6 +2471,18 @@ v(np)  =   ---------------------------------------------------------------------
         {
             JassBuilderLog builderLog = createBuilderLog(builder, "processBuilderAll_Start", builder.JassVariable.Name, "Start", DateTime.Now - DateTime.Now, true);
 
+            string processInfo = "Variable: " + builder.JassVariable.Name + " Range: "
+               + builder.year + "-" + builder.month + +builder.weeky + "-" + " ==> " +
+                     +builder.yearEnd + "-" + builder.monthEnd + "-" + builder.weekyEnd;
+
+            var allowed = markProcessStarts("Builder " + builder.JassVariable.Name, processInfo);
+
+            if (!allowed)
+            {
+                return "Cannot Run - Another Process Running";;
+            }
+
+
             int yearLog = (builder.year != null)?(int)builder.year: 1800;
             int monthLog = (builder.month != null) ? (int)builder.month : 0;
 
@@ -2581,6 +2593,11 @@ v(np)  =   ---------------------------------------------------------------------
                 jassbuilder.Message = e.Message;
             }
 
+            var resultCode = markProcessEnd("JassDeriver " + builder.JassVariable.Name, processInfo);
+            if (!resultCode)
+            {
+                Message = "Something was wrong with files in the File Forlder but maybe processed did run fine? ";
+            }
 
             return Message; 
         }
@@ -2653,12 +2670,52 @@ v(np)  =   ---------------------------------------------------------------------
             return result;
 
         }
+        public Boolean markProcessStarts(string info, string processInfo)
+        {
+
+            string path = AppTempFilesFolder + "/PROCESS_RUNNING";
+            if (File.Exists(path)) { return false; }
+            string path2 = AppTempFilesFolder + "/PROCESS_INFO_" + info + createTimestamp();
+
+            File.WriteAllText(path, "");
+            File.WriteAllText(path2, processInfo);
+
+            return true;
+        }
+
+        public Boolean markProcessEnd(string info, string processInfo)
+        {
+
+            string path = AppTempFilesFolder + "/PROCESS_RUNNING";
+            if (!File.Exists(path)) { return false; }
+            string path2 = AppTempFilesFolder + "/PROCESS_RESULT_" + info + createTimestamp();
+
+            File.Delete(path);
+            File.WriteAllText(path2, processInfo);
+
+            return true;
+        }
+            
 
         public ProcessDeriverModel processDeriverAll(JassDeriver deriver, Boolean upload, Boolean clean)
         {
-                         
+ 
              ProcessDeriverModel result = new ProcessDeriverModel();
              result.Message = "OK";
+
+             string processInfo = "Variable: " + deriver.JassVariable.Name + " Range: " 
+                 + deriver.YearStart + "-" + deriver.MonthStart + "-" + deriver.DayStart + " ==> " +
+                 + deriver.YearEnd + "-" + deriver.MnnthEnd + "-" + deriver.DayEnd;
+
+             var allowed = markProcessStarts("JassDeriver " + deriver.JassVariable.Name, processInfo);  
+
+             if (!allowed){
+
+                  result.Message = "Cannot Run - Another Process Running";
+                  return result;
+             }
+
+
              int numberOfMissingValues = 0;
              dynamic resultValues=null;
 
@@ -2871,6 +2928,13 @@ v(np)  =   ---------------------------------------------------------------------
              if (clean) cleanAppData();
              result.Message += " number of missing values: " + numberOfMissingValues;
 
+
+             var resultCode = markProcessEnd("JassDeriver " + deriver.JassVariable.Name, processInfo);
+             if (!resultCode)
+             {
+                 result.Message = "Something was wrong with files in the File Forlder but maybe processed did run fine? ";
+             }
+
              return result;        
         }
 
@@ -2906,6 +2970,21 @@ v(np)  =   ---------------------------------------------------------------------
                 double windChill = 13.12 + 0.6215 * T  - 11.37 * V016  + 0.3965* T * V016 ;
 
                 result = Convert.ToInt16(windChill);
+                return result;
+            }
+
+            if (deriver.JassFormula.Name == "WindSpeed")
+            {
+                var windUSpeed = valueX1;  //meter/sec
+                var windVSpeed = valueX2;  //meter/sec
+                var windUSpeedKmh = windUSpeed * 3.6;       //from meter/sec to km/h
+                var windVSpeedKmh = windVSpeed * 3.6;       //from meter/sec to km/h
+                var V = Math.Sqrt(Math.Pow(windUSpeedKmh, 2) + Math.Pow(windVSpeedKmh, 2));
+                var V016 = Math.Pow(V, 0.16);
+
+                double windSpeed = Math.Sqrt(Math.Pow(windUSpeedKmh, 2) + Math.Pow(windVSpeedKmh, 2)); ;
+
+                result = Convert.ToInt16(windSpeed);
                 return result;
             }
 
@@ -4692,7 +4771,7 @@ v(np)  =   ---------------------------------------------------------------------
 
             foreach (var container in containers)
             {
-                if (container.Name != "ftp")
+                if (container.Name != "ftp" && container.Name != "trash")
                 {
                     variableStatus = new JassVariableStatus(DateTime.Now.Year - 9, DateTime.Now.Year);
                     variableStatus.ContainerName = container.Name;
@@ -4787,6 +4866,38 @@ v(np)  =   ---------------------------------------------------------------------
 
         }
 
+        public class DeleteBlobRangeModel
+        {
+            public string VariableName { get; set; }  //same as container name
+            public DateTime startDate { get; set; }
+            public DateTime endDate { get; set; }
+            public List<string> blobNames { get; set; }
+            public Boolean confirmed { get; set; }
+        }
+
+
+        public string createTimestamp()
+        {
+            DateTime now = DateTime.Now;
+            return now.Year + "_" + now.Month + "_" + now.Day + "_" + now.Hour + "_" + now.Minute;
+        }
+        public string deleteBlobRange(DeleteBlobRangeModel blobRange )
+        {
+            DateTime now = DateTime.Now;
+            string timeStamp = createTimestamp() + "___";  
+            foreach (var blobName in blobRange.blobNames)
+            {
+                string filePath = AppDataFolder + "/" +blobName;
+                downloadBlob(blobRange.VariableName.ToLower(), blobName, filePath);
+                uploadBlob("trash", timeStamp + blobName, filePath);
+                deleteBlob(blobName, blobRange.VariableName.ToLower());
+            }
+           
+
+
+            return "Blob Range Trashed";
+
+        }
 
         public string deleteBlob(string blobName, string containerName)
         {

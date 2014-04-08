@@ -1,11 +1,18 @@
-﻿@model JassWeather.Controllers.BlobController.DeleteBlobRangeModel
+﻿@model JassWeather.Models.JassWeatherAPI.DeleteBlobRangeModel
+
 @{
     ViewBag.Title = "DeleteBlobRange";
 }
 
 <h2>DeleteBlobRange</h2>
 
+You are going to thrash the following files 
+
+
 @ViewBag.Message
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
 
     <fieldset>
         <legend>JassBuilder</legend>
@@ -14,20 +21,45 @@
         </div>
         <div class="editor-field">
             @Html.DisplayFor(model => model.VariableName)
+            @Html.HiddenFor(model => model.VariableName)
         </div>
                 <div class="editor-label">
             Start Date
         </div>
         <div class="editor-field">
             @Html.DisplayFor(model => model.startDate)
+            @Html.HiddenFor(model => model.startDate)
+
         </div>
                 <div class="editor-label">
             End Date
         </div>
         <div class="editor-field">
             @Html.DisplayFor(model => model.endDate)
+            @Html.HiddenFor(model => model.endDate)
         </div>
-         <p>
+        @if (!Model.confirmed){
+                        
+        <div class="editor-field">
+            CONFIRM?
+            @Html.EditorFor(model => model.confirmed)
+        </div>
+        <p>
             <input type="submit" value="Submit" />
         </p>
+            
+        }else {
+         
+               <p>Blobs have been sent to Trash  </p>           
+        }
+
+
      </fieldset>
+}
+
+    <li>@Html.ActionLink("GO BACK", "DeleteBlobRange", "Blob")</li> 
+
+@foreach (var blobName in Model.blobNames)
+{
+    <p>@blobName</p>
+}

@@ -232,37 +232,35 @@ namespace JassWeather.Controllers
             return View();
         }
 
-        public class DeleteBlobRangeModel
-        {
-            public string VariableName { get; set; }
-            public DateTime startDate { get; set; }
-            public DateTime endDate { get; set; }
-        }
+
         public ActionResult DeleteBlobRange()
         {
 
             //string result = apiCaller.deleteBlob(name, containerName);
             ViewBag.Message = "Hi";
 
-            var Model = new DeleteBlobRangeModel();
+            var Model = new JassWeatherAPI.DeleteBlobRangeModel();
             return View("DeleteBlobRangeFirst", Model);
         }
         [HttpPost]
-        public ActionResult DeleteBlobRange(DeleteBlobRangeModel Model)
+        public ActionResult DeleteBlobRange(JassWeatherAPI.DeleteBlobRangeModel Model)
         {
 
             DateTime day = Model.startDate;
-            int totalDays = (int)(Model.endDate - Model.startDate).TotalDays;
+            int totalDays = (int)(Model.endDate - Model.startDate).TotalDays + 1;
             string name;
-            string containerName = Model.VariableName.ToLower();
-            string allNames = "";
+            Model.blobNames = new List<string>();
             for (int d = 0; d < totalDays; d++)
             {
-                name = apiCaller.fileNameBuilderByDay(containerName, day.Year, day.Month, day.Day) + ".nc";
-                allNames = allNames + name;
+                name = apiCaller.fileNameBuilderByDay(Model.VariableName, day.Year, day.Month, day.Day) + ".nc";
+                Model.blobNames.Add(name);
+                day = day.AddDays(1);
             }
-            //string result = apiCaller.deleteBlob(name, containerName);
-            ViewBag.Message = allNames;
+            if (Model.confirmed)
+            {
+                string result = apiCaller.deleteBlobRange(Model);
+            }
+            ViewBag.Message = "Ok";
             return View(Model);
         }
 

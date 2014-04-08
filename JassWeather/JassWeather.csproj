@@ -700,12 +700,10 @@
     <Content Include="App_Files\Narr_2_Macc_Grid_Mapper.nc" />
     <Content Include="App_Files\Narr_2_SHER_Grid_Mapper.nc" />
     <Content Include="App_Files\Narr_Grid.nc" />
+    <Content Include="App_TempFiles\PROCESS_INFO_JassDeriver WindSpeed2014_4_8_14_32" />
+    <Content Include="App_TempFiles\PROCESS_RESULT_JassDeriver WindSpeed2014_4_8_14_39" />
     <None Include="Properties\PublishProfiles\envirolytic - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - Web Deploy.pubxml" />
-    <None Include="Properties\PublishProfiles\envirolytic-mark - FTP.pubxml" />
-    <None Include="Properties\PublishProfiles\envirolytic-mark - Web Deploy.pubxml" />
-    <None Include="Properties\PublishProfiles\envirolytic-zen - FTP.pubxml" />
-    <None Include="Properties\PublishProfiles\envirolytic-zen - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic1 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic1 - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic2 - FTP.pubxml" />
@@ -900,7 +898,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="App_TempFiles\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
