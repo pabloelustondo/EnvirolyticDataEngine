@@ -315,7 +315,7 @@ namespace JassWeather.Models
             Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
             double c = 2 * Math.Asin(Math.Min(1, Math.Sqrt(a)));
             double d = 6371 * 2 * Math.Asin(Math.Min(1, Math.Sqrt(a)));
-            return d; 
+            return Math.Abs(d); 
 	    }
 
         public static double measureAtLocation(double firstLat, double firstLong){
@@ -471,7 +471,7 @@ namespace JassWeather.Models
                 start = DateTime.Now;
                 for (int x = gc.narrXMin; x < gc.narrXMax; x++)
                 {
-                    minDistance = 2000; minDistance2 = 2000; minDistance3 = 2000; minDistance4 = 2000;
+                    minDistance = 40000; minDistance2 = 40000; minDistance3 = 40000; minDistance4 = 40000;
                     for (int z = gc.maccLatMin; z < gc.maccLatMax; z++)   //161
                     {
                             double distance = HaversineDistance(gc.maccLat[z], gc.maccLon[z], gc.narrLat[y, x], gc.narrLon[y, x]);
@@ -1319,7 +1319,7 @@ namespace JassWeather.Models
 
                 narrY = narrDataSet.GetData<Single[]>("y");
                 narrX = narrDataSet.GetData<Single[]>("x");
-                narrTime = narrDataSet.GetData<double[]>("time");
+             //   narrTime = narrDataSet.GetData<double[]>("time");
 
                 var narrSchema = narrDataSet.GetSchema();
                 gc.narrLon = narrDataSet.GetData<Single[,]>("lon");
@@ -1538,7 +1538,7 @@ namespace JassWeather.Models
 
 
                             outputDataSet.Add<double[]>("time", sherNarrTime, "time");
-                            foreach (var attr in narrVars["time"]) { if (attr.Key != "Name") outputDataSet.PutAttr("time", attr.Key, attr.Value); }
+                            //foreach (var attr in narrVars["time"]) { if (attr.Key != "Name") outputDataSet.PutAttr("time", attr.Key, attr.Value); }
                             outputDataSet.Add<Single[]>("y", narrY, "y");
                             foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("y", attr.Key, attr.Value); }
                             outputDataSet.Add<Single[]>("x", narrX, "x");
@@ -1755,14 +1755,12 @@ v(np)  =   ---------------------------------------------------------------------
         {
 
             //minor hack due to 0s. 
-            if ( (gc.map[y, x].distance == 0) && (gc.map[y, x].lat==0)  ){
-
+            if ( gc.map[y, x].distance > 200 ){   //we do not want to interpolate is distance is larger than 200Kkm
                 return missValue;
             }
 
             int day = Convert.ToInt32(t / 8);
             Int16 v_mp1 = maccValues[day, gc.map[y, x].lat];
-
             return v_mp1;
         }
 
@@ -3932,10 +3930,10 @@ v(np)  =   ---------------------------------------------------------------------
 
             }
 
-            string outputQAFilePath = AppFilesFolder + "\\sherindanStationsLatLonQA.csv";
+            string outputQAFilePath = AppFilesFolder + "\\sheridanStationsLatLonQA.csv";
             File.WriteAllLines(outputQAFilePath, lines4QAFile);
 
-            string outputFilePath = AppDataFolder + "\\sherindan_stations.nc";
+            string outputFilePath = AppDataFolder + "\\sheridan_stations.nc";
             using (var sheridanOutputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
             {
                 sheridanOutputDataSet.Add<string[]>("station", station, "station"); ;

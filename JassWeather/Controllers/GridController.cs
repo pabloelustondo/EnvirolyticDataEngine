@@ -60,7 +60,13 @@ namespace JassWeather.Controllers
             ViewBag.JasslatLonID = new SelectList(locationChoices, "JasslatLonID", "Name");
             #endregion
 
-            return View(model);
+            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
+    "sheridan_stations.nc",
+    "lat",
+    "lon",
+    "Narr_Grid.nc",
+    "Narr_2_SHER_Grid_Mapper.nc", true, true);
+            return View("MapSher2NarrTest", result);
         }
 
 

@@ -4,16 +4,15 @@
     ViewBag.Title = "PlotGridPointsAroundLocation";
 }
 
-<h2>Grid Tests</h2>
+<h2>Testing the Grid</h2>
 
-See grid points around a location. See how grid mapping works.
+<h1>Click on this to see the whole grid with a color code based on distance</h1>
 
 <p>@Html.ActionLink("Show Entire NARR => CFSR Map on the NARR Grid", "ShowGridMap", "Grid", new {mapperFileName="Narr_2_CFSR_Grid_Mapper.nc"},null)</p> 
-
 <p>@Html.ActionLink("Show Entire NARR => MACC Map on the NARR Grid", "ShowGridMap", "Grid", new {mapperFileName="Narr_2_Macc_Grid_Mapper.nc"},null)</p> 
-
 <p>@Html.ActionLink("Show Entire NARR => SHERIDAN Map on the NARR Grid", "ShowGridMap", "Grid", new {mapperFileName="Narr_2_SHER_Grid_Mapper.nc"},null)</p> 
 
+<h1>OR, choose a location to see points around it (only for Sheridan for now)</h1>
 
 @using (Html.BeginForm()) {
     @Html.ValidationSummary(true)
@@ -21,9 +20,6 @@ See grid points around a location. See how grid mapping works.
     <fieldset>
         <legend></legend>
 
-        <div class="editor-label">
-            Choose Location to find nearest points in grids.
-        </div>
         <div class="editor-field">
             @Html.DropDownList("JassLatLonID", String.Empty)
             @Html.ValidationMessageFor(model => model.JassLatLonId)
