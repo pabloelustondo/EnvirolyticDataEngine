@@ -281,7 +281,16 @@ namespace JassWeather.Models
                         //This is the case where we have to really download the file form the actual source
                         //For the moment I am assuming that this is FTP-netCDF... 
 
-                        get_big_NetCDF_by_ftp2(url, AppDataFolder);
+                        if (builder.APIRequest.type == "FTP-netCDF")
+                        {
+                            get_big_NetCDF_by_ftp2(url, AppDataFolder);
+                        }
+                        else
+                        {
+                            //we have a problem here we could not find the file
+                           createBuilderLogChild(builderAllLog, builder, year, month, "processSource_FILE NOT FOUND CANNOT DOWNLOAD", "Test", LogMessage, new TimeSpan(), true);
+                           throw new Exception("FILE NOT FOUND CANNOT DOWNLOAD: " + fileName);
+                        }
 
                     }
                 }
@@ -587,7 +596,7 @@ namespace JassWeather.Models
 
                 Single[] narrY = narrDataSet.GetData<Single[]>("y");
                 Single[] narrX = narrDataSet.GetData<Single[]>("x");
-                double[] narrTime = narrDataSet.GetData<double[]>("time");
+           //     double[] narrTime = narrDataSet.GetData<double[]>("time");
      
                 using (var maccDataSet = DataSet.Open(maccFile + "?openMode=open"))
                 {
@@ -628,7 +637,9 @@ namespace JassWeather.Models
 
                     if (maccDayStart.Year != year || maccDayStart.Month != month)
                     {
+                        createBuilderLog("ERROR","maccDayStart.Year != year || maccDayStart.Month != month","maccDayStart.Year != year || maccDayStart.Month != month", false);
                         throw new Exception("maccDayStart.Year != year || maccDayStart.Month != month");
+                      
                     }
 
                     double narrDayStartHours = (narrDayStart - day1800).TotalHours;
@@ -640,13 +651,6 @@ namespace JassWeather.Models
                          narrDayHours += 3; 
                     }
 
-                    for (int t = 0; t < maccTime.Length; t++)
-                    {
-                        if (maccNarrTime[t] != narrTime[t])
-                        {
-                            var crap = 1;
-                        }
-                    }
 
                     //At this point we have the time dimension in the variable maccNarrTime
                     //we do not need the time dimension from narr anymore.
@@ -787,7 +791,7 @@ namespace JassWeather.Models
 
 
                                 outputDataSet.Add<double[]>("time", maccNarrTime, "time");
-                                foreach (var attr in narrVars["time"]) { if (attr.Key != "Name") outputDataSet.PutAttr("time", attr.Key, attr.Value); }
+                        //        foreach (var attr in narrVars["time"]) { if (attr.Key != "Name") outputDataSet.PutAttr("time", attr.Key, attr.Value); }
                                 outputDataSet.Add<Single[]>("y", narrY, "y");
                                 foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("y", attr.Key, attr.Value); }
                                 outputDataSet.Add<Single[]>("x", narrX, "x");
@@ -1813,7 +1817,7 @@ v(np)  =   ---------------------------------------------------------------------
     
 
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
-            string maccFile = AppDataFolder + "/" + fileNameInputGrid;
+            string maccFile = AppFilesFolder + "/" + fileNameInputGrid;
             string narrFile = AppFilesFolder + "/" + fileNameNarr;
             string mapFile = AppFilesFolder + "/" + DateTime.Now.Millisecond + fileNameMapper;
             int MissingValue = 999999;
@@ -2442,6 +2446,24 @@ v(np)  =   ---------------------------------------------------------------------
 
             return jassBuilderLog;
         }
+        public JassBuilderLog createBuilderLog(string eventType, string Label, string Message, Boolean success)
+        {
+            JassBuilderLog jassBuilderLog = new JassBuilderLog();
+
+            jassBuilderLog.JassBuilderID = null;
+            jassBuilderLog.EventType = eventType;
+            jassBuilderLog.ServerName = ServerNameJass;
+            jassBuilderLog.Label = eventType;
+            jassBuilderLog.startTotalTime = DateTime.Now;
+            jassBuilderLog.Message = Message;
+            jassBuilderLog.spanTotalTime = new TimeSpan();
+            jassBuilderLog.Success = success;
+
+            db.JassBuilderLogs.Add(jassBuilderLog);
+            db.SaveChanges();
+
+            return jassBuilderLog;
+        }
 
         public JassBuilderLog createBuilderLogChild(JassBuilderLog parentLog, JassBuilder builder, int year, int month, string eventType, string Label, string Message, TimeSpan span, Boolean success)
         {
@@ -2550,7 +2572,7 @@ v(np)  =   ---------------------------------------------------------------------
                         catch (Exception e)
                         {
 
-                            JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_End", builder.JassVariable.Name, e.Message, DateTime.Now - startedAt, false);
+                            JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_MANAGED EXCEPTION Could not process ", builder.JassVariable.Name, e.Message, DateTime.Now - startedAt, false);
 
                         }
                         finally
@@ -3024,7 +3046,7 @@ v(np)  =   ---------------------------------------------------------------------
                 JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterProcessSource", builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, true);
                 #endregion logs
 
-                Boolean input_Grid_Is_Different = (builder.APIRequest.JassGrid.Type != "NARR");
+                Boolean input_Grid_Is_Different = (builder.APIRequest.JassGrid.Type != "NARR" );
 
                 if (input_Grid_Is_Different)
                 {  try
@@ -3506,7 +3528,15 @@ v(np)  =   ---------------------------------------------------------------------
                     string code = line[1];
                     //here we see if we have this in the DB
 
+                    JassLatLonGroup jasslatlonGroup = db.JassLatLonGroups.Where(j => j.Name == "SheridanStations").First();
                     List<JassLatLon> jasslatlonList = db.JassLatLons.Where(j => j.StationCode==code).ToList();
+                    if (jasslatlonList.Count > 0)
+                    {
+                        JassLatLon jassLatLon = jasslatlonList[0];
+                        jassLatLon.JassLatLonGroupID = jasslatlonGroup.JassLatLonGroupID;
+                        db.Entry(jassLatLon).State = System.Data.EntityState.Modified;
+                        db.SaveChanges();
+                    }
 
                     if (jasslatlonList.Count == 0)
                     {
@@ -3710,7 +3740,7 @@ v(np)  =   ---------------------------------------------------------------------
 
         }
 
-        public string sheridanSaveNetCDF(SheridanInfoModel vm){
+        public string sheridanSaveHistory(SheridanInfoModel vm){
 
             //this process will save this information in a grid-friendly way.
             //we will have data, lat, lon, time and no level
@@ -3751,7 +3781,7 @@ v(np)  =   ---------------------------------------------------------------------
             return ReturnMessage;
         }
 
-        public string sheridanSaveLatLongNetCDF()
+        public string sheridanSaveLatLongFromDB()
         {
             string ReturnMessage = "ok";
             //the idea here is to loop through all the found codes in the DB and store them in a file
@@ -3793,6 +3823,130 @@ v(np)  =   ---------------------------------------------------------------------
                     sheridanOutputDataSet.Add<Single[]>("lat", lat, "station");
                     sheridanOutputDataSet.Add<Single[]>("lon", lon, "station");
                 }
+
+
+            return ReturnMessage;
+        }
+
+        public string sheridanSaveLatLongFrom_DB_Or_OriginalLatLons()
+        {
+            string ReturnMessage = "ok";
+            //the idea here is to loop through all the codes in the file
+
+            string sherindanOriginalStationsFilePath = AppFilesFolder + "/allsta.csv";
+            string[] originallines = System.IO.File.ReadAllLines(sherindanOriginalStationsFilePath);
+
+            string sherindanStationsFilePath = AppFilesFolder + "/sheridan-stations.csv";
+            string[] allSheridanStationsLines = System.IO.File.ReadAllLines(sherindanStationsFilePath);
+
+            string[] station = new string[allSheridanStationsLines.Length];
+
+            Single[] lat = new Single[allSheridanStationsLines.Length];
+            Single[] lon = new Single[allSheridanStationsLines.Length];
+
+            Single[] latDB = new Single[allSheridanStationsLines.Length];
+            Single[] lonDB = new Single[allSheridanStationsLines.Length];
+
+            Single[] latOfficial = new Single[allSheridanStationsLines.Length];
+            Single[] lonOfficial = new Single[allSheridanStationsLines.Length];
+
+            double[] dist = new double[allSheridanStationsLines.Length];
+            string[] lines4QAFile = new string[allSheridanStationsLines.Length];
+
+            List<JassLatLon> latlons = db.JassLatLons.Where(l => l.StationCode.Length == 3).ToList();
+            Dictionary<string, JassLatLon> DBlatlonsDic = new Dictionary<string, JassLatLon>();
+            string code;
+
+            foreach (var latlon in latlons)
+            {
+                code = latlon.StationCode.Substring(0, 3);
+                DBlatlonsDic.Add(code, latlon);
+            }
+
+            Dictionary<string, JassLatLon> originaLatLonsDic = new Dictionary<string, JassLatLon>();
+
+            for (int l = 0; l < originallines.Length; l++)
+            {
+                
+                var line = originallines[l].Replace("  "," ").Replace("  "," ").Split(' ');
+                code = line[0];
+                if (line.Length > 3) throw new Exception("line.Length > 3 is not true");
+                JassLatLon originalLatLon = new JassLatLon();
+
+                originalLatLon.StationCode = code;
+                originalLatLon.Lat = Convert.ToDouble(line[1]);
+                originalLatLon.Lon = Convert.ToDouble(line[2]);
+                originaLatLonsDic.Add(code,originalLatLon);
+            }
+
+            for (int l = 0; l < allSheridanStationsLines.Length; l++)
+            {
+                var line = allSheridanStationsLines[l].Split('\t');
+                code = line[1];
+                station[l] = code;
+
+                if (originaLatLonsDic.ContainsKey(code))
+                {
+
+                    latOfficial[l] = Convert.ToSingle(originaLatLonsDic[code].Lat);
+                    lonOfficial[l] = Convert.ToSingle(originaLatLonsDic[code].Lon);
+
+                    latDB[l] = Convert.ToSingle(DBlatlonsDic[code].Lat);
+                    lonDB[l] = Convert.ToSingle(DBlatlonsDic[code].Lon);
+
+                    var distance = dist[l] = Math.Abs(HaversineDistance(latDB[l], lonDB[l], latOfficial[l], lonOfficial[l]));
+
+                    if (distance > 30)
+                    {
+                        lat[l] = latOfficial[l];
+                        lon[l] = lonOfficial[l];
+                    }
+                    else {
+                        lat[l] = latDB[l];
+                        lon[l] = lonDB[l];
+             
+                    }
+
+
+                }
+                else
+                {
+
+                    latDB[l] = Convert.ToSingle(DBlatlonsDic[code].Lat);
+                    lonDB[l] = Convert.ToSingle(DBlatlonsDic[code].Lon);
+
+                    lat[l] = Convert.ToSingle(DBlatlonsDic[code].Lat);
+                    lon[l] = Convert.ToSingle(DBlatlonsDic[code].Lon);
+
+                    var distance = dist[l] = -999999;
+
+                    latOfficial[l] = -999999;
+                    lonOfficial[l] = -999999;
+
+
+                 }
+
+                lines4QAFile[l] = code + "," + latOfficial[l] + "," + lonOfficial[l] + "," + latDB[l] + "," + lonDB[l] + "," + dist[l] + "," + lat[l] + "," + lon[l]; 
+
+
+
+            }
+
+            string outputQAFilePath = AppFilesFolder + "\\sherindanStationsLatLonQA.csv";
+            File.WriteAllLines(outputQAFilePath, lines4QAFile);
+
+            string outputFilePath = AppDataFolder + "\\sherindan_stations.nc";
+            using (var sheridanOutputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
+            {
+                sheridanOutputDataSet.Add<string[]>("station", station, "station"); ;
+                sheridanOutputDataSet.Add<Single[]>("lat", lat, "station");
+                sheridanOutputDataSet.Add<Single[]>("lon", lon, "station");
+                sheridanOutputDataSet.Add<Single[]>("latDB", latDB, "station");
+                sheridanOutputDataSet.Add<Single[]>("lonDB", lonDB, "station");
+                sheridanOutputDataSet.Add<Single[]>("latOfficial", latOfficial, "station");
+                sheridanOutputDataSet.Add<Single[]>("lonOfficial", lonOfficial, "station");
+                sheridanOutputDataSet.Add<double[]>("dist", dist, "station");
+            }
 
 
             return ReturnMessage;
@@ -5354,12 +5508,13 @@ v(np)  =   ---------------------------------------------------------------------
                 //first let's select the key variable by having various dimensions
                 VariableSchema keyVariable = null;
                 Boolean hasLevel = false;
-
+                string typeOfData = "Int16";
                 foreach (var v in schema1.Variables)
                 {
                     if (v.Dimensions.Count > 2)
                     {
                         keyVariable = v;
+                        typeOfData = v.TypeOfData.Name;
                     }
                     if (v.Name == "level")
                     {
@@ -5394,23 +5549,25 @@ v(np)  =   ---------------------------------------------------------------------
                 double[] time = dataset1.GetData<double[]>("time");
                 Single[] level = new Single[1];
                 if (hasLevel) level = dataset1.GetData<Single[]>("level");
-
-                dayGridValues = new JassGridValues(keyVariable.Metadata, keyVariable.Name, time.Length, level.Length, y.Length, x.Length);
+                int levelLength = level.Length;
+                if (levelLength > 15) { levelLength = 15; }
+                dayGridValues = new JassGridValues(keyVariable.Metadata, keyVariable.Name, time.Length, levelLength, y.Length, x.Length);
 
                 //how to get the scale/factor value.
 
                 string outPutString = schema2string(schema1);
 
-                for (int ll = 0; ll < level.Length; ll++) { 
+                for (int ll = 0; ll < levelLength; ll++) { 
                     dayGridValues.measureMin[ll] = add_offset + scale_factor * 32768;
                     dayGridValues.measureMax[ll] = add_offset + scale_factor * (-32768); }
-
+                dynamic values=null;
                 if (hasLevel)
                 {
-                    Int16[, , ,] values = dataset1.GetData<Int16[, , ,]>(keyVariable.Name);
+                    if (typeOfData =="Int16" )  {values = dataset1.GetData<Int16[, , ,]>(keyVariable.Name);}
+                    else if(typeOfData == "Single") { values = dataset1.GetData<Single[, , ,]>(keyVariable.Name);}
                     for (int tt = 0; tt < time.Length; tt++)
                     {
-                        for (int ll = 0; ll < level.Length; ll++)
+                        for (int ll = 0; ll < levelLength; ll++)
                         {
                             for (int yy = 0; yy < y.Length; yy++)
                             {
@@ -5437,7 +5594,9 @@ v(np)  =   ---------------------------------------------------------------------
                 }
                 else
                 {
-                    Int16[, ,] values = dataset1.GetData<Int16[, ,]>(keyVariable.Name);
+                    if (typeOfData == "Int16") { values = dataset1.GetData<Int16[, ,]>(keyVariable.Name); }
+                    else if (typeOfData == "Single") { values = dataset1.GetData<Single[, ,]>(keyVariable.Name); }
+
                     for (int tt = 0; tt < time.Length; tt++)
                     {
                         for (int ll = 0; ll < 1; ll++)

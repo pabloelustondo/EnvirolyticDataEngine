@@ -28,7 +28,7 @@ namespace JassWeather.Controllers
 
 
                 vm = apiCaller.sheridanGetHistory(1000);
-                ViewBag.resultOfFileSave = apiCaller.sheridanSaveNetCDF(vm);
+                ViewBag.resultOfFileSave = apiCaller.sheridanSaveHistory(vm);
 
                 JassWeather.Models.JassWeatherAPI.SheridanInspect si = apiCaller.sheridanInspectFile();
 
@@ -51,13 +51,13 @@ namespace JassWeather.Controllers
 
         public ActionResult SaveSheridanLatLon()
         {
-            ViewBag.Result = apiCaller.sheridanSaveLatLongNetCDF();
+            ViewBag.Result = apiCaller.sheridanSaveLatLongFrom_DB_Or_OriginalLatLons();
             return View();
         }
 
         public ActionResult TestSheridanMapp()
         {
-            ViewBag.Result = apiCaller.sheridanSaveLatLongNetCDF();
+            ViewBag.Result = apiCaller.sheridanSaveLatLongFromDB();
             return View();
         }
 

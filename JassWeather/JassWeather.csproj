@@ -624,6 +624,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Readme\Elmah.txt" />
+    <Content Include="App_TempFiles\readme.txt" />
     <Content Include="bin\Microsoft.Research.Science.Data.EsriGrid.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -700,8 +701,6 @@
     <Content Include="App_Files\Narr_2_Macc_Grid_Mapper.nc" />
     <Content Include="App_Files\Narr_2_SHER_Grid_Mapper.nc" />
     <Content Include="App_Files\Narr_Grid.nc" />
-    <Content Include="App_TempFiles\PROCESS_INFO_JassDeriver WindSpeed2014_4_8_14_32" />
-    <Content Include="App_TempFiles\PROCESS_RESULT_JassDeriver WindSpeed2014_4_8_14_39" />
     <Content Include="App_Files\Narr_2_CFSR_Grid_Mapper.nc" />
     <None Include="Properties\PublishProfiles\envirolytic - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - Web Deploy.pubxml" />
