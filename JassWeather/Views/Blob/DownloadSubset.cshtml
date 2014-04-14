@@ -1,0 +1,50 @@
+﻿@model JassWeather.Controllers.BlobController.DownloadSubsetModel
+@{
+    ViewBag.Title = "ShowLocationBasedDashboard";
+}
+
+Report -  Number of Errors: @Model.numberOfErrors
+
+<table>
+    <tr>
+        <td>
+            Day
+        </td>
+        @for (int v = 0; v < Model.variables.Count; v++)
+        {
+            if (Model.variableChoices[v])
+            {
+        <td>
+            @Model.variables[v].Name
+        </td>
+            }
+
+        }      
+      
+   </tr>
+    @{
+        DateTime day = new DateTime(Model.year, Model.month, Model.day);
+        }
+
+    @for(int d=0; d<Model.totalDays; d++){
+        <tr>
+        <td>
+            @day.Year - @day.Month - @day.Day
+        </td>
+        @for (int v = 0; v < Model.variables.Count; v++)
+        {
+            if (Model.variableChoices[v])
+            {
+        <td>
+            @Model.reportStatus[v,d]
+
+
+        </td>
+            }
+            day = day.AddDays(1);
+        }  
+   
+       </tr>
+    } 
+
+</table>

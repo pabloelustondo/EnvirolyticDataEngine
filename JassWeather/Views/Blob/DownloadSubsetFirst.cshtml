@@ -1,0 +1,69 @@
+﻿@model JassWeather.Controllers.BlobController.DownloadSubsetModel
+
+
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+
+        <div class="editor-label">
+            Start Year
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.year)
+            @Html.ValidationMessageFor(model => model.year)
+        </div>
+                <div class="editor-label">
+            Start Month
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.month)
+            @Html.ValidationMessageFor(model => model.month)
+        </div>
+        <div class="editor-label">
+            Start Day
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.day)
+            @Html.ValidationMessageFor(model => model.year)
+        </div>
+        If only interested in one day, leave the next one as 0
+        <div class="editor-label">
+            End Year
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.yearEnd)
+            @Html.ValidationMessageFor(model => model.yearEnd)
+        </div>
+        <div class="editor-label">
+            End Month
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.monthEnd)
+            @Html.ValidationMessageFor(model => model.monthEnd)
+        </div>
+        <div class="editor-label">
+            End Day
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.dayEnd)
+            @Html.ValidationMessageFor(model => model.dayEnd)
+        </div>
+
+        @for (int v = 0; v < Model.variableChoices.Length; v++)
+        {
+        <div class="editor-field">
+            @Html.DisplayFor(model => model.variables[v].Name)
+            @Html.CheckBoxFor(model => model.variableChoices[v])
+        </div>
+
+        }
+
+
+         <p>
+            <input type="submit" value="Submit" />
+        </p>
+     </fieldset>
+}
+

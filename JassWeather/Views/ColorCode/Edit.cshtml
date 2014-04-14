@@ -1,0 +1,262 @@
+﻿@model JassWeather.Models.JassColorCode
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+<p> Enter the colors in Hexa RGB for example, this is pure red #FF0000. pure green #00FF00 and pure blue #0000FF </p>
+<p>you can pick colors here <a href="http://www.w3schools.com/tags/ref_colorpicker.asp"> color picker  </a></p>
+<p>Color0 means the color for any value below value 1.
+    ColorX means the value between valueX and value X+1
+    if X 10 is means any value larger than Color10
+</p>
+
+@using (Html.BeginForm()) {
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>JassColorCode</legend>
+
+        @Html.HiddenFor(model => model.JassColorCodeID)
+
+        <div style="background-color:@Model.Color0">
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Color0)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Color0)
+            @Html.ValidationMessageFor(model => model.Color0)
+        </div>
+        </div>
+
+        <div style="background-color:@Model.Color1">
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Value1)
+        </div>
+        <div class="editor-field" style="background-color:@Model.Color1">
+            @Html.EditorFor(model => model.Value1)
+            @Html.ValidationMessageFor(model => model.Value1)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Color1)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Color1)
+            @Html.ValidationMessageFor(model => model.Color1)
+        </div>
+        </div>
+
+        <div style="background-color:@Model.Color2">
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Value2)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Value2)
+            @Html.ValidationMessageFor(model => model.Value2)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Color2)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Color2)
+            @Html.ValidationMessageFor(model => model.Color2)
+        </div>
+        </div>
+
+        <div style="background-color:@Model.Color3">
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Value3)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Value3)
+            @Html.ValidationMessageFor(model => model.Value3)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Color3)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Color3)
+            @Html.ValidationMessageFor(model => model.Color3)
+        </div>
+        </div>
+
+        <div style="background-color:@Model.Color4">
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Value4)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Value4)
+            @Html.ValidationMessageFor(model => model.Value4)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Color4)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Color4)
+            @Html.ValidationMessageFor(model => model.Color4)
+        </div>
+         </div>
+
+        <div style="background-color:@Model.Color5">
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Value5)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Value5)
+            @Html.ValidationMessageFor(model => model.Value5)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Color5)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Color5)
+            @Html.ValidationMessageFor(model => model.Color5)
+        </div>
+        </div>
+
+        <div style="background-color:@Model.Color6">
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Value6)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Value6)
+            @Html.ValidationMessageFor(model => model.Value6)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Color6)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Color6)
+            @Html.ValidationMessageFor(model => model.Color6)
+        </div>
+        </div>
+
+        <div style="background-color:@Model.Color7">
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Value7)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Value7)
+            @Html.ValidationMessageFor(model => model.Value7)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Color7)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Color7)
+            @Html.ValidationMessageFor(model => model.Color7)
+        </div>
+                </div>
+        
+        <div style="background-color:@Model.Color8">
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Value8)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Value8)
+            @Html.ValidationMessageFor(model => model.Value8)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Color8)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Color8)
+            @Html.ValidationMessageFor(model => model.Color8)
+        </div>
+                </div>
+
+        <div style="background-color:@Model.Color9">
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Value9)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Value9)
+            @Html.ValidationMessageFor(model => model.Value9)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Color9)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Color9)
+            @Html.ValidationMessageFor(model => model.Color9)
+        </div>
+                </div>
+
+        <div style="background-color:@Model.Color10">
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Value10)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Value10)
+            @Html.ValidationMessageFor(model => model.Value10)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Color10)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Color10)
+            @Html.ValidationMessageFor(model => model.Color10)
+        </div>
+                </div>
+
+           <div style="background-color:@Model.Color11">
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Value11)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Value11)
+            @Html.ValidationMessageFor(model => model.Value11)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Color11)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Color11)
+            @Html.ValidationMessageFor(model => model.Color11)
+        </div>
+                </div>
+
+           <div style="background-color:@Model.Color12">
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Value12)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Value12)
+            @Html.ValidationMessageFor(model => model.Value12)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Color12)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Color12)
+            @Html.ValidationMessageFor(model => model.Color12)
+        </div>
+                </div>
+
+        <p>
+            <input type="submit" value="Save" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

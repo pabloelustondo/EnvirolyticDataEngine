@@ -4459,6 +4459,7 @@ v(np)  =   ---------------------------------------------------------------------
             public DateTime startingDate2 { get; set; }
             public DateTime endingDate2 { get; set; }
             public Boolean envirolyticFile { get; set; }
+            public JassColorCode colorCode { get; set; }
 
         }
 
@@ -4934,10 +4935,11 @@ v(np)  =   ---------------------------------------------------------------------
                     //now we need to see which days we actuall have, the idea will be to fill up this status structure
                     JassFileNameComponents dayMeasureNameComponents;
 
-                    foreach (IListBlobItem dayMeasure in container.ListBlobs(null, false))
+                    foreach (CloudBlockBlob dayMeasure in container.ListBlobs(useFlatBlobListing: true))
                     {
+                        long size = dayMeasure.Properties.Length;
                         dayMeasureNameComponents = new JassFileNameComponents(dayMeasure.Uri.ToString());
-                        variableStatus.countBlob(dayMeasureNameComponents);
+                        variableStatus.countBlob(dayMeasureNameComponents, size);
                     }
 
                     variableStatus.calcuateStatus();

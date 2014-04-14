@@ -1,0 +1,166 @@
+﻿@model JassWeather.Models.JassColorCode
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<fieldset>
+    <legend>JassColorCode</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Color0)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Color0)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Value1)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Value1)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Color1)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Color1)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Value2)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Value2)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Color2)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Color2)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Value3)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Value3)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Color3)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Color3)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Value4)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Value4)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Color4)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Color4)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Value5)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Value5)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Color5)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Color5)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Value6)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Value6)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Color6)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Color6)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Value7)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Value7)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Color7)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Color7)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Value8)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Value8)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Color8)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Color8)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Value9)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Value9)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Color9)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Color9)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Value10)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Value10)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Color10)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Color10)
+    </div>
+</fieldset>
+@using (Html.BeginForm()) {
+    @Html.AntiForgeryToken()
+    <p>
+        <input type="submit" value="Delete" /> |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+}

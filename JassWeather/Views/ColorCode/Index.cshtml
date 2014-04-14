@@ -1,0 +1,102 @@
+﻿@model IEnumerable<JassWeather.Models.JassColorCode>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Value1)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Value2)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Value3)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Value4)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Value5)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Value6)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Value7)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Value8)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Value9)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Value10)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Value11)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Value12)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+         <td style="background-color:@item.Color0">
+            low
+        </td>
+        <td style="background-color:@item.Color1">
+            @Html.DisplayFor(modelItem => item.Value1)
+        </td>
+          <td style="background-color:@item.Color2">
+            @Html.DisplayFor(modelItem => item.Value2)
+        </td>
+          <td style="background-color:@item.Color3">
+            @Html.DisplayFor(modelItem => item.Value3)
+        </td>
+         <td style="background-color:@item.Color4">
+            @Html.DisplayFor(modelItem => item.Value4)
+        </td>
+          <td style="background-color:@item.Color5">
+            @Html.DisplayFor(modelItem => item.Value5)
+        </td>
+         <td style="background-color:@item.Color6">
+            @Html.DisplayFor(modelItem => item.Value6)
+        </td>
+         <td style="background-color:@item.Color7">
+            @Html.DisplayFor(modelItem => item.Value7)
+        </td>
+         <td style="background-color:@item.Color8">
+            @Html.DisplayFor(modelItem => item.Value8)
+        </td>
+         <td style="background-color:@item.Color9">
+            @Html.DisplayFor(modelItem => item.Value9)
+        </td>
+         <td style="background-color:@item.Color10">
+            @Html.DisplayFor(modelItem => item.Value10)
+        </td>
+                 <td style="background-color:@item.Color11">
+            @Html.DisplayFor(modelItem => item.Value11)
+        </td>
+                 <td style="background-color:@item.Color12">
+            @Html.DisplayFor(modelItem => item.Value12)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.JassColorCodeID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.JassColorCodeID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.JassColorCodeID })
+        </td>
+    </tr>
+}
+
+</table>

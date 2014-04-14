@@ -40,5 +40,7 @@ namespace JassWeather.Models
 
         public DbSet<JassLatLonGroup> JassLatLonGroups { get; set; }
 
+        public DbSet<JassColorCode> JassColorCodes { get; set; }
+
     }
 }

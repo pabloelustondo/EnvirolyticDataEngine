@@ -7,36 +7,46 @@ namespace JassWeather.Models
 {
     public class JassColorCode
     {
-        string Color0 { get; set; }
+        public int JassColorCodeID { get; set; }
+        public string Color0 { get; set; }
 
-        int Value1 { get; set; }
-        string Color1 { get; set; }
+        public int Value1 { get; set; }
+        public string Color1 { get; set; }
 
-        int Value2 { get; set; }
-        string Color2 { get; set; }
+        public int Value2 { get; set; }
+        public string Color2 { get; set; }
 
-        int Value3 { get; set; }
-        string Color3 { get; set; }
+        public int Value3 { get; set; }
+        public string Color3 { get; set; }
 
-        int Value4 { get; set; }
-        string Color4 { get; set; }
+        public int Value4 { get; set; }
+        public string Color4 { get; set; }
 
-        int Value5 { get; set; }
-        string Color5 { get; set; }
+        public int Value5 { get; set; }
+        public string Color5 { get; set; }
 
-        int Value6 { get; set; }
-        string Color6 { get; set; }
+        public int Value6 { get; set; }
+        public string Color6 { get; set; }
 
-        int Value7 { get; set; }
-        string Color7 { get; set; }
+        public int Value7 { get; set; }
+        public string Color7 { get; set; }
 
-        int Value8 { get; set; }
-        string Color8 { get; set; }
+        public int Value8 { get; set; }
+        public string Color8 { get; set; }
 
-        int Value9 { get; set; }
-        string Color9 { get; set; }
+        public int Value9 { get; set; }
+        public string Color9 { get; set; }
 
-        int Value10 { get; set; }
-        string Color10 { get; set; }
+        public int Value10 { get; set; }
+        public string Color10 { get; set; }
+
+        public int Value11 { get; set; }
+        public string Color11 { get; set; }
+
+
+        public int Value12 { get; set; }
+        public string Color12 { get; set; }
+
+
     }
 }

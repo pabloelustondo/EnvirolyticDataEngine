@@ -15,6 +15,97 @@ namespace JassWeather.Controllers
         private JassWeatherContext db = new JassWeatherContext();
 
 
+        #region download
+
+        public class DownloadSubsetModel
+        {
+            public string Message { get; set; }
+    
+            public int year { get; set; }
+            public int month { get; set; }
+            public int day { get; set; }
+
+            public int yearEnd { get; set; }
+            public int monthEnd { get; set; }
+            public int dayEnd { get; set; }
+
+            public int totalDays { get; set; }
+
+            public Boolean[] variableChoices { get; set; }
+            public List<JassVariable> variables { get; set; }
+            public String[,] reportMessage { get; set; }
+            public int[,] reportStatus { get; set; }
+            public int numberOfErrors { get; set; }
+        }
+
+
+        public ActionResult DownloadSubset()
+        {
+            DownloadSubsetModel model = new DownloadSubsetModel();
+            model.variables = db.JassVariables.ToList();
+            model.variableChoices = new Boolean[model.variables.Count];
+          
+            model.year = 2010;
+            model.month = 1;
+            model.day = 1;
+
+            return View("DownloadSubsetFirst", model);
+        }
+        [HttpPost]
+        public ActionResult DownloadSubset(DownloadSubsetModel model)
+        {
+            model.numberOfErrors = 0;
+                DateTime startDate = new DateTime(model.year, model.month, model.day);
+                if (model.yearEnd == 0) model.yearEnd = model.year;
+                if (model.monthEnd == 0) model.monthEnd = model.month;
+                if (model.dayEnd == 0) model.dayEnd = model.day;
+
+                DateTime endDate = new DateTime(model.yearEnd, model.monthEnd, model.dayEnd);
+                if (endDate < startDate) { endDate = startDate; }
+                int totalDays = (int)(endDate - startDate).TotalDays + 1;
+                model.totalDays = totalDays;
+
+                model.variables = db.JassVariables.ToList();
+
+                model.reportMessage = new String[model.variables.Count, totalDays];
+                model.reportStatus = new int[model.variables.Count, totalDays];
+
+                for (int v = 0; v < model.variables.Count; v++)
+                {
+                    if (model.variableChoices[v])
+                    {
+                        DateTime day = startDate;
+                        string fileName2Download;
+                        string filePath2Download;
+                        for (int d = 0; d < totalDays; d++)
+                        {
+                            try
+                            {
+
+                                //download
+                                fileName2Download = apiCaller.fileNameBuilderByDay(model.variables[v].Name, day.Year, day.Month, day.Day)+".nc";
+                                filePath2Download =  apiCaller.AppDataFolder + "/" + fileName2Download;
+                                apiCaller.downloadBlob(model.variables[v].Name.ToLower(), fileName2Download, filePath2Download);
+                                model.reportStatus[v, d] = 1;
+                                model.reportMessage[v,d] = "ok";
+
+                            }
+                            catch (Exception e)
+                            {
+                                model.reportStatus[v, d] = 0;
+                                model.reportMessage[v, d] = e.Message;
+                                model.numberOfErrors++;
+                            }
+                            day = day.AddDays(1);
+                        }
+                    }
+                }
+
+                return View(model);
+            }
+
+        #endregion download
+
         // GET: /Blob/
         public ActionResult Index()  //list container
         {
@@ -108,6 +199,10 @@ namespace JassWeather.Controllers
             Model.gridValues = apiCaller.GetDayValues(fileName);
             Model.fileName = fileName;
             Model.variableName = variableName;
+
+            if (variableName == "Sheridan")              {
+                Model.colorCode = db.JassColorCodes.Find(1);
+            }
 
             return View(Model);
         }

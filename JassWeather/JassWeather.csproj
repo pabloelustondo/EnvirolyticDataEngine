@@ -247,6 +247,7 @@
     <Compile Include="Controllers\BuilderController.cs" />
     <Compile Include="Controllers\BuilderLogController.cs" />
     <Compile Include="Controllers\BoilerPlateController.cs" />
+    <Compile Include="Controllers\ColorCodeController.cs" />
     <Compile Include="Controllers\DeriverController.cs" />
     <Compile Include="Controllers\FormulaController.cs" />
     <Compile Include="Controllers\GridController.cs" />
@@ -596,6 +597,14 @@
     <Compile Include="Migrations\201404032142581_apirequest.Designer.cs">
       <DependentUpon>201404032142581_apirequest.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201404102037294_color-code.cs" />
+    <Compile Include="Migrations\201404102037294_color-code.Designer.cs">
+      <DependentUpon>201404102037294_color-code.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201404110232382_value11-12.cs" />
+    <Compile Include="Migrations\201404110232382_value11-12.Designer.cs">
+      <DependentUpon>201404110232382_value11-12.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -712,8 +721,14 @@
     <None Include="Properties\PublishProfiles\envirolytic3 - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic4 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic4 - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolyticftp - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolyticftp - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\envirolyticmark - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolyticmark - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolyticnick - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolyticnick - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolyticzen - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolyticzen - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
     <Content Include="Images\POC Explanation.png" />
     <Content Include="Scripts\jquery-1.8.2.js" />
@@ -895,6 +910,13 @@
     <Content Include="Views\Blob\CleanAppTempFiles.cshtml" />
     <Content Include="Views\Grid\CreateEnvirolyticNarrGrid.cshtml" />
     <Content Include="Views\Grid\PlotGridPointsAroundLocation.cshtml" />
+    <Content Include="Views\ColorCode\Index.cshtml" />
+    <Content Include="Views\ColorCode\Details.cshtml" />
+    <Content Include="Views\ColorCode\Create.cshtml" />
+    <Content Include="Views\ColorCode\Edit.cshtml" />
+    <Content Include="Views\ColorCode\Delete.cshtml" />
+    <Content Include="Views\Blob\DownloadSubset.cshtml" />
+    <Content Include="Views\Blob\DownloadSubsetFirst.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1145,6 +1167,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201404032142581_apirequest.resx">
       <DependentUpon>201404032142581_apirequest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201404102037294_color-code.resx">
+      <DependentUpon>201404102037294_color-code.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201404110232382_value11-12.resx">
+      <DependentUpon>201404110232382_value11-12.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

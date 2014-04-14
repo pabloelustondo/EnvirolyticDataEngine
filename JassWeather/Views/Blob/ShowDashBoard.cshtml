@@ -3,6 +3,7 @@
 
 @{
     ViewBag.Title = "Index";
+    long grandTotal = 0;
 }
 
 <style>
@@ -22,7 +23,9 @@
         <th>
             %Fill
         </th>
-
+        <th>
+            Size(GB)
+        </th>
         @for(int y=0; y<10; y++){
             string yearString=(DateTime.Now.Year - 9 + y).ToString();
             <th>
@@ -31,10 +34,8 @@
         }
 
 
-    </tr>
-
 @foreach (var item in Model) {
-    string classForVariable = "white";
+    string classForVariable = "white"; grandTotal += item.SizeVariableLevel;
     if (item.StatusVariableLevel == 100) { classForVariable = "green"; }
     if (item.StatusVariableLevel > 0 && item.StatusVariableLevel < 100) { classForVariable = "yellow"; }
     <tr>
@@ -43,6 +44,9 @@
         </td>
          <td class="@classForVariable"> 
            @item.StatusVariableLevel%
+        </td>
+        <td class="@classForVariable"> 
+           @(System.Math.Round((decimal)item.SizeVariableLevel/1000000000,2) )
         </td>
         @for(int y=0; y<10; y++){
             string color="white";
@@ -59,4 +63,6 @@
 }
 
 </table>
+
+<p class="yellow">Grand Total (GB) @(grandTotal/1000000000)</p>
 
