@@ -5207,6 +5207,18 @@ v(np)  =   ---------------------------------------------------------------------
 
         }
 
+        public void DownloadFile2DiskIfNotThere(string containerName, string fileName, string filePath)
+        {
+
+            Boolean fileOnDisk = File.Exists(filePath);
+
+            if (!fileOnDisk)
+            {
+                downloadBlob(containerName, fileName, filePath);
+            }
+
+        }
+
         public List<string> listNetCDFValues(string fileName)
         {
    

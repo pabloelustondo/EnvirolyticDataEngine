@@ -138,11 +138,11 @@ namespace JassWeather.Controllers
         }
         //Download2Disk
 
-        public ActionResult Download2Disk(string fileName)  //list container
+        public ActionResult Download2Disk(string fileName, string containerName)  //list container
         {
             try
             {
-                apiCaller.DownloadFile2DiskIfNotThere(fileName, apiCaller.AppDataFolder + "\\" + fileName);
+                apiCaller.DownloadFile2DiskIfNotThere(containerName, fileName, apiCaller.AppDataFolder + "\\" + fileName);
                 ViewBag.message = "ok";
                 return View();
             }
@@ -207,9 +207,9 @@ namespace JassWeather.Controllers
             return View(Model);
         }
 
-        public ActionResult ShowDashBoard4DayFromFile(string fileName)  //list container
+        public ActionResult ShowDashBoard4DayFromFile(string fileName, string containerName)  //list container
         {
-            apiCaller.DownloadFile2DiskIfNotThere(fileName, apiCaller.AppDataFolder + "\\" + fileName);
+            apiCaller.DownloadFile2DiskIfNotThere(containerName, fileName, apiCaller.AppDataFolder + "\\" + fileName);
 
             JassWeatherAPI.VariableValueModel Model = apiCaller.AnalyzeFileOnDisk(fileName);
             ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", Model.JassGridID);
@@ -225,8 +225,6 @@ namespace JassWeather.Controllers
             {
 
                 Model.JassGrid = db.JassGrids.Find(Model.JassGridID);
-
-                apiCaller.DownloadFile2DiskIfNotThere(Model.fileName, apiCaller.AppDataFolder + "\\" + Model.fileName);
                 DateTime requestDate = new DateTime(Model.year, Model.monthIndex, Model.dayIndex);
                 Model.gridValues = apiCaller.GetDayValues(Model.JassGrid, Model.fileName, Model.startingDate, requestDate);
                 return View(Model);
