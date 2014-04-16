@@ -1803,6 +1803,8 @@ v(np)  =   ---------------------------------------------------------------------
 
             latlon.narrY = minY;
             latlon.narrX = minX;
+            latlon.narrLat = narrLat[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.narrLon = narrLon[(int)latlon.narrY, (int)latlon.narrX];
 
 
             #region maccMapper
@@ -1812,16 +1814,22 @@ v(np)  =   ---------------------------------------------------------------------
             double[,] mapDistance;
             int[,] mapLatY;
             int[,] mapLonX;
+            Single[] maccLat;
+            Single[] maccLon;
 
             using (var maccMapperDataSet = DataSet.Open(maccFile + "?openMode=open"))
             {
                 mapDistance = maccMapperDataSet.GetData<double[,]>("mapDistance");
                 mapLatY = maccMapperDataSet.GetData<int[,]>("mapLatY");
                 mapLonX = maccMapperDataSet.GetData<int[,]>("mapLonX");
+                maccLat = maccMapperDataSet.GetData<Single[]>("maccLat");
+                maccLon = maccMapperDataSet.GetData<Single[]>("maccLon");
             }
 
             latlon.maccY = mapLatY[(int)latlon.narrY, (int)latlon.narrX];
             latlon.maccX = mapLonX[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.maccLat = (maccLat[(int)latlon.maccY] < 180) ? maccLat[(int)latlon.maccY] : maccLat[(int)latlon.maccY]-360;
+            latlon.maccLon = (maccLon[(int)latlon.maccX] < 180) ? maccLon[(int)latlon.maccX] : maccLon[(int)latlon.maccX]-360;
 
             #endregion 
             return latlon;

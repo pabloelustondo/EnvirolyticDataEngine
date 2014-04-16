@@ -17,14 +17,26 @@ namespace JassWeather.Models
         public int? narrY { get; set; }
         public int? narrX { get; set; }
 
+        public double? narrLat { get; set; }
+        public double? narrLon { get; set; }
+
         public int? maccY { get; set; }
         public int? maccX { get; set; }
+
+        public double? maccLat { get; set; }
+        public double? maccLon { get; set; }
 
         public int? csfrY { get; set; }
         public int? csfrX { get; set; }
 
+        public double? csfrLat { get; set; }
+        public double? csfrLon { get; set; }
+
         public int? sherY { get; set; }
         public int? sherX { get; set; }
+
+        public double? sherLat { get; set; }
+        public double? sherLon { get; set; }
 
         public int hrDifference { get; set; }
 

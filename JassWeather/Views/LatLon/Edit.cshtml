@@ -10,24 +10,56 @@
 </script>
 
 <script>
-function initialize()
-{
-var mapProp = {
-  center:new google.maps.LatLng(@Model.Lat , @Model.Lon ),
-  zoom:10,
-  mapTypeId:google.maps.MapTypeId.ROADMAP
-  };
-var map=new google.maps.Map(document.getElementById("googleMap")
-  , mapProp);
+    function initialize()
+    {
+ 
+        var locationLat = "@Model.Lat"; 
+        var locationLon = "@Model.Lon"; 
+        var narrLat = "@Model.narrLat"; 
+        var narrLon = "@Model.narrLon";
 
-var marker = new google.maps.Marker({
-    position: new google.maps.LatLng(@Model.Lat , @Model.Lon )
-});
+        var maccLat = "@Model.maccLat";
+        var maccLon = "@Model.maccLon";
 
-marker.setMap(map);
-}
+        alert("hi");
 
-google.maps.event.addDomListener(window, 'load', initialize);
+        var mapProp = {
+            center:new google.maps.LatLng(locationLat,locationLon),
+            zoom:8,
+            mapTypeId:google.maps.MapTypeId.ROADMAP
+        };
+        var map=new google.maps.Map(document.getElementById("googleMap")
+          , mapProp);
+
+        var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(locationLat, locationLon),
+            title: "your location" 
+        });
+
+        var markerNarr = new google.maps.Marker({
+            position: new google.maps.LatLng(narrLat, narrLon),
+            title: "narr",
+            color:"blue"
+        });
+
+        var markerMacc = new google.maps.Marker({
+            position: new google.maps.LatLng(maccLat, maccLon),
+            title: "macc"
+        });
+
+
+
+        marker.setMap(map);
+
+        markerNarr.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png')
+
+        markerNarr.setMap(map);
+
+        markerMacc.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png')
+        markerMacc.setMap(map);
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
 </script>
 
 <div id="googleMap" style="width:500px;height:380px;"></div>
@@ -72,12 +104,19 @@ google.maps.event.addDomListener(window, 'load', initialize);
             @Html.ValidationMessageFor(model => model.Lon)
         </div>
 
-        <div class="editor-field">
+        <div style="font-weight:bold">
             Narr Grid Cell:  @Model.narrY , @Model.narrX
         </div>
-        <div class="editor-field">
+        <div style="font-weight:bold">
+            Narr Grid CenterPoint:  @Model.narrLat , @Model.narrLon
+        </div>
+
+        <div style="font-weight:bold">
             Macc Grid Cell:  @Model.maccY , @Model.maccX
         </div>
+        <div style="font-weight:bold">
+            Macc Grid Centerpoint:  @Model.maccLat , @Model.maccLon
+            </div>
 
         <div class="editor-label">
             @Html.LabelFor(model => model.hrDifference)
