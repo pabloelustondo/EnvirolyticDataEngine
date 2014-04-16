@@ -1811,27 +1811,80 @@ v(np)  =   ---------------------------------------------------------------------
 
             string maccFile = AppFilesFolder + "\\Narr_2_Macc_Grid_Mapper.nc";
 
-            double[,] mapDistance;
-            int[,] mapLatY;
-            int[,] mapLonX;
+            double[,] maccMapDistance;
+            int[,] maccMapLatY;
+            int[,] maccMapLonX;
             Single[] maccLat;
             Single[] maccLon;
 
             using (var maccMapperDataSet = DataSet.Open(maccFile + "?openMode=open"))
             {
-                mapDistance = maccMapperDataSet.GetData<double[,]>("mapDistance");
-                mapLatY = maccMapperDataSet.GetData<int[,]>("mapLatY");
-                mapLonX = maccMapperDataSet.GetData<int[,]>("mapLonX");
+                maccMapDistance = maccMapperDataSet.GetData<double[,]>("mapDistance");
+                maccMapLatY = maccMapperDataSet.GetData<int[,]>("mapLatY");
+                maccMapLonX = maccMapperDataSet.GetData<int[,]>("mapLonX");
                 maccLat = maccMapperDataSet.GetData<Single[]>("maccLat");
                 maccLon = maccMapperDataSet.GetData<Single[]>("maccLon");
             }
 
-            latlon.maccY = mapLatY[(int)latlon.narrY, (int)latlon.narrX];
-            latlon.maccX = mapLonX[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.maccY = maccMapLatY[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.maccX = maccMapLonX[(int)latlon.narrY, (int)latlon.narrX];
             latlon.maccLat = (maccLat[(int)latlon.maccY] < 180) ? maccLat[(int)latlon.maccY] : maccLat[(int)latlon.maccY]-360;
             latlon.maccLon = (maccLon[(int)latlon.maccX] < 180) ? maccLon[(int)latlon.maccX] : maccLon[(int)latlon.maccX]-360;
 
             #endregion 
+
+            #region cfsrMapper
+
+            string cfsrFile = AppFilesFolder + "\\Narr_2_cfsr_Grid_Mapper.nc";
+
+            double[,] cfsrMapDistance;
+            int[,] cfsrMapLatY;
+            int[,] cfsrMapLonX;
+            Single[] cfsrLat;
+            Single[] cfsrLon;
+
+            using (var cfsrMapperDataSet = DataSet.Open(cfsrFile + "?openMode=open"))
+            {
+                cfsrMapDistance = cfsrMapperDataSet.GetData<double[,]>("mapDistance");
+                cfsrMapLatY = cfsrMapperDataSet.GetData<int[,]>("mapLatY");
+                cfsrMapLonX = cfsrMapperDataSet.GetData<int[,]>("mapLonX");
+                cfsrLat = cfsrMapperDataSet.GetData<Single[]>("maccLat");
+                cfsrLon = cfsrMapperDataSet.GetData<Single[]>("maccLon");
+            }
+
+            latlon.cfsrY = cfsrMapLatY[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.cfsrX = cfsrMapLonX[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.cfsrLat = (cfsrLat[(int)latlon.cfsrY] < 180) ? cfsrLat[(int)latlon.cfsrY] : cfsrLat[(int)latlon.cfsrY] - 360;
+            latlon.cfsrLon = (cfsrLon[(int)latlon.cfsrX] < 180) ? cfsrLon[(int)latlon.cfsrX] : cfsrLon[(int)latlon.cfsrX] - 360;
+
+            #endregion 
+
+            #region sherMapper
+
+            string sherFile = AppFilesFolder + "\\Narr_2_sher_Grid_Mapper.nc";
+
+            double[,] sherMapDistance;
+            int[,] sherMapLatY;
+            int[,] sherMapLonX;
+            Single[] sherLat;
+            Single[] sherLon;
+
+            using (var sherMapperDataSet = DataSet.Open(sherFile + "?openMode=open"))
+            {
+                sherMapDistance = sherMapperDataSet.GetData<double[,]>("mapDistance");
+                sherMapLatY = sherMapperDataSet.GetData<int[,]>("mapLatY");
+                sherMapLonX = sherMapperDataSet.GetData<int[,]>("mapLonX");
+                sherLat = sherMapperDataSet.GetData<Single[]>("maccLat");
+                sherLon = sherMapperDataSet.GetData<Single[]>("maccLon");
+            }
+
+            latlon.sherY = sherMapLatY[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.sherX = sherMapLonX[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.sherLat = (sherLat[(int)latlon.sherY] < 180) ? sherLat[(int)latlon.sherY] : sherLat[(int)latlon.sherY] - 360;
+            latlon.sherLon = (sherLon[(int)latlon.sherX] < 180) ? sherLon[(int)latlon.sherX] : sherLon[(int)latlon.sherX] - 360;
+
+            #endregion 
+
             return latlon;
         }
 
