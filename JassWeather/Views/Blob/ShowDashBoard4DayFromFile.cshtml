@@ -78,7 +78,8 @@ Color Scale
         <td>
             @y
         </td>
-           @for (int x = 0; x < Model.gridValues.xLength; x++ ){
+           @for (int x = 0; x < Model.gridValues.xLength; x++)
+           {
                JassWeather.Models.JassRGB rgb;
                if (Model.gridValues.measure[Model.stepIndex, 0, y, x] != null)
                {
@@ -87,13 +88,15 @@ Color Scale
                }
                else
                {
-                   rgb = new JassRGB(0,0,0);
+                   rgb = new JassRGB(0, 0, 0);
                }
-        <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b)">
-            @y,@x
-            @Model.gridValues.measure[Model.stepIndex,0,y,x]
-        </td>
-            }
+               string borderStyle = "none";
+               if (y == 133 || x == 241) { borderStyle = "solid"; }
+            <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b); border-style:@borderStyle; border-color:black; border-width:medium">
+                @y,@x
+                @Model.gridValues.measure[Model.stepIndex, 0, y, x]
+            </td>
+           }
     </tr>
 }
 

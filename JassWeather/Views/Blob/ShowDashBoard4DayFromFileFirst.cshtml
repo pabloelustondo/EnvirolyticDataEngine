@@ -36,6 +36,14 @@
         </div>
 
         <div class="editor-label">
+            Choose center location or leave empty to assume toronto
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("JassLatLonID", String.Empty)
+            @Html.ValidationMessageFor(model => model.JassLatLonID)
+        </div>
+
+        <div class="editor-label">
             Year
         </div>
         <div class="editor-field">

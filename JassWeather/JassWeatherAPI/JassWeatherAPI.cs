@@ -4461,6 +4461,9 @@ v(np)  =   ---------------------------------------------------------------------
             public Boolean envirolyticFile { get; set; }
             public JassColorCode colorCode { get; set; }
 
+            public int? JassLatLonID { get; set; }
+            public JassLatLon JassLatLon { get; set; }
+
         }
 
         public VariableValueModel AnalyzeFileOnDisk(string filename)

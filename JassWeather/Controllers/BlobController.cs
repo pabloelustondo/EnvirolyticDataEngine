@@ -214,6 +214,15 @@ namespace JassWeather.Controllers
             JassWeatherAPI.VariableValueModel Model = apiCaller.AnalyzeFileOnDisk(fileName);
             ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", Model.JassGridID);
             //hack for now:
+
+            #region select let lon
+            ViewBag.LatLonGroupID = Session["LatLonGroupID"];
+            int LatLonGroupID = (int)ViewBag.LatLonGroupID;
+            var locations = db.JassLatLons.Where(l => l.JassLatLonGroupID == LatLonGroupID).ToList();
+            ViewBag.JassLatLonID = new SelectList(locations, "JassLatLonID", "Name");
+            #endregion 
+
+
             Model.fileName = fileName;
             return View("ShowDashBoard4DayFromFileFirst", Model);
         }
@@ -221,6 +230,14 @@ namespace JassWeather.Controllers
         [HttpPost]
         public ActionResult ShowDashBoard4DayFromFile(JassWeatherAPI.VariableValueModel Model)  //list container
         {
+            #region select let lon
+            ViewBag.LatLonGroupID = Session["LatLonGroupID"];
+            int LatLonGroupID = (int)ViewBag.LatLonGroupID;
+            var locations = db.JassLatLons.Where(l => l.JassLatLonGroupID == LatLonGroupID).ToList();
+            ViewBag.JassLatLonID = new SelectList(locations, "JassLatLonID", "Name");
+            Model.JassLatLon = db.JassLatLons.Find(Model.JassLatLonID);
+            #endregion 
+
             if (Model.JassGridID != null)
             {
 
