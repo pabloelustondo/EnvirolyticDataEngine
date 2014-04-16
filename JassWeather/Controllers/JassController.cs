@@ -30,15 +30,7 @@ namespace JassWeather.Controllers
             string storageConnectionString;
             if (Session["StorageConnectionString"] == null)
             {
-                if (User.IsInRole("Admin"))
-                {
-                    Session["StorageConnectionString"] = "StorageConnectionStringDev";
-                }
-                else
-                {
                     Session["StorageConnectionString"] = "StorageConnectionStringProd";
-                }
-
             }
 
             if (Session["LatLonGroupID"] == null)
