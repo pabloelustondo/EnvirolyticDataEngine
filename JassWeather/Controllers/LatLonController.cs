@@ -62,6 +62,8 @@ namespace JassWeather.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(JassLatLon jasslatlon)
         {
+            ViewBag.JassLatLonGroupID = new SelectList(db.JassLatLonGroups, "JassLatLonGroupID", "Name", jasslatlon.JassLatLonGroupID);
+
             try
             {
                 if (ModelState.IsValid)
@@ -69,7 +71,7 @@ namespace JassWeather.Controllers
                     jasslatlon = apiCaller.MapLatLonToNarr(jasslatlon);
                     db.JassLatLons.Add(jasslatlon);
                     db.SaveChanges();
-                    return RedirectToAction("Index");
+                    return View("Edit",jasslatlon);
                 }
 
             }
@@ -79,8 +81,7 @@ namespace JassWeather.Controllers
                 ViewBag.JassMessage = "ERROR when creating";
             }
             
-              ViewBag.JassLatLonGroupID = new SelectList(db.JassLatLonGroups, "JassLatLonGroupID", "Name", jasslatlon.JassLatLonGroupID);
-              return View(jasslatlon);
+               return View(jasslatlon);
         }
 
         //
@@ -94,6 +95,8 @@ namespace JassWeather.Controllers
                 return HttpNotFound();
             }
             ViewBag.JassLatLonGroupID = new SelectList(db.JassLatLonGroups, "JassLatLonGroupID", "Name", jasslatlon.JassLatLonGroupID);
+
+            jasslatlon = apiCaller.MapLatLonToNarr(jasslatlon);
             return View(jasslatlon);
         }
 

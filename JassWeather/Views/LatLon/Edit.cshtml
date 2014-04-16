@@ -6,6 +6,31 @@
 
 <h2>Edit</h2>
 
+<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDY0kkJiTPVd2U7aTOAwhc9ySH6oHxOIYM&sensor=false">
+</script>
+
+<script>
+function initialize()
+{
+var mapProp = {
+  center:new google.maps.LatLng(@Model.Lat , @Model.Lon ),
+  zoom:10,
+  mapTypeId:google.maps.MapTypeId.ROADMAP
+  };
+var map=new google.maps.Map(document.getElementById("googleMap")
+  , mapProp);
+
+var marker = new google.maps.Marker({
+    position: new google.maps.LatLng(@Model.Lat , @Model.Lon )
+});
+
+marker.setMap(map);
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+
+<div id="googleMap" style="width:500px;height:380px;"></div>
 @using (Html.BeginForm()) {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true)
@@ -63,6 +88,12 @@
             @Html.ValidationMessageFor(model => model.JassLatLonGroupID)
         </div>
 
+        <div class="editor-field">
+            Narr Grid Cell:  @Model.narrY , @Model.narrX
+        </div>
+        <div class="editor-field">
+            Macc Grid Cell:  @Model.maccY , @Model.maccX
+        </div>
         <p>
             <input type="submit" value="Save" />
         </p>

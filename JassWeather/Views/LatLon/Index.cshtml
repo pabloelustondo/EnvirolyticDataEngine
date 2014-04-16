@@ -25,10 +25,10 @@
             @Html.DisplayNameFor(model => model.Lon)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.narrY)
+            Narr Y:X
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.narrX)
+            Macc Y:X
         </th>
         <th>
             @Html.DisplayNameFor(model => model.hrDifference)
@@ -54,10 +54,12 @@
             @Html.DisplayFor(modelItem => item.Lon)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.narrY)
+            @Html.DisplayFor(modelItem => item.narrY):
+            @Html.DisplayFor(modelItem => item.narrX)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.narrX)
+            @Html.DisplayFor(modelItem => item.maccY):
+            @Html.DisplayFor(modelItem => item.maccX)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.hrDifference)
@@ -67,7 +69,6 @@
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.JassLatLonID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.JassLatLonID }) |
             @Html.ActionLink("Delete", "Delete", new { id=item.JassLatLonID })
         </td>
     </tr>

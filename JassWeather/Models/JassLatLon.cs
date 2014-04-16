@@ -13,8 +13,19 @@ namespace JassWeather.Models
         public string Info { get; set; }
         public double Lat { get; set; }
         public double Lon { get; set; }
+
         public int? narrY { get; set; }
         public int? narrX { get; set; }
+
+        public int? maccY { get; set; }
+        public int? maccX { get; set; }
+
+        public int? csfrY { get; set; }
+        public int? csfrX { get; set; }
+
+        public int? sherY { get; set; }
+        public int? sherX { get; set; }
+
         public int hrDifference { get; set; }
 
         public int? JassLatLonGroupID { get; set; }

@@ -1803,6 +1803,27 @@ v(np)  =   ---------------------------------------------------------------------
 
             latlon.narrY = minY;
             latlon.narrX = minX;
+
+
+            #region maccMapper
+
+            string maccFile = AppFilesFolder + "\\Narr_2_Macc_Grid_Mapper.nc";
+
+            double[,] mapDistance;
+            int[,] mapLatY;
+            int[,] mapLonX;
+
+            using (var maccMapperDataSet = DataSet.Open(maccFile + "?openMode=open"))
+            {
+                mapDistance = maccMapperDataSet.GetData<double[,]>("mapDistance");
+                mapLatY = maccMapperDataSet.GetData<int[,]>("mapLatY");
+                mapLonX = maccMapperDataSet.GetData<int[,]>("mapLonX");
+            }
+
+            latlon.maccY = mapLatY[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.maccX = mapLonX[(int)latlon.narrY, (int)latlon.narrX];
+
+            #endregion 
             return latlon;
         }
 

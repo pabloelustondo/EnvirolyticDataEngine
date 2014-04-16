@@ -12,6 +12,11 @@ th, td { width: 2px; font-size:xx-small}
     DateTime requiredDay = new DateTime(@Model.year,@Model.monthIndex,@Model.dayIndex);
     double numberOfDaysFromBeginning = (requiredDay - Model.startingDate).TotalDays;
     int timeIndex = (int)(numberOfDaysFromBeginning * Model.stepsInADay);
+    
+    //location stuff
+    int locationY = (Model.JassLatLon != null && Model.JassLatLon.narrY != null) ? (int)Model.JassLatLon.narrY : 133;
+    int locationX = (Model.JassLatLon != null && Model.JassLatLon.narrX != null) ? (int)Model.JassLatLon.narrX : 241;
+
 }
 
 <h2>Values for @Model.fileName for Day @requiredDay  at step=@Model.stepIndex </h2>
@@ -91,7 +96,7 @@ Color Scale
                    rgb = new JassRGB(0, 0, 0);
                }
                string borderStyle = "none";
-               if (y == 133 || x == 241) { borderStyle = "solid"; }
+               if (y == locationY || x == locationX) { borderStyle = "solid"; }
             <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b); border-style:@borderStyle; border-color:black; border-width:medium">
                 @y,@x
                 @Model.gridValues.measure[Model.stepIndex, 0, y, x]

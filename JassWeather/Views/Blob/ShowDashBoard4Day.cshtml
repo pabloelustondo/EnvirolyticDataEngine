@@ -7,6 +7,14 @@ th, td { width: 2px; font-size:xx-small}
 
 </style>
 
+@{
+  
+    //location stuff
+    int locationY = (Model.JassLatLon != null && Model.JassLatLon.narrY != null) ? (int)Model.JassLatLon.narrY : 133;
+    int locationX = (Model.JassLatLon != null && Model.JassLatLon.narrX != null) ? (int)Model.JassLatLon.narrX : 241;
+   
+}
+
 <h2>Values for @Model.fileName for time step=@Model.stepIndex</h2>
 Click here for other time steps: 
 @for(int i=0;i<Model.gridValues.timeLength;i++){
@@ -94,7 +102,7 @@ Color Scale
         </td>
            @for (int x = 0; x < Model.gridValues.xLength; x++ ){
                string borderStyle = "none";
-               if (y == 133 || x == 241) { borderStyle = "solid"; }
+               if (y == locationY || x == locationX) { borderStyle = "solid"; }
                JassWeather.Models.JassRGB rgb;
                if (Model.gridValues.measure[0, 0, y, x] != null)
                {
