@@ -2,31 +2,20 @@
 
 @{
     ViewBag.Title = "PlotGridPointsAroundLocation";
+    int locationY = 133;
+    int locationX = 241;
+    string locationName = "Toronto";
+
+    locationY = (Model.JassLatLon != null && Model.JassLatLon.narrY != null) ? (int)Model.JassLatLon.narrY : 133;
+    locationX = (Model.JassLatLon != null && Model.JassLatLon.narrX != null) ? (int)Model.JassLatLon.narrX : 241;
+    locationName = (Model.JassLatLon != null && Model.JassLatLon.Name != null) ? Model.JassLatLon.Name : "Toronto";
 }
+<h2>Grid Mapper Viewer </h2>
 
-<h2>Testing the Grid</h2>
+<h2>A column and a row are highlighted  for location @locationName at @locationY , @locationX  </h2>
+Click on the links below the whole grid with a color code based on distance
 
-<h1>Click on this to see the whole grid with a color code based on distance</h1>
+<p>@Html.ActionLink("Show Entire NARR => CFSR Map on the NARR Grid", "ShowGridMap", "Grid", new {mapperFileName="Narr_2_CFSR_Grid_Mapper.nc", JassLatLonID=Model.JassLatLonID},null)</p> 
+<p>@Html.ActionLink("Show Entire NARR => MACC Map on the NARR Grid", "ShowGridMap", "Grid", new { mapperFileName = "Narr_2_Macc_Grid_Mapper.nc", JassLatLonID = Model.JassLatLonID }, null)</p> 
+<p>@Html.ActionLink("Show Entire NARR => SHERIDAN Map on the NARR Grid", "ShowGridMap", "Grid", new { mapperFileName = "Narr_2_SHER_Grid_Mapper.nc", JassLatLonID = Model.JassLatLonID }, null)</p> 
 
-<p>@Html.ActionLink("Show Entire NARR => CFSR Map on the NARR Grid", "ShowGridMap", "Grid", new {mapperFileName="Narr_2_CFSR_Grid_Mapper.nc"},null)</p> 
-<p>@Html.ActionLink("Show Entire NARR => MACC Map on the NARR Grid", "ShowGridMap", "Grid", new {mapperFileName="Narr_2_Macc_Grid_Mapper.nc"},null)</p> 
-<p>@Html.ActionLink("Show Entire NARR => SHERIDAN Map on the NARR Grid", "ShowGridMap", "Grid", new {mapperFileName="Narr_2_SHER_Grid_Mapper.nc"},null)</p> 
-
-<h1>OR, choose a location to see points around it (only for Sheridan for now)</h1>
-
-@using (Html.BeginForm()) {
-    @Html.ValidationSummary(true)
-
-    <fieldset>
-        <legend></legend>
-
-        <div class="editor-field">
-            @Html.DropDownList("JassLatLonID", String.Empty)
-            @Html.ValidationMessageFor(model => model.JassLatLonId)
-        </div>
-
-         <p>
-            <input type="submit" value="Submit" />
-        </p>
-     </fieldset>
-}

@@ -1,0 +1,28 @@
+﻿@model JassWeather.Controllers.GridController.PlotGridPointsAroundLocationModel
+
+@{
+    ViewBag.Title = "PlotGridPointsAroundLocation";
+}
+
+<h2>Grid Mapper Viewer </h2>
+
+
+
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+
+        <div class="editor-label">
+            Choose center location to highlight or leave empty to assume toronto
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("JassLatLonID", String.Empty)
+        </div>
+
+        <p>
+            <input type="submit" value="Submit" />
+        </p>
+    </fieldset>
+}

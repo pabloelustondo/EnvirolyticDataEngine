@@ -1603,6 +1603,10 @@ namespace JassWeather.Models
             public double[,] map4Distance;
             public int[,] map4LatY;
             public int[,] map4LonX;
+
+            public JassLatLon JassLatLon { get; set; }
+            public int JassLatLonID { get; set; }
+            public string fileMapper { get; set; }
         }
 
         public SmartGridMap getMapComboFromMapFile(string mapfile)
@@ -5408,7 +5412,7 @@ v(np)  =   ---------------------------------------------------------------------
             return listOfValues;
         }
 
-        public JassGridValues GetDayValues(JassGrid grid, string fileName, DateTime startingDate, DateTime requestDate)
+        public JassGridValues GetDayValues(JassGrid grid, string fileName, DateTime startingDate, DateTime requestDate, int stepIndex)
         {
             //HERE
 
@@ -5486,24 +5490,17 @@ v(np)  =   ---------------------------------------------------------------------
                 int timeIndex = 0;
                 int timeLength = 0;
 
-                if (grid.Type != "MACC")
-                {
-                    time = new double[grid.Timesize];
-                    timeIndex = Convert.ToInt32((requestDate - startingDate).TotalDays * grid.Timesize);
-                }
-                else {
-                    time = dataset1.GetData<int[]>("time");
-                    timeIndex = 0;
-                }
-
-                timeLength = time.Length;
-               
+                DateTime commonStartingDate = new DateTime(startingDate.Year, startingDate.Month, startingDate.Day);
+                int daysDifference = Convert.ToInt32((requestDate - commonStartingDate).TotalDays);
+  
+                timeIndex = daysDifference * grid.StepsInDay + stepIndex;
+             
                 Single[] level = new Single[1];
 
                 //IMPORTANT WE ARE SAMPLING ONLY 3 LEVELS OF PRESSURE
                 if (hasLevel) level = new Single[3];
 
-                dayGridValues = new JassGridValues(keyVariable.Metadata, keyVariable.Name, time.Length, level.Length, y.Length, x.Length);
+                dayGridValues = new JassGridValues(keyVariable.Metadata, keyVariable.Name, 1, level.Length, y.Length, x.Length);
 
                 //how to get the scale/factor value.
 
@@ -5521,7 +5518,7 @@ v(np)  =   ---------------------------------------------------------------------
                     try
                     {
                         values = dataset1.GetData<Int16[, , ,]>(keyVariable.Name,
-                                 DataSet.Range(timeIndex, timeIndex +timeLength - 1),
+                                 DataSet.Range(timeIndex, timeIndex+1),
                                  DataSet.Range(0, level.Length-1),
                                  DataSet.Range(0, y.Length-1),
                                  DataSet.Range(0, x.Length-1) );
@@ -5529,12 +5526,12 @@ v(np)  =   ---------------------------------------------------------------------
                     catch (Exception)
                     {
                         values = dataset1.GetData<Single[, , ,]>(keyVariable.Name,
-                                 DataSet.Range(timeIndex, timeIndex+timeLength - 1),
+                                 DataSet.Range(timeIndex, timeIndex+1),
                                  DataSet.Range(0, level.Length-1),
                                  DataSet.Range(0, y.Length-1),
                                  DataSet.Range(0, x.Length-1) );
                     }
-                    for (int tt = 0; tt < time.Length; tt++)
+                    for (int tt = 0; tt < 1; tt++)
                     {
                         for (int ll = 0; ll < level.Length; ll++)
                         {
@@ -5569,7 +5566,7 @@ v(np)  =   ---------------------------------------------------------------------
                     try
                     {
                         values = dataset1.GetData<Int16[, ,]>(keyVariable.Name,
-                                 DataSet.Range(timeIndex, timeIndex + timeLength - 1),
+                                 DataSet.Range(timeIndex, timeIndex +1),
                                  DataSet.Range(0, y.Length - 1),
                                  DataSet.Range(0, x.Length - 1));
                     }
@@ -5578,18 +5575,18 @@ v(np)  =   ---------------------------------------------------------------------
                         try
                         {
                             values = dataset1.GetData<Single[, ,]>(keyVariable.Name,
-                                 DataSet.Range(timeIndex, timeIndex+timeLength - 1),
+                                 DataSet.Range(timeIndex, timeIndex +1),
                                  DataSet.Range(0, y.Length - 1),
                                  DataSet.Range(0, x.Length - 1));
                         }
                         catch (Exception e)
                         {
                             values = dataset1.GetData<Int16[,]>(keyVariable.Name,
-                                       DataSet.Range(timeIndex, timeIndex+timeLength - 1),
+                                       DataSet.Range(timeIndex, timeIndex +1),
                                        DataSet.Range(0, y.Length - 1));
                         }
                     }
-                    for (int tt = 0; tt < time.Length; tt++)
+                    for (int tt = 0; tt < 1; tt++)
                     {
                         for (int ll = 0; ll < 1; ll++)
                         {

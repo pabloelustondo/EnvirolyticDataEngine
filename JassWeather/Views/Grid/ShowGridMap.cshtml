@@ -3,7 +3,22 @@
     ViewBag.Title = "Compare_MACC_NARR_Grids";
 }
 
+@{
+    
+    
+    int locationY = 133;
+    int locationX = 241;
+    string locationName = "Toronto";
+
+    locationY = (Model.JassLatLon != null && Model.JassLatLon.narrY != null) ? (int)Model.JassLatLon.narrY : 133;
+    locationX = (Model.JassLatLon != null && Model.JassLatLon.narrX != null) ? (int)Model.JassLatLon.narrX : 241;
+    locationName = (Model.JassLatLon != null && Model.JassLatLon.Name != null) ? Model.JassLatLon.Name : "Toronto";
+    
+}
+
+
 <h2>Show Map Grid</h2>
+<h2>A column and a row are highlighted  for location @locationName at @locationY , @locationX  </h2>
 
 Max Distance: @Model.maxDistance at x:@Model.maxY Y:@Model.maxX
 
@@ -52,7 +67,7 @@ Color Scale
            {
                JassWeather.Models.JassRGB rgb;
                string borderStyle = "none";
-               if (y == 133 || x == 241) { borderStyle = "solid"; }
+               if (y == @locationY || x == @locationX) { borderStyle = "solid"; }
                if (Model.mapDistance[y, x] != null && Model.mapDistance[y, x] <= range)
                {
                    double scaledValue = (double)Model.mapDistance[y, x] * myfactor;

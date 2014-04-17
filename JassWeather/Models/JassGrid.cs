@@ -23,6 +23,8 @@ namespace JassWeather.Models
         public int Timesize { get; set; }
         public string Timename { get; set; }
 
+        public int StepsInDay { get; set; }
+
         public int JassPartitionID { get; set; }
         public virtual JassPartition JassPartition { get; set; }
     }

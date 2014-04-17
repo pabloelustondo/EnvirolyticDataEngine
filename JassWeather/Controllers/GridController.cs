@@ -21,7 +21,7 @@ namespace JassWeather.Controllers
         public class PlotGridPointsAroundLocationModel
         {
             public JassLatLon JassLatLon { get; set; }
-            public int JassLatLonId { get; set; }
+            public int JassLatLonID { get; set; }
             public JassWeatherAPI.JassMaccNarrGridsCombo GridNarrCombo { get; set; }
 
         }
@@ -42,7 +42,7 @@ namespace JassWeather.Controllers
 
             PlotGridPointsAroundLocationModel model = new PlotGridPointsAroundLocationModel();
  
-            return View(model);
+            return View("PlotGridPointsAroundLocationFirst",model);
         }
 
         [HttpPost]
@@ -58,17 +58,20 @@ namespace JassWeather.Controllers
             int LatLonGroupID = (int)ViewBag.LatLonGroupID;
             var locationChoices = db.JassLatLons.Where(l => l.JassLatLonGroupID == LatLonGroupID);
             ViewBag.JasslatLonID = new SelectList(locationChoices, "JasslatLonID", "Name");
+
+            model.JassLatLon = db.JassLatLons.Find(model.JassLatLonID);
             #endregion
 
-            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
-    "sheridan_stations.nc",
-    "lat",
-    "lon",
-    "Narr_Grid.nc",
-    "Narr_2_SHER_Grid_Mapper.nc", true, true);
-            return View("MapSher2NarrTest", result);
+            return View(model);
         }
 
+        public ActionResult ShowGridMap(string mapperFileName, int JassLatLonID)
+        {
+            JassWeatherAPI.SmartGridMap result = apiCaller.getMapComboFromMapFile(mapperFileName);
+            result.JassLatLonID = JassLatLonID;
+            result.JassLatLon = db.JassLatLons.Find(JassLatLonID);
+            return View(result);
+        }
 
         #endregion
 
@@ -135,12 +138,6 @@ namespace JassWeather.Controllers
                 "Narr_Grid.nc",
                 "Narr_2_SHER_Grid_Mapper.nc", false, true);
             return View("MapSher2NarrTest", result);
-        }
-
-        public ActionResult ShowGridMap(string mapperFileName)
-        {
-            JassWeatherAPI.SmartGridMap result = apiCaller.getMapComboFromMapFile(mapperFileName);
-            return View(result);
         }
 
 

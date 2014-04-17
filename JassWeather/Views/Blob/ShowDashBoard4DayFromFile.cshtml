@@ -14,28 +14,49 @@ th, td { width: 2px; font-size:xx-small}
     int timeIndex = (int)(numberOfDaysFromBeginning * Model.stepsInADay);
     
     //location stuff
-    int locationY = (Model.JassLatLon != null && Model.JassLatLon.narrY != null) ? (int)Model.JassLatLon.narrY : 133;
-    int locationX = (Model.JassLatLon != null && Model.JassLatLon.narrX != null) ? (int)Model.JassLatLon.narrX : 241;
+    int locationY = 133;
+    int locationX = 241;
+    string locationName = "Toronto";
+    int hrDifference = 3; 
+    
+    locationName = (Model.JassLatLon != null && Model.JassLatLon.Name != null) ? Model.JassLatLon.Name : "Toronto";
+    hrDifference = (Model.JassLatLon != null && Model.JassLatLon.hrDifference!= null) ? Model.JassLatLon.hrDifference : -4;
+    
+    //Toronto  CN Tower 301 Front St W  43.642811  -79.387046  
+    //NARR 133: 241     MACC 41: 250    CFSR 93: 561  SHER 425: 425  
+
+    if (Model.JassGrid != null && Model.JassGrid.Type == "NARR") { 
+    locationY = (Model.JassLatLon != null && Model.JassLatLon.narrY != null) ? (int)Model.JassLatLon.narrY : 133;
+    locationX = (Model.JassLatLon != null && Model.JassLatLon.narrX != null) ? (int)Model.JassLatLon.narrX : 241;
+        }
+    if (Model.JassGrid != null && Model.JassGrid.Type == "MACC")
+    {
+        locationY = (Model.JassLatLon != null && Model.JassLatLon.narrY != null) ? (int)Model.JassLatLon.narrY : 41;
+        locationX = (Model.JassLatLon != null && Model.JassLatLon.narrX != null) ? (int)Model.JassLatLon.narrX : 250;
+    }
+    if (Model.JassGrid != null && Model.JassGrid.Type == "CFSR")
+    {
+        locationY = (Model.JassLatLon != null && Model.JassLatLon.narrY != null) ? (int)Model.JassLatLon.narrY : 93;
+        locationX = (Model.JassLatLon != null && Model.JassLatLon.narrX != null) ? (int)Model.JassLatLon.narrX : 561;
+    }
+    if (Model.JassGrid != null && Model.JassGrid.Type == "SHER")
+    {
+        locationY = (Model.JassLatLon != null && Model.JassLatLon.narrY != null) ? (int)Model.JassLatLon.narrY : 425;
+        locationX = (Model.JassLatLon != null && Model.JassLatLon.narrX != null) ? (int)Model.JassLatLon.narrX : 425;
+    }
+        
+        
+        
+    
 
 }
 
-<h2>Values for @Model.fileName for Day @requiredDay  at step=@Model.stepIndex </h2>
-Click here for other time steps: 
-@for(int i=0; i< 10 && i< Model.gridValues.timeLength;i++){
-    DateTime now = new DateTime(2012, 1, 1);
-    string stime = "" + now.AddHours(i * 3 - 4).Hour + "hr";
- @Html.ActionLink(""+i+"("+stime+")", "ShowDashBoard4DayFromFile", new { variableName=@Model.variableName, yearIndex=@Model.yearIndex, monthIndex=@Model.monthIndex, dayIndex=@Model.dayIndex, stepIndex=i, levelIndex=Model.levelIndex })    
-}
-@if(Model.gridValues.levelLength>1){ 
-       
-<text>Current Level: @Model.levelIndex - Click here for other level steps: </text>
-    for(int i=0;i<Model.gridValues.levelLength;i++){
-        @Html.ActionLink("" + i, "ShowDashBoard4DayFromFile", new { variableName = @Model.variableName, yearIndex = @Model.yearIndex, monthIndex = @Model.monthIndex, dayIndex = @Model.dayIndex, stepIndex = Model.stepIndex, levelIndex = i });    
-}}
-     <br />
+<h2>Values for @Model.fileName for Day @requiredDay (UTC) (hrDifference = @hrDifference) at step=@Model.stepIndex </h2>
+<h2>A column and a row are highlighted  for location @locationName at @locationY , @locationX  </h2>
+
 Max Value:  @Model.gridValues.measureMax[0]  Min Value : @Model.gridValues.measureMin[0] 
-<br />MaxPosition Y:@Model.gridValues.maxY[0] X:@Model.gridValues.maxX[0] T:@Model.gridValues.maxT[0] 
-<br />MinPosition Y:@Model.gridValues.minY[0] X:@Model.gridValues.minX[0] T:@Model.gridValues.minT[0]
+<br />MaxPosition Y:@Model.gridValues.maxY[0] X:@Model.gridValues.maxX[0]  
+<br />MinPosition Y:@Model.gridValues.minY[0] X:@Model.gridValues.minX[0]  
 
 <table><tr>
 @foreach (var v in Model.gridValues.variableMetadata)
@@ -86,9 +107,9 @@ Color Scale
            @for (int x = 0; x < Model.gridValues.xLength; x++)
            {
                JassWeather.Models.JassRGB rgb;
-               if (Model.gridValues.measure[Model.stepIndex, 0, y, x] != null)
+               if (Model.gridValues.measure[0, 0, y, x] != null)
                {
-                   double scaledValue = ((double)Model.gridValues.measure[Model.stepIndex, 0, y, x] - Model.gridValues.measureMin[0]) * myfactor;
+                   double scaledValue = ((double)Model.gridValues.measure[0, 0, y, x] - Model.gridValues.measureMin[0]) * myfactor;
                    rgb = JassWeather.Models.JassWeatherAPI.rgb(scaledValue, 0, 1024);
                }
                else
@@ -99,7 +120,7 @@ Color Scale
                if (y == locationY || x == locationX) { borderStyle = "solid"; }
             <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b); border-style:@borderStyle; border-color:black; border-width:medium">
                 @y,@x
-                @Model.gridValues.measure[Model.stepIndex, 0, y, x]
+                @Model.gridValues.measure[0, 0, y, x]
             </td>
            }
     </tr>

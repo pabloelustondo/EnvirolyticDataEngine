@@ -31,10 +31,16 @@
             Macc Y:X
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.hrDifference)
+            Cfsr Y:X
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.JassLatLonGroup.Name)
+            Sher Y:X
+        </th>
+        <th>
+            hrDiff
+        </th>
+        <th>
+            Group
         </th>
         <th></th>
     </tr>
@@ -60,6 +66,14 @@
         <td>
             @Html.DisplayFor(modelItem => item.maccY):
             @Html.DisplayFor(modelItem => item.maccX)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.cfsrY):
+            @Html.DisplayFor(modelItem => item.cfsrX)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.sherY):
+            @Html.DisplayFor(modelItem => item.sherX)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.hrDifference)

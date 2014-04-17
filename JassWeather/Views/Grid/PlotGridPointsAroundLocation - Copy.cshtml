@@ -1,0 +1,15 @@
+﻿@model JassWeather.Controllers.GridController.PlotGridPointsAroundLocationModel
+
+@{
+    ViewBag.Title = "PlotGridPointsAroundLocation";
+}
+
+<h2>Testing the Grid</h2>
+
+<h1>Click on this to see the whole grid with a color code based on distance</h1>
+
+<p>@Html.ActionLink("Show Entire NARR => CFSR Map on the NARR Grid", "ShowGridMap", "Grid", new {mapperFileName="Narr_2_CFSR_Grid_Mapper.nc"},null)</p> 
+<p>@Html.ActionLink("Show Entire NARR => MACC Map on the NARR Grid", "ShowGridMap", "Grid", new {mapperFileName="Narr_2_Macc_Grid_Mapper.nc"},null)</p> 
+<p>@Html.ActionLink("Show Entire NARR => SHERIDAN Map on the NARR Grid", "ShowGridMap", "Grid", new {mapperFileName="Narr_2_SHER_Grid_Mapper.nc"},null)</p> 
+
+

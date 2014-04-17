@@ -238,12 +238,16 @@ namespace JassWeather.Controllers
             Model.JassLatLon = db.JassLatLons.Find(Model.JassLatLonID);
             #endregion 
 
+            #region fix grid
+            Model.JassGrid = db.JassGrids.Find(Model.JassGridID);
+            #endregion 
+
             if (Model.JassGridID != null)
             {
 
                 Model.JassGrid = db.JassGrids.Find(Model.JassGridID);
                 DateTime requestDate = new DateTime(Model.year, Model.monthIndex, Model.dayIndex);
-                Model.gridValues = apiCaller.GetDayValues(Model.JassGrid, Model.fileName, Model.startingDate, requestDate);
+                Model.gridValues = apiCaller.GetDayValues(Model.JassGrid, Model.fileName, Model.startingDate, requestDate, Model.stepIndex);
                 return View(Model);
             }
             else

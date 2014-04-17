@@ -18,6 +18,9 @@
             @Html.DisplayNameFor(model => model.Type)
         </th>
         <th>
+            @Html.DisplayNameFor(model => model.StepsInDay)
+        </th>
+        <th>
             @Html.DisplayNameFor(model => model.Xsize)
         </th>
         <th>
@@ -39,7 +42,7 @@
             @Html.DisplayNameFor(model => model.Timesize)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Timesize)
+            @Html.DisplayNameFor(model => model.Timename)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.JassPartition.Name)
@@ -54,6 +57,9 @@
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Type)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.StepsInDay)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Xsize)

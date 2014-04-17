@@ -44,6 +44,15 @@
             @Html.ValidationMessageFor(model => model.Timename)
         </div>
 
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.StepsInDay)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.StepsInDay)
+            @Html.ValidationMessageFor(model => model.StepsInDay)
+        </div>
+
         <div class="editor-label">
             @Html.LabelFor(model => model.Levelsize)
         </div>
