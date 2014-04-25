@@ -285,6 +285,10 @@ namespace JassWeather.Models
                         {
                             get_big_NetCDF_by_ftp2(url, AppDataFolder);
                         }
+                        if (builder.APIRequest.type == "HTTP-netCDF")
+                        {
+                            get_big_NetCDF_by_http2(url, AppDataFolder);
+                        }
                         else
                         {
                             //we have a problem here we could not find the file
@@ -2442,10 +2446,17 @@ v(np)  =   ---------------------------------------------------------------------
 
             if (weeky != 0)
             {
-                var weekyNumber = (weeky - 1) * 5 + 1;
-                string weekyString = "" + weekyNumber;
-                if (weekyNumber < 10) weekyString = "0" + weekyNumber;
+                var weekyDay = (weeky - 1) * 5 + 1;
+                string weekyString = "" + weekyDay;
+                if (weekyDay < 10) weekyString = "0" + weekyDay;
                 url = url.Replace("$WW", weekyString);
+
+                int weekyDayEnd=weekyDay+4;
+                if (weekyDay > 25) weekyDayEnd = lastDayOfMonth(year, month);
+                string weekyEndString = "" + weekyDayEnd;
+                if (weekyDayEnd < 10) weekyEndString = "0" + weekyDayEnd;
+                url = url.Replace("$ZZ", weekyEndString);
+
             }
 
             if (day != 0)
@@ -2461,7 +2472,13 @@ v(np)  =   ---------------------------------------------------------------------
 
         }
 
+        public int lastDayOfMonth(int year, int month)
+        {
+            DateTime thisMonthStart = new DateTime(year,month,1);          
+            DateTime nextMonthStart =  thisMonthStart.AddMonths(1);
 
+            return (int)(nextMonthStart - thisMonthStart).TotalDays-1;
+        }
 
         public JassBuilderLog createBuilderLog(JassBuilder builder, string eventType, string Label, string Message, TimeSpan span, Boolean success)
         {
@@ -4190,6 +4207,69 @@ v(np)  =   ---------------------------------------------------------------------
             return Message;
         }
 
+        public string get_big_NetCDF_by_http2(string url, string workingDirectoryPath)
+        {
+            //workingDirectorypath: HttpContext.Server.MapPath("~/App_Data")
+
+            string Message = "";
+
+            try
+            {
+
+                DateTime startTime = DateTime.UtcNow;
+
+                DateTime t = DateTime.Now;
+                string timeStamp = "_" + t.Year + "_" + t.Month + "_" + t.Day + "_" + t.Hour + "_" + t.Minute + "_" + t.Second + "_" + t.Millisecond;
+                string safeFileName = url.Replace('/', '_').Replace(':', '_').TrimStart().TrimEnd();
+                string downloadedFilePath = workingDirectoryPath + "\\" + safeFileName;
+
+                //hardcoded for now
+                string loginUrl = "https://rda.ucar.edu/cgi-bin/login?email=pelustondo@envirolytic.com&passwd=iswhatyou2!&action=login";
+
+       
+                HttpWebRequest loginRequest = (HttpWebRequest)HttpWebRequest.Create(loginUrl);
+                loginRequest.CookieContainer = new CookieContainer();
+
+                loginRequest.Method = WebRequestMethods.Http.Get;
+                HttpWebResponse loginResponse = (HttpWebResponse)loginRequest.GetResponse();
+                var cookies = new CookieContainer();
+                cookies.Add(loginResponse.Cookies);
+
+
+                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
+                request.CookieContainer = cookies;
+                request.Method = WebRequestMethods.Http.Get;
+             
+                WebResponse response = (WebResponse)request.GetResponse();
+ 
+
+                Stream responseStream = response.GetResponseStream();
+                using (FileStream file = File.Create(downloadedFilePath))
+                {
+                    byte[] buffer = new byte[32 * 1024];
+                    int read;
+                    //reader.Read(
+
+                    while ((read = responseStream.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        file.Write(buffer, 0, read);
+                    }
+
+                    file.Close();
+                    responseStream.Close();
+                    response.Close();
+                }
+
+
+                Message = "OK net CDF downloaded Variables in Schema: " + Message;
+
+            }
+            catch (Exception e)
+            {
+                Message = e.Message; ;
+            }
+            return Message;
+        }
 
         public string get_big_NetCDF_by_ftp2(string url, string workingDirectoryPath)
         {
@@ -4609,6 +4689,13 @@ v(np)  =   ---------------------------------------------------------------------
                         vm.JassGrid = db.JassGrids.Where(g => g.Name.Contains("SHER")).First();
                         vm.JassGridID = vm.JassGrid.JassGridID;
                     }
+                    //rda.ucar.edu for MACC
+
+                    if (downloadedFilePath.Contains("rda.ucar.edu"))
+                    {
+                        vm.JassGrid = db.JassGrids.Where(g => g.Name.Contains("CFSR")).First();
+                        vm.JassGridID = vm.JassGrid.JassGridID;
+                    }
 
                     //horrible hack to make this work for now. need to add metadata to file.
                     if (dataset.Metadata.Count < 2 && vm.JassGrid == null)
@@ -4707,6 +4794,43 @@ v(np)  =   ---------------------------------------------------------------------
                                     if (vm.endingDate != vm.endingDate2) vm.message = " ending date discrepancy: " + vm.endingDate2.ToShortDateString();
                                     if (vm.startingDate != vm.startingDate2) vm.message = " starting date discrepancy: " + vm.startingDate2.ToShortDateString();
                                 }
+                                else
+                                    if (vm.JassGrid.Type == "CFSR")
+                                    {
+                                        Single[] time = dataset.GetData<Single[]>("time");
+
+
+                                        //decode day from file name
+                                        string yearmonthstring = filename.Substring(filename.IndexOf(".gdas.") + 6, 8);
+                                        string yearstring = yearmonthstring.Substring(0, 4);
+                                        string monthstring = yearmonthstring.Substring(4, 2);
+                                        string daystring = yearmonthstring.Substring(6, 2);
+
+                                        int year = Convert.ToInt32(yearstring);
+                                        int month = Convert.ToInt32(monthstring);
+                                        int day = Convert.ToInt32(daystring);
+
+                                        //decode end date
+                                        string yearmonthstring2 = filename.Substring(filename.IndexOf(".grb2.") - 8, 8);
+                                        string yearstring2 = yearmonthstring2.Substring(0, 4);
+                                        string monthstring2 = yearmonthstring2.Substring(4, 2);
+                                        string daystring2 = yearmonthstring2.Substring(6, 2);
+
+                                        int year2 = Convert.ToInt32(yearstring2);
+                                        int month2 = Convert.ToInt32(monthstring2);
+                                        int day2 = Convert.ToInt32(daystring2);
+
+                                        vm.startingDate = new DateTime(year, month, day);
+                                        vm.endingDate = new DateTime(year2, month2, day2);
+
+                                        vm.year = vm.startingDate.Year;
+                                        vm.monthIndex = vm.startingDate.Month;
+                                        vm.dayIndex = vm.startingDate.Day;
+                                        vm.message = "successfully parsed as a CFSR Grid";
+
+                                        if (vm.endingDate != vm.endingDate2) vm.message = " ending date discrepancy: " + vm.endingDate2.ToShortDateString();
+                                        if (vm.startingDate != vm.startingDate2) vm.message = " starting date discrepancy: " + vm.startingDate2.ToShortDateString();
+                                    }
 
                         if (vm.JassGrid != null) {
                             vm.stepsInADay = vm.JassGrid.StepsInDay;
@@ -5445,7 +5569,7 @@ v(np)  =   ---------------------------------------------------------------------
             return listOfValues;
         }
 
-        public JassGridValues GetDayValues(JassGrid grid, string fileName, DateTime startingDate, DateTime requestDate, int stepIndex)
+        public JassGridValues GetDayValues(JassGrid grid, string fileName, DateTime startingDate, DateTime requestDate, int stepIndex, int levelIndex)
         {
             //HERE
 
@@ -5530,16 +5654,14 @@ v(np)  =   ---------------------------------------------------------------------
              
                 Single[] level = new Single[1];
 
-                //IMPORTANT WE ARE SAMPLING ONLY 3 LEVELS OF PRESSURE
-                if (hasLevel) level = new Single[3];
 
-                dayGridValues = new JassGridValues(keyVariable.Metadata, keyVariable.Name, 1, level.Length, y.Length, x.Length);
+                dayGridValues = new JassGridValues(keyVariable.Metadata, keyVariable.Name, 1, 1, y.Length, x.Length);
 
                 //how to get the scale/factor value.
 
                 string outPutString = schema2string(schema1);
 
-                for (int ll = 0; ll < level.Length; ll++)
+                for (int ll = 0; ll < 1; ll++)
                 {
                     dayGridValues.measureMin[ll] = add_offset + scale_factor * 32768;
                     dayGridValues.measureMax[ll] = add_offset + scale_factor * (-32768);
@@ -5551,22 +5673,22 @@ v(np)  =   ---------------------------------------------------------------------
                     try
                     {
                         values = dataset1.GetData<Int16[, , ,]>(keyVariable.Name,
-                                 DataSet.Range(timeIndex, timeIndex+1),
-                                 DataSet.Range(0, level.Length-1),
+                                 DataSet.Range(timeIndex, timeIndex),
+                                 DataSet.Range(levelIndex, levelIndex),
                                  DataSet.Range(0, y.Length-1),
                                  DataSet.Range(0, x.Length-1) );
                     }
                     catch (Exception)
                     {
                         values = dataset1.GetData<Single[, , ,]>(keyVariable.Name,
-                                 DataSet.Range(timeIndex, timeIndex+1),
-                                 DataSet.Range(0, level.Length-1),
+                                 DataSet.Range(timeIndex, timeIndex),
+                                 DataSet.Range(levelIndex, levelIndex),
                                  DataSet.Range(0, y.Length-1),
                                  DataSet.Range(0, x.Length-1) );
                     }
                     for (int tt = 0; tt < 1; tt++)
                     {
-                        for (int ll = 0; ll < level.Length; ll++)
+                        for (int ll = 0; ll < 1; ll++)
                         {
                             for (int yy = 0; yy < y.Length; yy++)
                             {
@@ -5599,7 +5721,7 @@ v(np)  =   ---------------------------------------------------------------------
                     try
                     {
                         values = dataset1.GetData<Int16[, ,]>(keyVariable.Name,
-                                 DataSet.Range(timeIndex, timeIndex +1),
+                                 DataSet.Range(timeIndex, timeIndex),
                                  DataSet.Range(0, y.Length - 1),
                                  DataSet.Range(0, x.Length - 1));
                     }
@@ -5608,14 +5730,14 @@ v(np)  =   ---------------------------------------------------------------------
                         try
                         {
                             values = dataset1.GetData<Single[, ,]>(keyVariable.Name,
-                                 DataSet.Range(timeIndex, timeIndex +1),
+                                 DataSet.Range(timeIndex, timeIndex),
                                  DataSet.Range(0, y.Length - 1),
                                  DataSet.Range(0, x.Length - 1));
                         }
                         catch (Exception e)
                         {
                             values = dataset1.GetData<Int16[,]>(keyVariable.Name,
-                                       DataSet.Range(timeIndex, timeIndex +1),
+                                       DataSet.Range(timeIndex, timeIndex),
                                        DataSet.Range(0, y.Length - 1));
                         }
                     }

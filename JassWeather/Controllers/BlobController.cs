@@ -187,20 +187,22 @@ namespace JassWeather.Controllers
         {
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
 
-            JassWeatherAPI.VariableValueModel Model = new JassWeatherAPI.VariableValueModel();
-            Model.year = yearIndex + (DateTime.Now.Year - 9);
-            Model.yearIndex = yearIndex;
-            Model.monthIndex = monthIndex;
-            Model.dayIndex = dayIndex;
-            Model.stepIndex = stepIndex;
-            Model.levelIndex = levelIndex;
-            Model.numberOfDays = variableStatusModel[0].StatusDayLevel[yearIndex][monthIndex].Count;
-            string fileName = apiCaller.fileNameBuilderByDay(variableName, Model.year, monthIndex + 1, dayIndex + 1) + ".nc";
-            Model.gridValues = apiCaller.GetDayValues(fileName);
+             int year = yearIndex + (DateTime.Now.Year - 9);
+             int month = monthIndex + 1;
+             int day = dayIndex + 1;
+
+            string fileName = apiCaller.fileNameBuilderByDay(variableName, year, month, day) + ".nc";
+
+            apiCaller.DownloadFile2DiskIfNotThere(variableName.ToLower(), fileName, apiCaller.AppDataFolder + "\\" + fileName);
+            JassWeatherAPI.VariableValueModel Model = apiCaller.AnalyzeFileOnDisk(fileName);
+            ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", Model.JassGridID);
+
             Model.fileName = fileName;
             Model.variableName = variableName;
+            Model.gridValues = apiCaller.GetDayValues(Model.JassGrid,Model.fileName,Model.startingDate,Model.startingDate,stepIndex,levelIndex);
 
-            if (variableName == "Sheridan")              {
+            if (variableName.Contains("Sheridan"))
+            {
                 Model.colorCode = db.JassColorCodes.Find(1);
             }
 
@@ -248,7 +250,7 @@ namespace JassWeather.Controllers
 
                 Model.JassGrid = db.JassGrids.Find(Model.JassGridID);
                 DateTime requestDate = new DateTime(Model.year, Model.monthIndex, Model.dayIndex);
-                Model.gridValues = apiCaller.GetDayValues(Model.JassGrid, Model.fileName, Model.startingDate, requestDate, Model.stepIndex);
+                Model.gridValues = apiCaller.GetDayValues(Model.JassGrid, Model.fileName, Model.startingDate, requestDate, Model.stepIndex, Model.levelIndex);
                 return View(Model);
             }
             else
