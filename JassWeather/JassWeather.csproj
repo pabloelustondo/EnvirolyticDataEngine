@@ -301,7 +301,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Readme\Elmah.txt" />
-    <Content Include="App_TempFiles\readme.txt" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
@@ -367,7 +366,9 @@
     <Content Include="App_Files\Narr_2_SHER_Grid_Mapper.nc" />
     <Content Include="App_Files\Narr_Grid.nc" />
     <Content Include="App_Files\Narr_2_CFSR_Grid_Mapper.nc" />
+    <None Include="Properties\PublishProfiles\envirolytic - FTP %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolytic - Web Deploy %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\envirolyticftp - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolyticftp - Web Deploy.pubxml" />
@@ -568,6 +569,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="App_TempFiles\" />
     <Folder Include="bin\" />
   </ItemGroup>
   <ItemGroup>

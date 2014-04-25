@@ -300,7 +300,7 @@ namespace JassWeather.Models
                 }
 
                 //so, here we know the file is on dis for sure (unless there is an error)
-                if (upload && blobAccess)
+                if (upload && blobAccess && !fileOnBlob)
                 {
                     uploadBlob("ftp", fileName, filePath);
                 }
@@ -3167,17 +3167,22 @@ v(np)  =   ---------------------------------------------------------------------
                             DateTime firstDateNextMonth = firstDateOfMonth.AddMonths(1);
                             int daysInMonth = (int)(firstDateNextMonth - firstDateOfMonth).TotalDays;
                             int daysInWeeky = 5;
-                            if (firstDayOfWeeky > 25) daysInWeeky = daysInMonth - 25;
+                            if (firstDayOfWeeky > 25) daysInWeeky = daysInMonth - 24;
 
-                            string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
+                            string inputFileTemplateBeforeTransformation = safeFileNameFromUrl(builder.APIRequest.url);
                             for (int d = 0; d < daysInWeeky; d++)
                             {
                                 var x = d;
-                                processGridMappingCFSRToNarrModel result = processGridMappingCFSRToNarr(builder.JassVariable.Name, year, month, weeky, d, inputFileTemplateBeforeTransformation);
-                                inputFile1 = saveprocessGridMappingCFSRToNarrModel(result);
-                                createBuilderLogChild(builderAllLog, builder, year, month, "transfor+generate weeky: " + weeky + " d:" + d, builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, true);
-
-
+                                try
+                                {
+                                    processGridMappingCFSRToNarrModel result = processGridMappingCFSRToNarr(builder.JassVariable.Name, year, month, weeky, d, inputFileTemplateBeforeTransformation);
+                                    inputFile1 = saveprocessGridMappingCFSRToNarrModel(result);
+                                    createBuilderLogChild(builderAllLog, builder, year, month, "transfor+generate weeky: " + weeky + " d:" + d, builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, true);
+                                }
+                                catch (Exception e)
+                                {   
+                                    createBuilderLog("EXCEPTION", "processGridMappingCFSRToNarr", e.Message, new TimeSpan(), false);
+                                }
                                 if (upload)
                                 {
                                     uploadBlob(builder.JassVariable.Name, inputFile1, this.AppDataFolder + "/" + inputFile1);
@@ -5467,17 +5472,21 @@ v(np)  =   ---------------------------------------------------------------------
             {
                 int index = fileName.IndexOf("_");
 
-                string ContainerName;
+                string fileNamePrefix;
 
                 if (index > 0)
                 {
-                    ContainerName = fileName.Substring(0, index).ToLower();
+                    fileNamePrefix = fileName.Substring(0, index).ToLower();
                 }
                 else {
-                    ContainerName = "ftp";
+                    fileNamePrefix = "ftp";
                 }
                 string BlobName = fileName;
-                downloadBlob(ContainerName,BlobName,filePath);
+
+                string containerName = fileNamePrefix;
+                if (fileNamePrefix == "http") containerName = "ftp";
+
+                downloadBlob(containerName,BlobName,filePath);
             }
 
         }
