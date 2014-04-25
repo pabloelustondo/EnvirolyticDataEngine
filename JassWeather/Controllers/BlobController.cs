@@ -221,7 +221,8 @@ namespace JassWeather.Controllers
             var locations = db.JassLatLons.Where(l => l.JassLatLonGroupID == LatLonGroupID).ToList();
             ViewBag.JassLatLonID = new SelectList(locations, "JassLatLonID", "Name");
             #endregion 
-
+            Model.maxYaroundLoc = 25;
+            Model.maxXaroundLoc = 25;
 
             Model.fileName = fileName;
             return View("ShowDashBoard4DayFromFileFirst", Model);
@@ -256,7 +257,8 @@ namespace JassWeather.Controllers
                 string filePath = apiCaller.AppDataFolder + "\\" + Model.fileName;
                 string schema = apiCaller.AnalyzeFileDisk(filePath);
                 Model.schema = schema;
-
+                Model.maxYaroundLoc = 25;
+                Model.maxXaroundLoc = 25;
 
                 ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", Model.JassGridID);
                 return View("ShowDashBoard4DayFromFileFirst", Model);

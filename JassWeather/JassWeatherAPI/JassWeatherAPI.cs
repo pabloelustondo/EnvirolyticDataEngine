@@ -4537,6 +4537,8 @@ v(np)  =   ---------------------------------------------------------------------
             public int levelIndex { get; set; }
             public int numberOfDays { get; set; }
             public int stepsInADay { get; set; }
+            public int maxXaroundLoc { get; set; }
+            public int maxYaroundLoc { get; set; }
             public string variableName { get; set; }
             public JassGridValues gridValues { get; set; }
             public string message { get; set; }
@@ -4602,8 +4604,14 @@ v(np)  =   ---------------------------------------------------------------------
                             vm.JassGridID = vm.JassGrid.JassGridID;
                     }
 
+                    if (downloadedFilePath.Contains("sheridan"))
+                    {
+                        vm.JassGrid = db.JassGrids.Where(g => g.Name.Contains("SHER")).First();
+                        vm.JassGridID = vm.JassGrid.JassGridID;
+                    }
+
                     //horrible hack to make this work for now. need to add metadata to file.
-                    if (dataset.Metadata.Count<2)
+                    if (dataset.Metadata.Count < 2 && vm.JassGrid == null)
                     {
                         vm.envirolyticFile = true;
                         vm.JassGrid = db.JassGrids.Where(g => g.Name == "NARR-32km-3hr-ByDay").First();
@@ -4678,6 +4686,31 @@ v(np)  =   ---------------------------------------------------------------------
                                 if (vm.endingDate != vm.endingDate2) vm.message = " ending date discrepancy: " + vm.endingDate2.ToShortDateString();
                                 if (vm.startingDate != vm.startingDate2) vm.message = " starting date discrepancy: " + vm.startingDate2.ToShortDateString();
                             }
+                            else
+                                if (vm.JassGrid.Type == "SHER")
+                                {
+                                    double[] time = dataset.GetData<double[]>("time");
+                                    DateTime day2002 = DateTime.Parse("2002-01-01 00:00:00");
+                                    var beginingHours = time[0];
+
+                                    vm.startingDate = vm.startingDate2 = day2002;
+                                    var endingHours = beginingHours + (time.Length - 1);
+                                    var endingHours2 = time[time.Length - 1];
+
+                                    vm.endingDate =  vm.endingDate2 = day2002.AddHours(endingHours2);
+
+                                    vm.year = vm.startingDate.Year;
+                                    vm.monthIndex = vm.startingDate.Month;
+                                    vm.dayIndex = vm.startingDate.Day;
+                                    vm.message = "successfully parsed as a SHERIDAN Grid";
+
+                                    if (vm.endingDate != vm.endingDate2) vm.message = " ending date discrepancy: " + vm.endingDate2.ToShortDateString();
+                                    if (vm.startingDate != vm.startingDate2) vm.message = " starting date discrepancy: " + vm.startingDate2.ToShortDateString();
+                                }
+
+                        if (vm.JassGrid != null) {
+                            vm.stepsInADay = vm.JassGrid.StepsInDay;
+                        }
                     }
                     catch (Exception e)
                     {

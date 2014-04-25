@@ -71,7 +71,20 @@
             @Html.EditorFor(model => model.stepIndex)
             @Html.ValidationMessageFor(model => model.stepIndex)
         </div>
-
+        <div class="editor-label">
+          Max Y cells around location
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.maxYaroundLoc)
+            @Html.ValidationMessageFor(model => model.maxYaroundLoc)
+        </div>
+        <div class="editor-label">
+            Max X cells around location
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.maxXaroundLoc)
+            @Html.ValidationMessageFor(model => model.maxXaroundLoc)
+        </div>
 
          <p>
             <input type="submit" value="Submit" />

@@ -44,11 +44,8 @@ th, td { width: 2px; font-size:xx-small}
         locationY = (Model.JassLatLon != null && Model.JassLatLon.sherY != null) ? (int)Model.JassLatLon.sherY : 425;
         locationX = (Model.JassLatLon != null && Model.JassLatLon.sherX != null) ? (int)Model.JassLatLon.sherX : 425;
     }
-        
-        
-        
-    
 
+ 
 }
 
 <h2>Values for @Model.fileName for Day @requiredDay (UTC) (hrDifference = @hrDifference) at step=@Model.stepIndex </h2>
@@ -85,26 +82,50 @@ Color Scale
         @(c*range/1024 + Model.gridValues.measureMin[0])</td>
     }
 </tr></table>
+@{
 
+
+    int maxY = Model.gridValues.yLength - 1;
+    int minY = 0;
+
+    int maxX = Model.gridValues.xLength;
+    int minX = 0;
+    
+    int maxY2 = locationY + Model.maxYaroundLoc;
+    int minY2 = locationY - Model.maxYaroundLoc;
+
+    int maxX2 = locationX + Model.maxXaroundLoc;
+    int minX2 = locationX - Model.maxXaroundLoc;
+
+
+    if (minY2 > minY && minY2 < maxY) { minY = minY2; }
+    if (maxY2 < maxY && maxY2 > minY) { maxY = maxY2; }
+
+    if (minY2 > minY && minY2 < maxY) { minY = minY2; }
+    if (maxY2 < maxY && maxY2 > minY) { maxY = maxY2; }
+
+}
 <table>
     <tr>
         <th>
             Y
         </th>
-        @for (int x = 0; x < Model.gridValues.xLength; x++ ){
+        @for (int x = minX; x < maxX; x++ ){
         <th>
             @x
         </th>
         }
     </tr>
 
-@for (int y = Model.gridValues.yLength-1; y >= 0 ; y--)
+
+
+@for (int y = maxY; y >= minY ; y--)
 {
     <tr>
         <td>
             @y
         </td>
-           @for (int x = 0; x < Model.gridValues.xLength; x++)
+           @for (int x = minX; x < maxX; x++)
            {
                JassWeather.Models.JassRGB rgb;
                if (Model.gridValues.measure[0, 0, y, x] != null)

@@ -1,13 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30324.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JassWeather", "JassWeather\JassWeather.csproj", "{91BDA27A-55AB-4B33-944C-1C56C230BB3E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JassWeather.Tests", "JassWeather.Tests\JassWeather.Tests.csproj", "{732048A3-AD1A-4AB9-B456-F52E2547C6D3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JassWeatherAPI", "JassWeatherAPI\JassWeatherAPI.csproj", "{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,30 +29,6 @@ Global
 		{91BDA27A-55AB-4B33-944C-1C56C230BB3E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{91BDA27A-55AB-4B33-944C-1C56C230BB3E}.Release|Win32.ActiveCfg = Release|Any CPU
 		{91BDA27A-55AB-4B33-944C-1C56C230BB3E}.Release|x86.ActiveCfg = Release|Any CPU
-		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Release|Win32.ActiveCfg = Release|Any CPU
-		{732048A3-AD1A-4AB9-B456-F52E2547C6D3}.Release|x86.ActiveCfg = Release|Any CPU
-		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Release|Win32.ActiveCfg = Release|Any CPU
-		{DD8B3913-193A-4DD7-A4ED-0EC3F7B3DC30}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
