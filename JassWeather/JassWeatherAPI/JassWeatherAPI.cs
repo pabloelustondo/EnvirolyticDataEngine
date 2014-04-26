@@ -2452,7 +2452,7 @@ v(np)  =   ---------------------------------------------------------------------
                 url = url.Replace("$WW", weekyString);
 
                 int weekyDayEnd=weekyDay+4;
-                if (weekyDay > 25) weekyDayEnd = lastDayOfMonth(year, month);
+                if (weekyDay > 25) weekyDayEnd = DateTime.DaysInMonth(year, month);
                 string weekyEndString = "" + weekyDayEnd;
                 if (weekyDayEnd < 10) weekyEndString = "0" + weekyDayEnd;
                 url = url.Replace("$ZZ", weekyEndString);
@@ -3165,14 +3165,13 @@ v(np)  =   ---------------------------------------------------------------------
                             DateTime firstDateToProcess = new DateTime(year, month, firstDayOfWeeky);
                             DateTime firstDateOfMonth = new DateTime(year, month,1);
                             DateTime firstDateNextMonth = firstDateOfMonth.AddMonths(1);
-                            int daysInMonth = (int)(firstDateNextMonth - firstDateOfMonth).TotalDays;
+                            int daysInMonth = DateTime.DaysInMonth(year,month);
                             int daysInWeeky = 5;
-                            if (firstDayOfWeeky > 25) daysInWeeky = daysInMonth - 24;
+                            if (firstDayOfWeeky > 25) daysInWeeky = daysInMonth - 25;
 
                             string inputFileTemplateBeforeTransformation = safeFileNameFromUrl(builder.APIRequest.url);
                             for (int d = 0; d < daysInWeeky; d++)
                             {
-                                var x = d;
                                 try
                                 {
                                     processGridMappingCFSRToNarrModel result = processGridMappingCFSRToNarr(builder.JassVariable.Name, year, month, weeky, d, inputFileTemplateBeforeTransformation);
@@ -4720,6 +4719,12 @@ v(np)  =   ---------------------------------------------------------------------
                                 vm.JassGrid = db.JassGrids.Where(g => g.Name == "NARR-32km-3hr-29level-ByDay").First();
                                 vm.JassGridID = vm.JassGrid.JassGridID;
                             }
+                            else
+                                if (schemaString.Contains("(level,23)"))
+                                {
+                                    vm.JassGrid = db.JassGrids.Where(g => g.Name == "NARR-32km-3hr-23level-ByDay").First();
+                                    vm.JassGridID = vm.JassGrid.JassGridID;
+                                }
                     }
                     try
                     {

@@ -77,16 +77,14 @@ Color Scale
                {
                    rgb = new JassWeather.Models.JassRGB(0, 0, 0);
                }
-            <td style="background-color:rgb(@rgb.r,@rgb.g,@rgb.b); border-style:@borderStyle; border-color:black; border-width:medium">
-                @y,@x:
+            <td style="width:200px; background-color:rgb(@rgb.r,@rgb.g,@rgb.b); border-style:@borderStyle; border-color:black; border-width:medium">
+                @y,@x
                 @if (Model.mapDistance[y, x] != null && Model.mapDistance[y, x] < range)
                 {
-
-                    <p>d: @Model.mapDistance[y, x] </p>
-                    <p>y: @Model.mapLatY[y, x]   x: @Model.mapLonX[y, x] </p>
-                    <p>d2:@Model.map2Distance[y, x] </p>
-                    <p>y2: @Model.map2LatY[y, x]   x2: @Model.map2LonX[y, x] </p>
-
+                    <p>(1)@Model.mapLatY[y, x],@Model.mapLonX[y, x]:@Math.Round(Model.mapDistance[y, x],2)</p>
+                    <p>(2)@Model.map2LatY[y, x],@Model.map2LonX[y, x]:@Math.Round(Model.map2Distance[y, x],2)</p>      
+                    <p>(3)@Model.map3LatY[y, x],@Model.map3LonX[y, x]:@Math.Round(Model.map3Distance[y, x],2)</p>
+                    <p>(4)@Model.map4LatY[y, x],@Model.map4LonX[y, x]:@Math.Round(Model.map4Distance[y, x], 2)</p>
                 }
             </td>
            }

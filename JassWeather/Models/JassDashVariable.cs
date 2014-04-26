@@ -104,15 +104,14 @@ namespace JassWeather.Models
                          SizeMonthLevel[yearX][monthX] += SizeDayLevel[yearX][monthX][dayX];
                      }
                      StatusMonthLevel[yearX][monthX] = StatusMonthLevel[yearX][monthX] * 100 / DateTime.DaysInMonth(StartYear + yearX, monthX + 1);
-                     if (StatusMonthLevel[yearX][monthX] > 0) StatusYearLevel[yearX]++;
-
+                     StatusYearLevel[yearX] += StatusMonthLevel[yearX][monthX];
                      SizeYearLevel[yearX] += SizeMonthLevel[yearX][monthX];
                  }
-                 StatusYearLevel[yearX] = StatusYearLevel[yearX] * 100 / 12;
-                 if (StatusYearLevel[yearX] > 0) StatusVariableLevel++;
+                 StatusYearLevel[yearX] = StatusYearLevel[yearX] / 12;
+                 StatusVariableLevel += StatusYearLevel[yearX];
                  SizeVariableLevel += SizeYearLevel[yearX];
              }
-             StatusVariableLevel = StatusVariableLevel * 100 / (EndYear - StartYear);
+             StatusVariableLevel = StatusVariableLevel / (EndYear - StartYear);
          }
      }
 
