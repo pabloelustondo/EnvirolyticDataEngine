@@ -43,7 +43,8 @@ namespace JassWeather.Controllers
             int year = (jassbuilder.year == null) ? 0 : (int)jassbuilder.year;
             int month = (jassbuilder.month == null) ? 0 : (int)jassbuilder.month;
             int weeky = (jassbuilder.weeky == null) ? 0 : (int)jassbuilder.weeky;
-            var result = apiCaller.processBuilder(jassbuilder, year, month, weeky, false, builderLog);
+            int day = (jassbuilder.day == null) ? 0 : (int)jassbuilder.day;
+            var result = apiCaller.processBuilder(jassbuilder, year, month, weeky, day, false, builderLog);
 
             if (jassbuilder == null)
             {
@@ -76,8 +77,9 @@ namespace JassWeather.Controllers
             int year = (jassbuilder.year == null) ? 0 : (int)jassbuilder.year;
             int month = (jassbuilder.month == null) ? 0 : (int)jassbuilder.month;
             int weeky = (jassbuilder.weeky == null) ? 0 : (int)jassbuilder.weeky;
+            int day = (jassbuilder.day == null) ? 0 : (int)jassbuilder.day;
 
-            var result = apiCaller.processBuilder(jassbuilder, year, month, weeky, true, builderLog);
+            var result = apiCaller.processBuilder(jassbuilder, year, month, weeky, day, true, builderLog);
 
             if (jassbuilder == null)
             {

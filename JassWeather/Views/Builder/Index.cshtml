@@ -32,6 +32,9 @@
         <th>
             @Html.DisplayNameFor(model => model.weeky)
         </th>
+        <th>
+            @Html.DisplayNameFor(model => model.day)
+        </th>
          <th>
             @Html.DisplayNameFor(model => model.yearEnd)
         </th>
@@ -40,6 +43,9 @@
         </th>
         <th>
             @Html.DisplayNameFor(model => model.weekyEnd)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.dayEnd)
         </th>
         <td>
             Status
@@ -93,6 +99,9 @@
             @Html.DisplayFor(modelItem => item.weeky)
         </td>
         <td>
+            @Html.DisplayFor(modelItem => item.day)
+        </td>
+        <td>
             @Html.DisplayFor(modelItem => item.yearEnd)
         </td>
         <td>
@@ -100,6 +109,9 @@
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.weekyEnd)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.dayEnd)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Status)

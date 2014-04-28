@@ -56,7 +56,7 @@ namespace JassWeather.Controllers
           
             JassBuilderLog builderLog = apiCaller.createBuilderLog(tempJassBuilder, "ProcessBuilder_Start", "Manual from Request Controller", "Start", new TimeSpan(), true);
 
-            var result = apiCaller.processSource(tempJassBuilder, (int)apiRequest.sampleYear, (int)apiRequest.sampleMonth, (int)apiRequest.sampleWeeky, true, false, builderLog);
+            var result = apiCaller.processSource(tempJassBuilder, (int)apiRequest.sampleYear, (int)apiRequest.sampleMonth, (int)apiRequest.sampleWeeky, (int)apiRequest.sampleDay, true, false, builderLog);
 
             ViewBag.Message = result;
 

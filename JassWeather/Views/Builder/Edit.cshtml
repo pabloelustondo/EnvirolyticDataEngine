@@ -127,6 +127,15 @@
             @Html.ValidationMessageFor(model => model.day)
         </div>
 
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.dayEnd)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.dayEnd)
+            @Html.ValidationMessageFor(model => model.dayEnd)
+        </div>
+
         <div class="editor-label">
             @Html.LabelFor(model => model.hour3)
         </div>

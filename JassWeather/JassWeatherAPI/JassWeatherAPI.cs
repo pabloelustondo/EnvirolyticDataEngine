@@ -239,7 +239,7 @@ namespace JassWeather.Models
             return fileOnBlob;
         }
 
-        public string processSource(JassBuilder builder, int year, int month, int weeky, Boolean upload, Boolean overWrite, JassBuilderLog builderAllLog)
+        public string processSource(JassBuilder builder, int year, int month, int weeky, int day, Boolean upload, Boolean overWrite, JassBuilderLog builderAllLog)
         {
             //this method will be idempotent... if nothing to do does nothing.
             //this method is to help processBulder and will produce the file on disk
@@ -249,7 +249,7 @@ namespace JassWeather.Models
             //Check whether the file is on disk
 
                 APIRequest source = builder.APIRequest;
-                string url = replaceURIPlaceHolders(source.url, year, month,weeky,0);
+                string url = replaceURIPlaceHolders(source.url, year, month,weeky,day);
 
                 string fileName = safeFileNameFromUrl(url);
                 string filePath = AppDataFolder + "/" + fileName;
@@ -843,13 +843,14 @@ namespace JassWeather.Models
 
         // public JassMaccNarrGridsCombo MapFromMaccToNarr(int year, int month, string fileNameMaccTemp, string fileNameNarrTemp)
         // JassBuilder builder, int year, int month, Boolean upload, Boolean overWrite, JassBuilderLog builderAllLog
-        public processGridMappingCFSRToNarrModel processGridMappingCFSRToNarr(string EnvyVariableName, int year, int month, int weeky, int day, string fileNameMaccTemp)
+        public processGridMappingCFSRToNarrModel processGridMappingCFSRToNarr(string EnvyVariableName, int year, int month, int weeky, int day, int dayInWeeky, string fileNameMaccTemp)
         {
+
             processGridMappingCFSRToNarrModel result = new processGridMappingCFSRToNarrModel();
             result.variableName = EnvyVariableName;
 
-            string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month,weeky,0);
-            string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month,weeky,0);
+            string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month,weeky,day);
+            string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month,weeky,day);
 
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
             string maccFile = AppDataFolder + "/" + fileNameMacc;
@@ -857,8 +858,10 @@ namespace JassWeather.Models
             string mapFile = AppFilesFolder + "/Narr_2_CFSR_Grid_Mapper.nc";
 
             string smonth = (month < 10) ? "0" + month : "" + month;
-            int weekyNumber = (weeky - 1) * 5 + 1;
-            string sweeky = (weekyNumber < 10) ? "0" + weekyNumber : "" + weekyNumber;
+            int weekyStartDay = (weeky - 1) * 5 + 1;
+            int realDay = day;
+            if (weeky > 0) { realDay = weekyStartDay + dayInWeeky; }
+
             string outputFileName = null;
             string outputFilePath = null;
 
@@ -899,7 +902,7 @@ namespace JassWeather.Models
                         };
                     }
 
-                    outputFileName = fileNameBuilderByDay(EnvyVariableName,year,month,weekyNumber+day)+".nc";
+                    outputFileName = fileNameBuilderByDay(EnvyVariableName,year,month,realDay)+".nc";
                     result.outputFileName = outputFileName;
                     outputFilePath = AppDataFolder + "\\" + outputFileName;
 
@@ -917,7 +920,7 @@ namespace JassWeather.Models
                     DateTime narrDay;
                     double narrNumber;
 
-                    DateTime maccDayStart = new DateTime(year, month, weekyNumber+day);
+                    DateTime maccDayStart = new DateTime(year, month, realDay);
                     DateTime narrDayStart = new DateTime(maccDayStart.Year, maccDayStart.Month, maccDayStart.Day);
 
                     if (maccDayStart.Year != year || maccDayStart.Month != month)
@@ -1035,7 +1038,7 @@ namespace JassWeather.Models
                         GC.Collect();
                         var MemoryInitial = GC.GetTotalMemory(true);
                         startTotalTime = DateTime.Now;
-                        int startTimeStep = day * 4;
+                        int startTimeStep = dayInWeeky * 4;
                         int endTimeStep = startTimeStep + 3;
 
                         maccVariable = maccDataSet.GetData<Single[,,,]>(VariableName,
@@ -2625,6 +2628,7 @@ v(np)  =   ---------------------------------------------------------------------
 
             try
             {
+                int startDay, endDay;
                 if (builder.year == null)
                 {
                     builder.year = DateTime.Now.Year;
@@ -2648,6 +2652,25 @@ v(np)  =   ---------------------------------------------------------------------
                     builder.weeky = 0;
                     builder.weekyEnd = 0;
                 }
+                if (builder.day == null)
+                {
+                    startDay = 0;
+                    endDay = 0;
+                }
+                else
+                {
+                    startDay = (int)builder.day;
+                    if (builder.dayEnd == null)
+                    {
+                        endDay = DateTime.DaysInMonth((int)builder.year, (int)builder.month);
+                    }
+                    else
+                    {
+                        endDay = (int)builder.dayEnd;
+                    }
+                }
+
+
                 if (builder.weekyEnd == null) builder.weekyEnd = builder.weeky;
 
                 for (int year = (int)builder.year; year < (int)builder.yearEnd + 1; year++)
@@ -2656,34 +2679,40 @@ v(np)  =   ---------------------------------------------------------------------
                     {
                         for (int weeky = (int)builder.weeky; weeky < (int)builder.weekyEnd + 1; weeky++)
                         {
+                            if (builder.dayEnd == null)
+                            {
+                                endDay = DateTime.DaysInMonth(year, month);
+                            }
+                            for (int day = startDay; day < endDay + 1; day++)
+                            {
+                                //here is where we start the real builder
+                                DateTime startedAt = DateTime.Now;
+                                JassBuilderLog childBuilderLog0 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_Start weeky" + weeky, builder.JassVariable.Name, "", new TimeSpan(), true);
 
-                        //here is where we start the real builder
-                        DateTime startedAt = DateTime.Now;
-                        JassBuilderLog childBuilderLog0 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_Start weeky" + weeky, builder.JassVariable.Name, "", new TimeSpan(), true);
-
-                        try
-                        {
-                            MessageBuilder = processBuilder(builder, year, month, weeky, upload, builderLog);
+                                try
+                                {
+                                    MessageBuilder = processBuilder(builder, year, month, weeky, day, upload, builderLog);
 
 
-                            JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_End", builder.JassVariable.Name, "", new TimeSpan(), true);
+                                    JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_End", builder.JassVariable.Name, "", new TimeSpan(), true);
 
-                            Message += "  processBuilder(" + year + ",  " + month + ") =>" + MessageBuilder;
-                        }
-                        catch (Exception e)
-                        {
+                                    Message += "  processBuilder(" + year + ",  " + month + ") =>" + MessageBuilder;
+                                }
+                                catch (Exception e)
+                                {
 
-                            JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_MANAGED EXCEPTION Could not process ", builder.JassVariable.Name, e.Message, DateTime.Now - startedAt, false);
+                                    JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_MANAGED EXCEPTION Could not process ", builder.JassVariable.Name, e.Message, DateTime.Now - startedAt, false);
 
-                        }
-                        finally
-                        {
-                            //clean disk
-                            if (clean) cleanAppData();
-                            int filesInAppData = Directory.GetFiles(AppDataFolder).Count();
-                            JassBuilderLog childBuilderLog10 = createBuilderLogChild(builderLog, builder, year, month, "processBuilderAll_CleanAppData", builder.JassVariable.Name, "filesInAppData: " + filesInAppData, new TimeSpan(), true);
+                                }
+                                finally
+                                {
+                                    //clean disk
+                                    if (clean) cleanAppData();
+                                    int filesInAppData = Directory.GetFiles(AppDataFolder).Count();
+                                    JassBuilderLog childBuilderLog10 = createBuilderLogChild(builderLog, builder, year, month, "processBuilderAll_CleanAppData", builder.JassVariable.Name, "filesInAppData: " + filesInAppData, new TimeSpan(), true);
 
-                        }
+                                }
+                            }
 
                         }//END WEEK
 
@@ -3114,7 +3143,7 @@ v(np)  =   ---------------------------------------------------------------------
             throw new Exception("We do not have an algorithm to calculate the specified formula");
         }
 
-        public string processBuilder(JassBuilder builder, int year, int month, int weeky, Boolean upload, JassBuilderLog builderAllLog)
+        public string processBuilder(JassBuilder builder, int year, int month, int weeky, int day, Boolean upload, JassBuilderLog builderAllLog)
         {
 
             string Message = "process builder sucessfuly";
@@ -3123,7 +3152,7 @@ v(np)  =   ---------------------------------------------------------------------
             long AfterOpenMemory;
             long AfterLoadMemory;
             DateTime EndingTime = DateTime.Now;
-            TimeSpan TotalDelay;
+
             JassBuilder jassbuilder = db.JassBuilders.Find(builder.JassBuilderID);
             DataSet dataset3 = null;
 
@@ -3142,7 +3171,7 @@ v(np)  =   ---------------------------------------------------------------------
                 DateTime startTimeProcessSource = DateTime.Now;
                 JassBuilderLog childBuilderLog0 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_BeforeProcessSource", builder.JassVariable.Name, "", startTimeProcessSource - startTimeProcessSource, true);
                 #endregion logs
-                string inputFile1 = processSource(builder, year, month, weeky, upload, false, builderAllLog);
+                string inputFile1 = processSource(builder, year, month, weeky, day, upload, false, builderAllLog);
                 #region logs
                 JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterProcessSource", builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, true);
                 #endregion logs
@@ -3162,19 +3191,17 @@ v(np)  =   ---------------------------------------------------------------------
                         {
 
                             int firstDayOfWeeky = (weeky-1)*5 + 1;
-                            DateTime firstDateToProcess = new DateTime(year, month, firstDayOfWeeky);
-                            DateTime firstDateOfMonth = new DateTime(year, month,1);
-                            DateTime firstDateNextMonth = firstDateOfMonth.AddMonths(1);
                             int daysInMonth = DateTime.DaysInMonth(year,month);
                             int daysInWeeky = 5;
                             if (firstDayOfWeeky > 25) daysInWeeky = daysInMonth - 25;
+                            if (weeky == 0) { daysInWeeky = 1; }
 
                             string inputFileTemplateBeforeTransformation = safeFileNameFromUrl(builder.APIRequest.url);
                             for (int d = 0; d < daysInWeeky; d++)
                             {
                                 try
                                 {
-                                    processGridMappingCFSRToNarrModel result = processGridMappingCFSRToNarr(builder.JassVariable.Name, year, month, weeky, d, inputFileTemplateBeforeTransformation);
+                                    processGridMappingCFSRToNarrModel result = processGridMappingCFSRToNarr(builder.JassVariable.Name, year, month, weeky, day, d, inputFileTemplateBeforeTransformation);
                                     inputFile1 = saveprocessGridMappingCFSRToNarrModel(result);
                                     createBuilderLogChild(builderAllLog, builder, year, month, "transfor+generate weeky: " + weeky + " d:" + d, builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, true);
                                 }
@@ -3263,10 +3290,10 @@ v(np)  =   ---------------------------------------------------------------------
                     string dayString;
                     int in_year = (year != 0) ? (int)year : DateTime.Now.Year;
                     int in_month = (month != 0) ? (int)month : 1;
-                    int in_day = 1;
+                    int in_day = (day != 0) ? (int)day : 1;
                     string variableName = builder.JassVariable.Name;
 
-                    DateTime day = new DateTime(in_year, in_month, in_day);
+                    DateTime currentDay = new DateTime(in_year, in_month, in_day);
 
 
                     jassbuilder.Status = JassBuilderStatus.Processing;
@@ -3281,9 +3308,9 @@ v(np)  =   ---------------------------------------------------------------------
 
                     for (var df = 0; df < time.Length; df += 8)
                     {
-                        in_year = day.Year;
-                        in_month = day.Month;
-                        in_day = day.Day;
+                        in_year = currentDay.Year;
+                        in_month = currentDay.Month;
+                        in_day = currentDay.Day;
 
                         dayString = "" + in_year + "_" + in_month + "_" + in_day;
 
@@ -3394,7 +3421,7 @@ v(np)  =   ---------------------------------------------------------------------
                             db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
                             db.SaveChanges();
 
-                            day = day.AddDays(1);
+                            currentDay = currentDay.AddDays(1);
                             //end using
                         }
                     }
