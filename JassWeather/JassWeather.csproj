@@ -374,6 +374,7 @@
     <None Include="Properties\PublishProfiles\envirolytic1 - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic2.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic3.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolytic4.pubxml" />
     <None Include="Properties\PublishProfiles\envirolyticftp - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolyticftp - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\envirolyticmark - FTP.pubxml" />
