@@ -257,8 +257,8 @@ namespace JassWeather.Controllers
             {
                 //inspect file schema
                 string filePath = apiCaller.AppDataFolder + "\\" + Model.fileName;
-                string schema = apiCaller.AnalyzeFileDisk(filePath);
-                Model.schema = schema;
+                var fileModel = apiCaller.AnalyzeFileOnDisk(filePath);
+                Model.schema = fileModel.schema;
                 Model.maxYaroundLoc = 25;
                 Model.maxXaroundLoc = 25;
 

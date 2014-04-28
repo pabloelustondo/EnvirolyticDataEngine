@@ -2463,7 +2463,7 @@ v(np)  =   ---------------------------------------------------------------------
             {
                 string dayString = "" + day;
                 if (day < 10) dayString = "0" + day;
-                url = url.Replace("$MM", dayString);
+                url = url.Replace("$DD", dayString);
             }
 
             int index = url.IndexOf("$");

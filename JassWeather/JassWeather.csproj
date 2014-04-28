@@ -379,8 +379,10 @@
     <None Include="Properties\PublishProfiles\envirolyticftp - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\envirolyticmark - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolyticmark - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolyticmark.pubxml" />
     <None Include="Properties\PublishProfiles\envirolyticzen - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolyticzen - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolyticzen.pubxml" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
     <Content Include="Images\POC Explanation.png" />
     <Content Include="Scripts\jquery-1.8.2.js" />

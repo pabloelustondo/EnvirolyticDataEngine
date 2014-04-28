@@ -469,7 +469,7 @@ namespace JassWeather.Controllers
 
                 if (System.IO.File.Exists(downloadedFilePath))
                 {
-                    string schemaString = apiCaller.AnalyzeFileDisk(downloadedFilePath);
+                    var fileModel = apiCaller.AnalyzeFileOnDisk(safeFileName);
 
                     long length = new System.IO.FileInfo(downloadedFilePath).Length;
 
@@ -479,7 +479,7 @@ namespace JassWeather.Controllers
                     {
                         source.onDisk = "OK";
                         source.fileSize = (int)length / 1000000;
-                        source.schema = schemaString;
+                        source.schema = fileModel.schema;
                     }
                 }
             }
