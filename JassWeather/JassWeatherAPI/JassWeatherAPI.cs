@@ -4634,6 +4634,8 @@ v(np)  =   ---------------------------------------------------------------------
 
         public class VariableValueModel
         {
+            public JassVariable JassVariable { get; set; }
+            public int? JassVariableID { get; set; }
             public string fileName { get; set; }
             public string schema { get; set; }
             public string keyVariable { get; set; }
@@ -4836,26 +4838,68 @@ v(np)  =   ---------------------------------------------------------------------
                                     {
                                         Single[] time = dataset.GetData<Single[]>("time");
 
+                                        string yearmonthstring = null;
+                                        string yearstring = null;
+                                        string monthstring = null;
+                                        string daystring = null;
 
-                                        //decode day from file name
-                                        string yearmonthstring = filename.Substring(filename.IndexOf(".gdas.") + 6, 8);
-                                        string yearstring = yearmonthstring.Substring(0, 4);
-                                        string monthstring = yearmonthstring.Substring(4, 2);
-                                        string daystring = yearmonthstring.Substring(6, 2);
-
-                                        int year = Convert.ToInt32(yearstring);
-                                        int month = Convert.ToInt32(monthstring);
-                                        int day = Convert.ToInt32(daystring);
+                                        int year = 0;
+                                        int month = 0;
+                                        int day = 0;
 
                                         //decode end date
-                                        string yearmonthstring2 = filename.Substring(filename.IndexOf(".grb2.") - 8, 8);
-                                        string yearstring2 = yearmonthstring2.Substring(0, 4);
-                                        string monthstring2 = yearmonthstring2.Substring(4, 2);
-                                        string daystring2 = yearmonthstring2.Substring(6, 2);
+                                        string yearmonthstring2 = null;
+                                        string yearstring2 = null;
+                                        string monthstring2 = null;
+                                        string daystring2 = null;
 
-                                        int year2 = Convert.ToInt32(yearstring2);
-                                        int month2 = Convert.ToInt32(monthstring2);
-                                        int day2 = Convert.ToInt32(daystring2);
+                                        int year2 =0;
+                                        int month2 =0;
+                                        int day2 = 0;
+                                        
+                                        Boolean oldformat=true;
+
+                                        try
+                                        {
+                                            //decode day from file name (if this is an old file
+                                            yearmonthstring = filename.Substring(filename.IndexOf(".gdas.") + 6, 8);
+                                            yearstring = yearmonthstring.Substring(0, 4);
+                                            monthstring = yearmonthstring.Substring(4, 2);
+                                            daystring = yearmonthstring.Substring(6, 2);
+                                            
+                                            year = Convert.ToInt32(yearstring);
+                                            month = Convert.ToInt32(monthstring);
+                                            day = Convert.ToInt32(daystring);
+
+                                            //decode end date
+                                            yearmonthstring2 = filename.Substring(filename.IndexOf(".grb2.") - 8, 8);
+                                            yearstring2 = yearmonthstring2.Substring(0, 4);
+                                            monthstring2 = yearmonthstring2.Substring(4, 2);
+                                            daystring2 = yearmonthstring2.Substring(6, 2);
+
+                                            year2 = Convert.ToInt32(yearstring2);
+                                            month2 = Convert.ToInt32(monthstring2);
+                                            day2 = Convert.ToInt32(daystring2);
+
+                                        } catch(Exception){ oldformat=false;}
+
+                                        if(!oldformat)
+                                        {
+                                            //decode day from file name (if this is an old file
+                                            yearmonthstring = filename.Substring(filename.IndexOf("cdas1.") + 6, 8);
+                                            yearstring = yearmonthstring.Substring(0, 4);
+                                            monthstring = yearmonthstring.Substring(4, 2);
+                                            daystring = yearmonthstring.Substring(6, 2);
+
+                                            year = Convert.ToInt32(yearstring);
+                                            month = Convert.ToInt32(monthstring);
+                                            day = Convert.ToInt32(daystring);
+
+                                            year2 = year;
+                                            month2 = month;
+                                            day2 = day;
+                                        } 
+
 
                                         vm.startingDate = new DateTime(year, month, day);
                                         vm.endingDate = new DateTime(year2, month2, day2);

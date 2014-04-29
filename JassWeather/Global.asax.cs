@@ -30,6 +30,7 @@ namespace JassWeather
                 new JassWeather.Models.JassWeatherContextInitializer());
 
  */
+            
             WebSecurity.InitializeDatabaseConnection(
                  connectionStringName: "DefaultConnection",
                  userTableName: "UserProfile",

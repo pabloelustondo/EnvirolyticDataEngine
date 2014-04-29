@@ -209,6 +209,51 @@ namespace JassWeather.Controllers
             return View(Model);
         }
 
+        public ActionResult ShowDashBoard4DayFromInspectVariable()  
+        {
+            JassWeatherAPI.VariableValueModel Model = new JassWeatherAPI.VariableValueModel();
+            ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", Model.JassGridID);
+            //hack for now:
+
+            #region select let lon
+            ViewBag.LatLonGroupID = Session["LatLonGroupID"];
+            int LatLonGroupID = (int)ViewBag.LatLonGroupID;
+            var locations = db.JassLatLons.Where(l => l.JassLatLonGroupID == LatLonGroupID).ToList();
+            ViewBag.JassLatLonID = new SelectList(locations, "JassLatLonID", "Name");
+            #endregion
+
+            #region select variable
+            var variables = db.JassVariables.ToList();
+            ViewBag.JassVariableID = new SelectList(variables, "JassLatLonID", "Name");
+            #endregion
+
+            Model.maxYaroundLoc = 25;
+            Model.maxXaroundLoc = 25;
+            return View("ShowDashBoard4DayFromInspectVariableFirst", Model);
+        }
+
+        [HttpPost]
+        public ActionResult ShowDashBoard4DayFromInspectVariable(string fileName, string containerName)  //list container
+        {
+            apiCaller.DownloadFile2DiskIfNotThere(containerName, fileName, apiCaller.AppDataFolder + "\\" + fileName);
+
+            JassWeatherAPI.VariableValueModel Model = apiCaller.AnalyzeFileOnDisk(fileName);
+            ViewBag.JassGridID = new SelectList(db.JassGrids, "JassGridID", "Name", Model.JassGridID);
+            //hack for now:
+
+            #region select let lon
+            ViewBag.LatLonGroupID = Session["LatLonGroupID"];
+            int LatLonGroupID = (int)ViewBag.LatLonGroupID;
+            var locations = db.JassLatLons.Where(l => l.JassLatLonGroupID == LatLonGroupID).ToList();
+            ViewBag.JassLatLonID = new SelectList(locations, "JassLatLonID", "Name");
+            #endregion
+            Model.maxYaroundLoc = 25;
+            Model.maxXaroundLoc = 25;
+
+            Model.fileName = fileName;
+            return View("ShowDashBoard4DayFromFileFirst", Model);
+        }
+
         public ActionResult ShowDashBoard4DayFromFile(string fileName, string containerName)  //list container
         {
             apiCaller.DownloadFile2DiskIfNotThere(containerName, fileName, apiCaller.AppDataFolder + "\\" + fileName);

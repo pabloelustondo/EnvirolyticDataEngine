@@ -48,7 +48,9 @@ th, td { width: 2px; font-size:xx-small}
  
 }
 
-<h2>Values for @Model.fileName for Day @requiredDay (UTC) (hrDifference = @hrDifference) at step=@Model.stepIndex </h2>
+<h2>Values for @Model.fileName for Day @requiredDay (UTC) (hrDifference = @hrDifference) at step=@Model.stepIndex 
+    @if (Model.JassGrid.Levelsize > 0) {  <b>level=@Model.levelIndex</b> }
+    </h2>
 <h2>A column and a row are highlighted  for location @locationName at @locationY , @locationX  </h2>
 
 Max Value:  @Model.gridValues.measureMax[0]  Min Value : @Model.gridValues.measureMin[0] 

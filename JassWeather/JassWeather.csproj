@@ -577,6 +577,7 @@
     <Content Include="Views\Blob\DownloadSubsetFirst.cshtml" />
     <Content Include="Views\Grid\PlotGridPointsAroundLocation - Copy.cshtml" />
     <Content Include="Views\Grid\PlotGridPointsAroundLocationFirst.cshtml" />
+    <Content Include="Views\Blob\ShowDashBoard4DayFromInspectVariable.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
