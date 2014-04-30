@@ -224,7 +224,7 @@ namespace JassWeather.Controllers
 
             #region select variable
             var variables = db.JassVariables.ToList();
-            ViewBag.JassVariableID = new SelectList(variables, "JassLatLonID", "Name");
+            ViewBag.JassVariableID = new SelectList(variables, "JassVariableID", "Name");
             #endregion
 
             Model.maxYaroundLoc = 25;
@@ -295,7 +295,8 @@ namespace JassWeather.Controllers
 
                 Model.JassGrid = db.JassGrids.Find(Model.JassGridID);
                 DateTime requestDate = new DateTime(Model.year, Model.monthIndex, Model.dayIndex);
-                Model.gridValues = apiCaller.GetDayValues(Model.JassGrid, Model.fileName, Model.startingDate, requestDate, Model.stepIndex, Model.levelIndex);
+                int stepIndex = Model.stepIndex * Model.JassGrid.StepsInDay / 8;
+                Model.gridValues = apiCaller.GetDayValues(Model.JassGrid, Model.fileName, Model.startingDate, requestDate, stepIndex, Model.levelIndex);
                 return View(Model);
             }
             else

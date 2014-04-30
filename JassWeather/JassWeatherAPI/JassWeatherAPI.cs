@@ -4885,6 +4885,9 @@ v(np)  =   ---------------------------------------------------------------------
 
                                         if(!oldformat)
                                         {
+                                            vm.JassGrid = db.JassGrids.Where(g => g.Name.Contains("CFSR") && g.Name.Contains("ByDay")).First();
+                                            vm.JassGridID = vm.JassGrid.JassGridID;
+
                                             //decode day from file name (if this is an old file
                                             yearmonthstring = filename.Substring(filename.IndexOf("cdas1.") + 6, 8);
                                             yearstring = yearmonthstring.Substring(0, 4);
