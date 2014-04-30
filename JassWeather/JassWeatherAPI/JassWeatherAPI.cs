@@ -3031,7 +3031,7 @@ v(np)  =   ---------------------------------------------------------------------
                                              if (X1) x1Value = x1Meta.add_offset + x1Meta.scale_factor * x1Values[t, y, x];
                                              if (X2) x2Value = x2Meta.add_offset + x2Meta.scale_factor * x2Values[t, y, x];
                                              if (X3) x3Value = x3Meta.add_offset + x3Meta.scale_factor * x3Values[t, y, x];
-                                             resultValue = applyDeriverFormula(deriver, x1Value, x2Value, x3Value);
+                                             resultValue = processFormula(deriver, x1Value, x2Value, x3Value);
                                          }
                                          else
                                          {
@@ -3090,7 +3090,7 @@ v(np)  =   ---------------------------------------------------------------------
              return result;        
         }
 
-        public Int16 applyDeriverFormula(JassDeriver deriver, dynamic valueX1, dynamic valueX2, dynamic valueX3)
+        public Int16 processFormula(JassDeriver deriver, dynamic valueX1, dynamic valueX2, dynamic valueX3)
         {
 
             Int16 result = 0;
@@ -3126,6 +3126,22 @@ v(np)  =   ---------------------------------------------------------------------
             }
 
             if (deriver.JassFormula.Name == "WindSpeed")
+            {
+                var windUSpeed = valueX1;  //meter/sec
+                var windVSpeed = valueX2;  //meter/sec
+                var windUSpeedKmh = windUSpeed * 3.6;       //from meter/sec to km/h
+                var windVSpeedKmh = windVSpeed * 3.6;       //from meter/sec to km/h
+                var V = Math.Sqrt(Math.Pow(windUSpeedKmh, 2) + Math.Pow(windVSpeedKmh, 2));
+                var V016 = Math.Pow(V, 0.16);
+
+                double windSpeed = Math.Sqrt(Math.Pow(windUSpeedKmh, 2) + Math.Pow(windVSpeedKmh, 2)); ;
+
+                result = Convert.ToInt16(windSpeed);
+                return result;
+            }
+
+
+            if (deriver.JassFormula.Name == "Difference2WeightedMean")
             {
                 var windUSpeed = valueX1;  //meter/sec
                 var windVSpeed = valueX2;  //meter/sec
