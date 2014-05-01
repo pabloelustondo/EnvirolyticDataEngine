@@ -36,6 +36,7 @@ namespace JassWeather.Controllers
             public Boolean generateFilesWithFixedColumns { get; set; }
 
             public Boolean[] variableChoices { get; set; }
+            public string[] variableLevels { get; set; }
             public List<JassVariable> variables { get; set; }
 
             public JassLatLonGroup latlonGroup { get; set; }
@@ -54,6 +55,7 @@ namespace JassWeather.Controllers
             ShowLocationBasedDashboardModel model = new ShowLocationBasedDashboardModel();
             model.variables = db.JassVariables.ToList();
             model.variableChoices = new Boolean[model.variables.Count];
+            model.variableLevels = new string[model.variables.Count];
 
             ViewBag.LatLonGroupID = Session["LatLonGroupID"];
             int LatLonGroupID = (int)ViewBag.LatLonGroupID;
@@ -112,49 +114,18 @@ namespace JassWeather.Controllers
                 model.latlonGroup = db.JassLatLonGroups.Find(ViewBag.LatLonGroupID);
                 //will hardcode a few variables.. and then generalize
 
-                if (model.generateFilesWithFixedColumns) {
-
-                    string[] variables = new string[5];
-                    variables[0] = "Temperature2m";
-                    variables[1] = "DewPointTemperature";
-                    variables[2] = "HumidityRelative";
-                    variables[3] = "WindUSpeed10m";
-                    variables[4] = "WindVSpeed10m";
-
-                      
-
-
-
-
-                    for (int v = 0; v < variables.Length; v++)
-                    {
-                        try
-                        {
-                            DateTime day = startDate;
-                            for (int d = 0; d < totalDays; d++)
-                            {
-                                for (int l = 0; l < model.locations.Count; l++)
-                                {
-                                    string dayString = apiCaller.fileNameBuilderByDay(variables[v], day.Year, day.Month, day.Day) + ".nc";
-                                    model.gridValues[d][l].Add(apiCaller.GetDayValues(dayString, model.locations[l]));
-                                    day = day.AddDays(1);
-                                }
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            model.Message += variables[v] + " could not be retrieved";
-                        }
-                    }
-                
-                
-                }
-                else  //do not generate files
-                {
                     for (int v = 0; v < model.variables.Count; v++)
                     {
                         if (model.variableChoices[v])
                         {
+                            string[] levels = null;
+                            int level0=0;
+                            if (model.variableLevels[v] != null && model.variableLevels[v] != "")
+                            {
+                                levels = model.variableLevels[v].Split(',');
+                                level0 = Convert.ToInt16(levels[0]);
+                            }
+
                             int d = 0;
                             try
                             {
@@ -165,7 +136,7 @@ namespace JassWeather.Controllers
                                 for (int l = 0; l < model.locations.Count; l++)
                                 {
                                     string dayString = apiCaller.fileNameBuilderByDay(model.variables[v].Name, day.Year, day.Month, day.Day) + ".nc";
-                                    model.gridValues[d][l].Add(apiCaller.GetDayValues(dayString, model.locations[l]));
+                                    model.gridValues[d][l].Add(apiCaller.GetDayValues(dayString, model.locations[l], level0));
                                     day = day.AddDays(1);
                                 }
                             }
@@ -177,7 +148,7 @@ namespace JassWeather.Controllers
                             }
                         }
                     }
-                }
+
 
                 if (model.generateFiles)
                 {

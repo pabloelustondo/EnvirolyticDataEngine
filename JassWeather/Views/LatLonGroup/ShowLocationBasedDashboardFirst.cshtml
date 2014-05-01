@@ -74,6 +74,15 @@
         <div class="editor-field">
             @Html.DisplayFor(model => model.variables[v].Name)
             @Html.CheckBoxFor(model => model.variableChoices[v])
+
+            @if (Model.variables[v].Name == "VorticityAbsolute" ||
+                 Model.variables[v].Name == "Temperature" ||
+                 Model.variables[v].Name == "SoilTemperature"                
+                ) {           
+                @Html.EditorFor(model => model.variableLevels[v])
+                }else{
+                    @Html.HiddenFor(model => model.variableLevels[v])
+                }
         </div>
 
         }

@@ -2885,6 +2885,8 @@ v(np)  =   ---------------------------------------------------------------------
              Single[] yDim = null;
              Single[] xDim = null;
              double[] timeDim = null;
+             Single[] levelDim = null;
+
              int year;
              int month;
              int day;
@@ -2946,24 +2948,47 @@ v(np)  =   ---------------------------------------------------------------------
                                  yDim = x1DataSet.GetData<Single[]>("y");
                                  xDim = x1DataSet.GetData<Single[]>("x");
                                  timeDim = x1DataSet.GetData<double[]>("time");
+                                 if (deriver.X1Level != null)
+                                 {
+                                     levelDim = x1DataSet.GetData<Single[]>("level");
+                                 }
 
                                  x1Meta = getKeyMetadata(x1DataSet);
 
                                  //NOTE: This version cannot handle multiple presure.. generalize!
                                  if (deriver.X1Level == null)
                                  {
-                                     x1Values = x1DataSet.GetData<Int16[, ,]>(deriver.X1,
-                                           DataSet.FromToEnd(0),
-                                           DataSet.FromToEnd(0),
-                                           DataSet.FromToEnd(0));
-                                 }
+                                     try
+                                     {
+                                         x1Values = x1DataSet.GetData<Int16[, ,]>(deriver.X1,
+                                               DataSet.FromToEnd(0),
+                                               DataSet.FromToEnd(0),
+                                               DataSet.FromToEnd(0));
+                                     }
+                                     catch (Exception) {
+                                         x1Values = x1DataSet.GetData<Single[, ,]>(deriver.X1,
+                                              DataSet.FromToEnd(0),
+                                              DataSet.FromToEnd(0),
+                                              DataSet.FromToEnd(0));                                  
+                                     }
+                                    }
                                  else
                                  {
-                                     x1Values = x1DataSet.GetData<Int16[, ,]>(deriver.X1,
-                                     DataSet.FromToEnd(0),
-                                     DataSet.ReduceDim((int)deriver.X1Level),
-                                     DataSet.FromToEnd(0),
-                                     DataSet.FromToEnd(0));
+                                     try
+                                     {
+                                         x1Values = x1DataSet.GetData<Int16[, ,]>(deriver.X1,
+                                         DataSet.FromToEnd(0),
+                                         DataSet.ReduceDim((int)deriver.X1Level),
+                                         DataSet.FromToEnd(0),
+                                         DataSet.FromToEnd(0));
+                                     }
+                                     catch (Exception) {
+                                         x1Values = x1DataSet.GetData<Single[, ,]>(deriver.X1,
+                                          DataSet.FromToEnd(0),
+                                          DataSet.ReduceDim((int)deriver.X1Level),
+                                          DataSet.FromToEnd(0),
+                                          DataSet.FromToEnd(0));
+                                     }
                                  }
                              }
                          }
@@ -2978,18 +3003,37 @@ v(np)  =   ---------------------------------------------------------------------
                                  //NOTE: This version cannot handle multiple presure.. generalize!
                                  if (deriver.X2Level == null)
                                  {
-                                     x2Values = x2DataSet.GetData<Int16[, ,]>(deriver.X2,
-                                           DataSet.FromToEnd(0),
-                                           DataSet.FromToEnd(0),
-                                           DataSet.FromToEnd(0));
+                                     try
+                                     {
+                                         x2Values = x2DataSet.GetData<Int16[, ,]>(deriver.X2,
+                                               DataSet.FromToEnd(0),
+                                               DataSet.FromToEnd(0),
+                                               DataSet.FromToEnd(0));
+                                     }
+                                     catch (Exception) {
+                                         x2Values = x2DataSet.GetData<Single[, ,]>(deriver.X2,
+                                             DataSet.FromToEnd(0),
+                                             DataSet.FromToEnd(0),
+                                             DataSet.FromToEnd(0));                       
+                                     }
                                  }
                                  else
                                  {
-                                     x2Values = x2DataSet.GetData<Int16[, ,]>(deriver.X2,
-                                     DataSet.FromToEnd(0),
-                                     DataSet.ReduceDim((int)deriver.X2Level),
-                                     DataSet.FromToEnd(0),
-                                     DataSet.FromToEnd(0));
+                                     try
+                                     {
+                                         x2Values = x2DataSet.GetData<Int16[, ,]>(deriver.X2,
+                                         DataSet.FromToEnd(0),
+                                         DataSet.ReduceDim((int)deriver.X2Level),
+                                         DataSet.FromToEnd(0),
+                                         DataSet.FromToEnd(0));
+                                     }
+                                     catch (Exception) {
+                                         x2Values = x2DataSet.GetData<Single[, ,]>(deriver.X2,
+                                        DataSet.FromToEnd(0),
+                                        DataSet.ReduceDim((int)deriver.X2Level),
+                                        DataSet.FromToEnd(0),
+                                        DataSet.FromToEnd(0));
+                                     }
                                  }
                              }
                          }
@@ -3004,18 +3048,37 @@ v(np)  =   ---------------------------------------------------------------------
                                  //NOTE: This version cannot handle multiple presure.. generalize!
                                  if (deriver.X3Level == null)
                                  {
-                                     x3Values = x3DataSet.GetData<Int16[, ,]>(deriver.X3,
+                                     try
+                                     {
+                                         x3Values = x3DataSet.GetData<Int16[, ,]>(deriver.X3,
+                                               DataSet.FromToEnd(0),
+                                               DataSet.FromToEnd(0),
+                                               DataSet.FromToEnd(0));
+                                     }
+                                     catch (Exception) {
+                                         x3Values = x3DataSet.GetData<Single[, ,]>(deriver.X3,
                                            DataSet.FromToEnd(0),
                                            DataSet.FromToEnd(0),
-                                           DataSet.FromToEnd(0));
+                                           DataSet.FromToEnd(0));                                                                  
+                                     }
                                  }
                                  else
                                  {
-                                     x3Values = x3DataSet.GetData<Int16[, ,]>(deriver.X3,
-                                     DataSet.FromToEnd(0),
-                                     DataSet.ReduceDim((int)deriver.X3Level),
-                                     DataSet.FromToEnd(0),
-                                     DataSet.FromToEnd(0));
+                                     try
+                                     {
+                                         x3Values = x3DataSet.GetData<Int16[, ,]>(deriver.X3,
+                                         DataSet.FromToEnd(0),
+                                         DataSet.ReduceDim((int)deriver.X3Level),
+                                         DataSet.FromToEnd(0),
+                                         DataSet.FromToEnd(0));
+                                     }
+                                     catch (Exception) {
+                                         x3Values = x3DataSet.GetData<Single[, ,]>(deriver.X3,
+                                        DataSet.FromToEnd(0),
+                                        DataSet.ReduceDim((int)deriver.X3Level),
+                                        DataSet.FromToEnd(0),
+                                        DataSet.FromToEnd(0));
+                                     }
                                  }
                              }
                          }
@@ -3161,24 +3224,24 @@ v(np)  =   ---------------------------------------------------------------------
              return result;        
         }
 
-        public Single processFormula(JassDeriver deriver, dynamic valueX1, dynamic valueX2, dynamic valueX3, dynamic[] x4)
+        public Single processFormula(JassDeriver deriver, dynamic x1, dynamic x2, dynamic x3, dynamic[] x4)
         {
             if (deriver.JassFormula.Name == "Humidex")
             {
                 /*
                  * airtemp  +   0.5555 * (   6.11 * e^ ( 5417.7530 x ( 1 / 273.16 - 1 / dewpointtemp) )  - 10  )
                  */
-                var airtemp = valueX1;
-                var dewpointtemp = valueX2;
+                var airtemp = x1;
+                var dewpointtemp = x2;
                 var d_result = airtemp + 0.5555 * (6.11 * Math.Exp(5417.7530 * (1 / 273.16 - 1 / dewpointtemp)) - 10);
                 return Convert.ToSingle(d_result);
             }
 
             if (deriver.JassFormula.Name == "WindChill")
             {
-                var airTemp = valueX1;     //Kelvin
-                var windUSpeed = valueX2;  //meter/sec
-                var windVSpeed = valueX3;  //meter/sec
+                var airTemp = x1;     //Kelvin
+                var windUSpeed = x2;  //meter/sec
+                var windVSpeed = x3;  //meter/sec
 
                 var T = airTemp - 273.15;             //from Kelvin to Celcius
                 var windUSpeedKmh = windUSpeed * 3.6;       //from meter/sec to km/h
@@ -3192,8 +3255,8 @@ v(np)  =   ---------------------------------------------------------------------
 
             if (deriver.JassFormula.Name == "WindSpeed")
             {
-                var windUSpeed = valueX1;  //meter/sec
-                var windVSpeed = valueX2;  //meter/sec
+                var windUSpeed = x1;  //meter/sec
+                var windVSpeed = x2;  //meter/sec
                 var windUSpeedKmh = windUSpeed * 3.6;       //from meter/sec to km/h
                 var windVSpeedKmh = windVSpeed * 3.6;       //from meter/sec to km/h
                 var V = Math.Sqrt(Math.Pow(windUSpeedKmh, 2) + Math.Pow(windVSpeedKmh, 2));
@@ -3211,6 +3274,14 @@ v(np)  =   ---------------------------------------------------------------------
                 var mean =  (x4[1] * 7 + x4[2] * 6 + x4[3] * 5 + x4[4] * 4 + x4[5] * 3 + x4[6] * 2 + x4[7] * 1)/28;
                 var value = x4[0] - mean;
                 return  Convert.ToSingle(value);
+            }
+            //x1-x2
+
+            if (deriver.JassFormula.Name == "x1-x2")
+            {
+
+                var value = x1 - x2;
+                return Convert.ToSingle(value);
             }
 
             throw new Exception("We do not have an algorithm to calculate the specified formula");
@@ -6091,7 +6162,7 @@ v(np)  =   ---------------------------------------------------------------------
             return dayGridValues;
         }
 
-        public JassGridValues GetDayValues(string fileName, JassLatLon location)
+        public JassGridValues GetDayValues(string fileName, JassLatLon location, int levelIndex)
         //this method is old and may become obsolete. It assumes our data is formated with our own grid.
         {
 
@@ -6179,46 +6250,43 @@ v(np)  =   ---------------------------------------------------------------------
                 if (hasLevel)
                 {
                     if (typeOfData=="Int16"){
-                    values = dataset1.GetData<Int16[, , ,]>(keyVariable.Name,
+                    values = dataset1.GetData<Int16[,,]>(keyVariable.Name,
      DataSet.FromToEnd(0), /* time*/
-     DataSet.FromToEnd(0), /* level */
+     DataSet.ReduceDim(levelIndex), /* level */
      DataSet.Range(locY, locY + 1),
      DataSet.Range(locX, locX + 1));
                     } else{
-                    values = dataset1.GetData<Single[, , ,]>(keyVariable.Name,
+                    values = dataset1.GetData<Single[,,]>(keyVariable.Name,
      DataSet.FromToEnd(0), /* time*/
-     DataSet.FromToEnd(0), /* level */
+     DataSet.ReduceDim(levelIndex), /* level */
      DataSet.Range(locY, locY + 1),
      DataSet.Range(locX, locX + 1));                                   
                 }
 
                     for (int tt = 0; tt < time.Length; tt++)
                     {
-                        for (int ll = 0; ll < level.Length; ll++)
-                        {
                             for (int yy= 0; yy < 1; yy++)
                             {
                                 for (int xx = 0; xx < 1; xx++)
                                 {
-                                    if (values[tt, ll, yy, xx] != missing_value &&
-                                        values[tt, ll, yy, xx] != FillValue)
+                                    if (values[tt, yy, xx] != missing_value &&
+                                        values[tt, yy, xx] != FillValue)
                                     {
-                                        dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, ll, yy, xx];
+                                        dayGridValues.measure[tt, 0, yy, xx] = add_offset + scale_factor * values[tt, yy, xx];
 
-                                        if (dayGridValues.measure[tt, ll, yy, xx] > dayGridValues.measureMax[ll])
+                                        if (dayGridValues.measure[tt, 0, yy, xx] > dayGridValues.measureMax[0])
                                         {
-                                            dayGridValues.measureMax[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
-                                            dayGridValues.maxX[ll] = xx; dayGridValues.maxY[ll] = yy; dayGridValues.maxT[ll] = tt;
+                                            dayGridValues.measureMax[0] = (double)dayGridValues.measure[tt, 0, yy, xx];
+                                            dayGridValues.maxX[0] = xx; dayGridValues.maxY[0] = yy; dayGridValues.maxT[0] = tt;
                                         }
-                                        if (dayGridValues.measure[tt, ll, yy, xx] < dayGridValues.measureMin[ll])
+                                        if (dayGridValues.measure[tt, 0, yy, xx] < dayGridValues.measureMin[0])
                                         {
-                                            dayGridValues.measureMin[ll] = (double)dayGridValues.measure[tt, ll, yy, xx];
-                                            dayGridValues.minX[ll] = xx; dayGridValues.minY[ll] = yy; dayGridValues.minT[ll] = tt;
+                                            dayGridValues.measureMin[0] = (double)dayGridValues.measure[tt, 0, yy, xx];
+                                            dayGridValues.minX[0] = xx; dayGridValues.minY[0] = yy; dayGridValues.minT[0] = tt;
                                         }
                                     }
                                 }
                             }
-                        }
                     }
                 }
                 else

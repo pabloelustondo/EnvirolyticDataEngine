@@ -118,10 +118,20 @@ Note: the pae only shows 1 day of data, rest of data is in the files
 
         @for (int v = 0; v < Model.variableChoices.Length; v++)
         {
-        <div class="editor-field">
-            @Html.DisplayFor(model => model.variables[v].Name)
-            @Html.CheckBoxFor(model => model.variableChoices[v])
-        </div>
+            <div class="editor-field">
+                @Html.DisplayFor(model => model.variables[v].Name)
+                @Html.CheckBoxFor(model => model.variableChoices[v])
+
+                @if (Model.variables[v].Name == "VorticityAbsolute" ||
+                 Model.variables[v].Name == "Temperature" ||
+                 Model.variables[v].Name == "SoilTemperature"
+                )
+                {
+                    @Html.EditorFor(model => model.variableLevels[v])
+                }else{
+                    @Html.HiddenFor(model => model.variableLevels[v])
+                }
+            </div>
 
         }
 
