@@ -120,10 +120,12 @@ namespace JassWeather.Controllers
                         {
                             string[] levels = new string[1];
                             levels[0] = "0";
+                            Boolean hasLevels = false;
 
                             if (model.variableLevels[v] != null && model.variableLevels[v] != "")
                             {
                                 levels = model.variableLevels[v].Split(',');
+                                hasLevels = true;
                             }
 
                             for (int ll = 0; ll < levels.Length; ll++)
@@ -140,7 +142,11 @@ namespace JassWeather.Controllers
                                         {
                                             string dayString = apiCaller.fileNameBuilderByDay(model.variables[v].Name, day.Year, day.Month, day.Day) + ".nc";
                                             var gridResultValues = apiCaller.GetDayValues(dayString, model.locations[l], level);
-                                            gridResultValues.VariableName += "_"+level;
+
+                                            if (hasLevels)
+                                            {
+                                                gridResultValues.VariableName += "_" + level;
+                                            }
                                             model.gridValues[d][l].Add(gridResultValues);
 
                                             day = day.AddDays(1);
