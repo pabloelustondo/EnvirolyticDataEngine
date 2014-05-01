@@ -118,33 +118,40 @@ namespace JassWeather.Controllers
                     {
                         if (model.variableChoices[v])
                         {
-                            string[] levels = null;
-                            int level0=0;
+                            string[] levels = new string[1];
+                            levels[0] = "0";
+
                             if (model.variableLevels[v] != null && model.variableLevels[v] != "")
                             {
                                 levels = model.variableLevels[v].Split(',');
-                                level0 = Convert.ToInt16(levels[0]);
                             }
 
-                            int d = 0;
-                            try
+                            for (int ll = 0; ll < levels.Length; ll++)
                             {
-                             DateTime day = startDate;
-                          
-                            for (d = 0; d < totalDays; d++)
-                            {
-                                for (int l = 0; l < model.locations.Count; l++)
+                                int d = 0;
+                                try
                                 {
-                                    string dayString = apiCaller.fileNameBuilderByDay(model.variables[v].Name, day.Year, day.Month, day.Day) + ".nc";
-                                    model.gridValues[d][l].Add(apiCaller.GetDayValues(dayString, model.locations[l], level0));
-                                    day = day.AddDays(1);
+                                    int level = Convert.ToInt16(levels[ll]);
+                                    DateTime day = startDate;
+
+                                    for (d = 0; d < totalDays; d++)
+                                    {
+                                        for (int l = 0; l < model.locations.Count; l++)
+                                        {
+                                            string dayString = apiCaller.fileNameBuilderByDay(model.variables[v].Name, day.Year, day.Month, day.Day) + ".nc";
+                                            var gridResultValues = apiCaller.GetDayValues(dayString, model.locations[l], level);
+                                            gridResultValues.VariableName += "_"+level;
+                                            model.gridValues[d][l].Add(gridResultValues);
+
+                                            day = day.AddDays(1);
+                                        }
+                                    }
                                 }
-                            }
-                            }
-                            catch (Exception e)
-                            {
-                                apiCaller.createBuilderLog("EXCEPTION", "Error getting values v:" + v + " d: " + d , e.Message, new TimeSpan(), false);
-                                ViewBag.JassMessage = "ERROR when getting values";
+                                catch (Exception e)
+                                {
+                                    apiCaller.createBuilderLog("EXCEPTION", "Error getting values v:" + v + " d: " + d, e.Message, new TimeSpan(), false);
+                                    ViewBag.JassMessage = "ERROR when getting values";
+                                }
                             }
                         }
                     }
