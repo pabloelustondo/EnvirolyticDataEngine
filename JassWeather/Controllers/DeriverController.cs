@@ -73,6 +73,26 @@ namespace JassWeather.Controllers
             return View("ProcessDeriver", result);
         }
 
+        public ActionResult ProcessDeriverUpLoadNoClean(int id = 0)
+        {
+            JassWeatherAPI.ProcessDeriverModel result = new JassWeatherAPI.ProcessDeriverModel();
+            try
+            {
+                JassDeriver jassderiver = db.JassDerivers.Find(id);
+
+                result = apiCaller.processDeriverAll(jassderiver, true, false);
+
+            }
+            catch (Exception e)
+            {
+                apiCaller.createBuilderLog("EXCEPTION", "Deriver Clean", e.Message + e.StackTrace, new TimeSpan(), false);
+                ViewBag.JassMessage = "ERROR when creating";
+            }
+
+            return View("ProcessDeriver", result);
+        }
+
+
         //
         // GET: /Deriver/Create
 

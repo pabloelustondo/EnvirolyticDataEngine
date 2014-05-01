@@ -12,10 +12,7 @@
 <table>
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Name)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.JassVariable.Name)
+            Variable
         </th>
         <th>
             @Html.DisplayNameFor(model => model.X1)
@@ -24,34 +21,25 @@
             @Html.DisplayNameFor(model => model.X2)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.JassFormula.Name)
+            @Html.DisplayNameFor(model => model.X3)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.YearStart)
+            @Html.DisplayNameFor(model => model.X4)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.YearEnd)
+            Formula
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.MonthStart)
+            Start Date
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.MnnthEnd)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.DayStart)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.DayEnd)
+            End Date
         </th>
         <th></th>
     </tr>
 
 @foreach (var item in Model) {
     <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Name)
-        </td>
         <td>
             @Html.DisplayFor(modelItem => item.JassVariable.Name)
         </td>
@@ -62,30 +50,29 @@
             @Html.DisplayFor(modelItem => item.X2)
         </td>
         <td>
+            @Html.DisplayFor(modelItem => item.X3)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.X4)
+        </td>
+        <td>
             @Html.DisplayFor(modelItem => item.JassFormula.Name)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.YearStart)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.YearEnd)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.MonthStart)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.MnnthEnd)
-        </td>
-        <td>
+            @Html.DisplayFor(modelItem => item.YearStart) 
+            @Html.DisplayFor(modelItem => item.MonthStart) 
             @Html.DisplayFor(modelItem => item.DayStart)
         </td>
         <td>
+            @Html.DisplayFor(modelItem => item.YearEnd)
+            @Html.DisplayFor(modelItem => item.MnnthEnd)
             @Html.DisplayFor(modelItem => item.DayEnd)
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.JassDeriverID }) |
             @Html.ActionLink("ProcessDeriverLocallyNoclean", "ProcessDeriverLocallyNoclean", new { id=item.JassDeriverID }) |
             @Html.ActionLink("ProcessDeriverUpLoadClean", "ProcessDeriverUpLoadClean", new { id=item.JassDeriverID }) |
+            @Html.ActionLink("ProcessDeriverUpLoadNoClean", "ProcessDeriverUpLoadNoClean", new { id = item.JassDeriverID }) |
             @Html.ActionLink("Delete", "Delete", new { id=item.JassDeriverID })
         </td>
     </tr>

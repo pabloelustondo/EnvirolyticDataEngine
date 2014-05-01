@@ -2868,6 +2868,10 @@ v(np)  =   ---------------------------------------------------------------------
              }
 
 
+            int X4HistoryLength = 1;
+            if (deriver.X4HistoryLength != null) X4HistoryLength = (int)deriver.X4HistoryLength+1;
+
+
              int numberOfMissingValues = 0;
              dynamic resultValues=null;
 
@@ -2876,6 +2880,7 @@ v(np)  =   ---------------------------------------------------------------------
              string X1FileName = null;  string X1FilePath = null;
              string X2FileName = null;  string X2FilePath = null;
              string X3FileName = null; string X3FilePath = null;
+             string[] X4FileName = new string[X4HistoryLength]; string X4FilePath = null;
 
              Single[] yDim = null;
              Single[] xDim = null;
@@ -2897,10 +2902,13 @@ v(np)  =   ---------------------------------------------------------------------
                  Boolean X1 = (deriver.X1 != null);
                  Boolean X2 = (deriver.X2 != null);
                  Boolean X3 = (deriver.X3 != null);
+                 Boolean X4 = (deriver.X4 != null);
 
 
                          outputFileName = fileNameBuilderByDay(deriver.JassVariable.Name, year, month, day) + ".nc";
                          outputFilePath = AppDataFolder + "\\" + outputFileName;
+                         DateTime day1 = new DateTime(year, month, day);
+
                          X1FileName = fileNameBuilderByDay(deriver.X1, year, month, day) + ".nc";
                          X2FileName = fileNameBuilderByDay(deriver.X2, year, month, day) + ".nc";
                          X3FileName = fileNameBuilderByDay(deriver.X3, year, month, day) + ".nc";
@@ -2908,9 +2916,22 @@ v(np)  =   ---------------------------------------------------------------------
                          X2FilePath = AppDataFolder + "\\" + X2FileName;
                          X3FilePath = AppDataFolder + "\\" + X3FileName;
 
+                         for (int h = 0; h < X4HistoryLength; h++)
+                         {
+                             X4FileName[h] = fileNameBuilderByDay(deriver.X4, day1.Year, day1.Month, day1.Day) + ".nc";
+                             day1 = day1.AddDays(-1);
+                         }
+
                          if (X1) DownloadFile2DiskIfNotThere(X1FileName, X1FilePath);
                          if (X2) DownloadFile2DiskIfNotThere(X2FileName, X2FilePath);
                          if (X3) DownloadFile2DiskIfNotThere(X3FileName, X3FilePath);
+                         if (X4)
+                         {
+                             for (int h = 0; h < X4HistoryLength; h++)
+                             {
+                                 DownloadFile2DiskIfNotThere(X4FileName[h], AppDataFolder + "\\" + X4FileName[h]);
+                             }
+                         }
 
                          //Now, we will iterate on our grid (we know we are on our grid) and apply the formula
                          //here we need to open the files
@@ -2999,12 +3020,52 @@ v(np)  =   ---------------------------------------------------------------------
                              }
                          }
 
-                         dynamic x1Value=null, x2Value=null, x3Value=null, resultValue;
+                         dynamic[] x4Values = new dynamic[X4HistoryLength];
+                         KeyMetadataModel x4Meta = null;
+                         if (X4)
+                         {
+                             for (int h = 0; h < X4HistoryLength; h++)
+                             {
+                                 string filePath = AppDataFolder + "\\" + X4FileName[h];
+                                 using (var x4DataSet = DataSet.Open(filePath + "?openMode=open"))
+                                 {
+                                     if (yDim == null) {
+                                         yDim = x4DataSet.GetData<Single[]>("y");
+                                         xDim = x4DataSet.GetData<Single[]>("x");
+                                         timeDim = x4DataSet.GetData<double[]>("time");
+                                    
+                                     }
+
+                                     x4Meta = getKeyMetadata(x4DataSet);
+                                     //NOTE: This version cannot handle multiple presure.. generalize!
+                                     if (deriver.X3Level == null)
+                                     {
+                                         x4Values[h] = x4DataSet.GetData<Int16[, ,]>(deriver.X4,
+                                               DataSet.FromToEnd(0),
+                                               DataSet.FromToEnd(0),
+                                               DataSet.FromToEnd(0));
+                                     }
+                                     else
+                                     {
+                                         x4Values[h] = x4DataSet.GetData<Int16[, ,]>(deriver.X4,
+                                         DataSet.FromToEnd(0),
+                                         DataSet.ReduceDim((int)deriver.X3Level),
+                                         DataSet.FromToEnd(0),
+                                         DataSet.FromToEnd(0));
+                                     }
+                                 }
+                             }
+                         }
+
+
+                         dynamic x1Value = null, x2Value = null, x3Value = null, resultValue;
+                         dynamic[] x4Value = new dynamic[X4HistoryLength];
+                         Single missingvalue = Single.MaxValue;
 
                              if (deriver.JassGrid.Levelsize==0){
-                         resultValues = new Int16[deriver.JassGrid.Timesize, deriver.JassGrid.Ysize, deriver.JassGrid.Xsize];
+                         resultValues = new Single[deriver.JassGrid.Timesize, deriver.JassGrid.Ysize, deriver.JassGrid.Xsize];
                              }else{
-                         resultValues = new Int16[deriver.JassGrid.Timesize, deriver.JassGrid.Levelsize, deriver.JassGrid.Ysize, deriver.JassGrid.Xsize];
+                         resultValues = new Single[deriver.JassGrid.Timesize, deriver.JassGrid.Levelsize, deriver.JassGrid.Ysize, deriver.JassGrid.Xsize];
                              }
                          int safeLevel = (deriver.JassGrid.Levelsize == 0) ? 1 : deriver.JassGrid.Levelsize;
                          for (int t = 0; t < deriver.JassGrid.Timesize; t++)
@@ -3031,11 +3092,18 @@ v(np)  =   ---------------------------------------------------------------------
                                              if (X1) x1Value = x1Meta.add_offset + x1Meta.scale_factor * x1Values[t, y, x];
                                              if (X2) x2Value = x2Meta.add_offset + x2Meta.scale_factor * x2Values[t, y, x];
                                              if (X3) x3Value = x3Meta.add_offset + x3Meta.scale_factor * x3Values[t, y, x];
-                                             resultValue = processFormula(deriver, x1Value, x2Value, x3Value);
+                                             if (X4)
+                                             {
+                                                 for (int h = 0; h < X4HistoryLength; h++)
+                                                 {
+                                                     x4Value[h] = x4Meta.add_offset + x4Meta.scale_factor * x4Values[h][t, y, x];
+                                                 }
+                                             }
+                                             resultValue = processFormula(deriver, x1Value, x2Value, x3Value, x4Value);
                                          }
                                          else
                                          {
-                                             resultValue = (Int16)x1Meta.missing_value;
+                                             resultValue = missingvalue;
                                              numberOfMissingValues++;
 
                                          }
@@ -3061,11 +3129,14 @@ v(np)  =   ---------------------------------------------------------------------
                              resultDataSet.Add<double[]>("time", timeDim, "time");
                              resultDataSet.Add<Single[]>("y",yDim,"y");
                              resultDataSet.Add<Single[]>("x", xDim, "x");
-                             resultDataSet.Add<Int16[, ,]>(deriver.JassVariable.Name, (Int16[, ,])resultValues, "time", "y", "x");
+                             resultDataSet.Add<Single[, ,]>(deriver.JassVariable.Name, (Single[, ,])resultValues, "time", "y", "x");
 
 
                              //metadata
-                             resultDataSet.PutAttr(deriver.JassVariable.Name, "missing_value", x1Meta.missing_value);
+
+
+
+                             resultDataSet.PutAttr(deriver.JassVariable.Name, "missing_value", missingvalue);
 
                          }
 
@@ -3090,11 +3161,8 @@ v(np)  =   ---------------------------------------------------------------------
              return result;        
         }
 
-        public Int16 processFormula(JassDeriver deriver, dynamic valueX1, dynamic valueX2, dynamic valueX3)
+        public Single processFormula(JassDeriver deriver, dynamic valueX1, dynamic valueX2, dynamic valueX3, dynamic[] x4)
         {
-
-            Int16 result = 0;
-
             if (deriver.JassFormula.Name == "Humidex")
             {
                 /*
@@ -3102,9 +3170,8 @@ v(np)  =   ---------------------------------------------------------------------
                  */
                 var airtemp = valueX1;
                 var dewpointtemp = valueX2;
-                double d_result = airtemp + 0.5555 * (6.11 * Math.Exp(5417.7530 * (1 / 273.16 - 1 / dewpointtemp)) - 10);
-                result = Convert.ToInt16(d_result);
-                return result;
+                var d_result = airtemp + 0.5555 * (6.11 * Math.Exp(5417.7530 * (1 / 273.16 - 1 / dewpointtemp)) - 10);
+                return Convert.ToSingle(d_result);
             }
 
             if (deriver.JassFormula.Name == "WindChill")
@@ -3119,10 +3186,8 @@ v(np)  =   ---------------------------------------------------------------------
                 var V = Math.Sqrt( Math.Pow(windUSpeedKmh,2) + Math.Pow(windVSpeedKmh,2) );
                 var V016 = Math.Pow(V,0.16);
                 
-                double windChill = 13.12 + 0.6215 * T  - 11.37 * V016  + 0.3965* T * V016 ;
-
-                result = Convert.ToInt16(windChill);
-                return result;
+                var windChill = 13.12 + 0.6215 * T  - 11.37 * V016  + 0.3965* T * V016 ;
+                return  Convert.ToSingle(windChill);
             }
 
             if (deriver.JassFormula.Name == "WindSpeed")
@@ -3134,26 +3199,18 @@ v(np)  =   ---------------------------------------------------------------------
                 var V = Math.Sqrt(Math.Pow(windUSpeedKmh, 2) + Math.Pow(windVSpeedKmh, 2));
                 var V016 = Math.Pow(V, 0.16);
 
-                double windSpeed = Math.Sqrt(Math.Pow(windUSpeedKmh, 2) + Math.Pow(windVSpeedKmh, 2)); ;
-
-                result = Convert.ToInt16(windSpeed);
-                return result;
+                var windSpeed = Math.Sqrt(Math.Pow(windUSpeedKmh, 2) + Math.Pow(windVSpeedKmh, 2)); ;
+                return  Convert.ToSingle(windSpeed);
             }
 
 
             if (deriver.JassFormula.Name == "Difference2WeightedMean")
             {
-                var windUSpeed = valueX1;  //meter/sec
-                var windVSpeed = valueX2;  //meter/sec
-                var windUSpeedKmh = windUSpeed * 3.6;       //from meter/sec to km/h
-                var windVSpeedKmh = windVSpeed * 3.6;       //from meter/sec to km/h
-                var V = Math.Sqrt(Math.Pow(windUSpeedKmh, 2) + Math.Pow(windVSpeedKmh, 2));
-                var V016 = Math.Pow(V, 0.16);
+                //DT2M = T2M(day) – 1/28 * (T2M(day-1)*7+T2M(day-2)*6+ … + T2M(day-7)*1)
 
-                double windSpeed = Math.Sqrt(Math.Pow(windUSpeedKmh, 2) + Math.Pow(windVSpeedKmh, 2)); ;
-
-                result = Convert.ToInt16(windSpeed);
-                return result;
+                var mean =  (x4[1] * 7 + x4[2] * 6 + x4[3] * 5 + x4[4] * 4 + x4[5] * 3 + x4[6] * 2 + x4[7] * 1)/28;
+                var value = x4[0] - mean;
+                return  Convert.ToSingle(value);
             }
 
             throw new Exception("We do not have an algorithm to calculate the specified formula");
@@ -5681,8 +5738,10 @@ v(np)  =   ---------------------------------------------------------------------
             //So, we are reducing the time and level dimension to only read the first 'Timesize" points and only 3 levels
 
             JassGridValues dayGridValues;
+            dynamic values;
             string filePath = AppDataFolder + "/" + fileName;
             DownloadFile2DiskIfNotThere(fileName, filePath);
+            string typeOfData = "Int16";
             using (var dataset1 = DataSet.Open(filePath + "?openMode=open"))
             {
                 var schema1 = dataset1.GetSchema();
@@ -5696,11 +5755,13 @@ v(np)  =   ---------------------------------------------------------------------
                     if (v.Dimensions.Count > 2)
                     {
                         keyVariable = v;
+                        typeOfData = v.TypeOfData.Name;
                     }
 
                     if (grid.Type=="SHER" && v.Name=="sher")
                     {
                         keyVariable = v;
+                        typeOfData = v.TypeOfData.Name;
                     }
 
                     if (v.Name == grid.Levelname)
@@ -5767,14 +5828,13 @@ v(np)  =   ---------------------------------------------------------------------
 
                 for (int ll = 0; ll < 1; ll++)
                 {
-                    dayGridValues.measureMin[ll] = add_offset + scale_factor * 32768;
-                    dayGridValues.measureMax[ll] = add_offset + scale_factor * (-32768);
+                    dayGridValues.measureMin[ll] = Double.MaxValue;
+                    dayGridValues.measureMax[ll] = Double.MinValue;
                 }
 
                 if (hasLevel)
                 {
-                    dynamic values;
-                    try
+                    if (typeOfData == "Int16")
                     {
                         values = dataset1.GetData<Int16[, , ,]>(keyVariable.Name,
                                  DataSet.Range(timeIndex, timeIndex),
@@ -5782,7 +5842,7 @@ v(np)  =   ---------------------------------------------------------------------
                                  DataSet.Range(0, y.Length-1),
                                  DataSet.Range(0, x.Length-1) );
                     }
-                    catch (Exception)
+                    else
                     {
                         values = dataset1.GetData<Single[, , ,]>(keyVariable.Name,
                                  DataSet.Range(timeIndex, timeIndex),
@@ -5800,6 +5860,12 @@ v(np)  =   ---------------------------------------------------------------------
                                 {
                                     if (values[tt, ll, yy, xx] != missing_value &&
                                         values[tt, ll, yy, xx] != FillValue)
+
+                                        if ((values[tt, ll, yy, xx]) > 32765 || 
+                                            (values[tt, ll, yy, xx]) < 0 )                                          
+                                        {
+                                            var tempvalue = values[tt, ll, yy, xx];
+                                        }
                                     {
                                         dayGridValues.measure[tt, ll, yy, xx] = add_offset + scale_factor * values[tt, ll, yy, xx];
 
@@ -5821,15 +5887,14 @@ v(np)  =   ---------------------------------------------------------------------
                 }
                 else
                 {
-                    dynamic values;
-                    try
+                    if (typeOfData == "Int16")
                     {
                         values = dataset1.GetData<Int16[, ,]>(keyVariable.Name,
                                  DataSet.Range(timeIndex, timeIndex),
                                  DataSet.Range(0, y.Length - 1),
                                  DataSet.Range(0, x.Length - 1));
                     }
-                    catch (Exception)
+                    else
                     {
                         try
                         {
@@ -6045,12 +6110,14 @@ v(np)  =   ---------------------------------------------------------------------
                 //first let's select the key variable by having various dimensions
                 VariableSchema keyVariable = null;
                 Boolean hasLevel = false;
+                string typeOfData = "Int16";
 
                 foreach (var v in schema1.Variables)
                 {
                     if (v.Dimensions.Count > 2)
                     {
                         keyVariable = v;
+                        typeOfData = v.TypeOfData.Name;
                     }
                     if (v.Name == "level")
                     {
@@ -6094,6 +6161,7 @@ v(np)  =   ---------------------------------------------------------------------
                 Single[] x = dataset1.GetData<Single[]>("x");
                 double[] time = dataset1.GetData<double[]>("time");
                 Single[] level = new Single[1];
+                dynamic values;
                 if (hasLevel) level = dataset1.GetData<Single[]>("level");
 
                 dayGridValues = new JassGridValues(keyVariable.Metadata, keyVariable.Name, time.Length, level.Length, 1, 1);
@@ -6110,11 +6178,19 @@ v(np)  =   ---------------------------------------------------------------------
 
                 if (hasLevel)
                 {
-                    Int16[, , ,] values = dataset1.GetData<Int16[, , ,]>(keyVariable.Name,
+                    if (typeOfData=="Int16"){
+                    values = dataset1.GetData<Int16[, , ,]>(keyVariable.Name,
      DataSet.FromToEnd(0), /* time*/
      DataSet.FromToEnd(0), /* level */
      DataSet.Range(locY, locY + 1),
      DataSet.Range(locX, locX + 1));
+                    } else{
+                    values = dataset1.GetData<Single[, , ,]>(keyVariable.Name,
+     DataSet.FromToEnd(0), /* time*/
+     DataSet.FromToEnd(0), /* level */
+     DataSet.Range(locY, locY + 1),
+     DataSet.Range(locX, locX + 1));                                   
+                }
 
                     for (int tt = 0; tt < time.Length; tt++)
                     {
@@ -6147,10 +6223,20 @@ v(np)  =   ---------------------------------------------------------------------
                 }
                 else
                 {
-                    Int16[, ,] values = dataset1.GetData<Int16[, ,]>(keyVariable.Name,
-                        DataSet.FromToEnd(0), /* time*/
-                        DataSet.Range(locY, locY + 1),
-                        DataSet.Range(locX, locX + 1));
+                    if (typeOfData == "Int16")
+                    {
+                        values = dataset1.GetData<Int16[, ,]>(keyVariable.Name,
+                            DataSet.FromToEnd(0), /* time*/
+                            DataSet.Range(locY, locY + 1),
+                            DataSet.Range(locX, locX + 1));
+                    }
+                    else {
+                        values = dataset1.GetData<Single[, ,]>(keyVariable.Name,
+        DataSet.FromToEnd(0), /* time*/
+        DataSet.Range(locY, locY + 1),
+        DataSet.Range(locX, locX + 1));
+                    
+                    }
                     for (int tt = 0; tt < time.Length; tt++)
                     {
                         for (int ll = 0; ll < 1; ll++)

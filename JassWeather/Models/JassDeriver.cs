@@ -26,6 +26,11 @@ namespace JassWeather.Models
         public int? X3Level { get; set; }
         public int? X4Level { get; set; }
 
+        public int? X1HistoryLength { get; set; }
+        public int? X2HistoryLength { get; set; }
+        public int? X3HistoryLength { get; set; }
+        public int? X4HistoryLength { get; set; }
+
         public int JassFormulaID { get; set; }
         public virtual JassFormula JassFormula { get; set; }
 

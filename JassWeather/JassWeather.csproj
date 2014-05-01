@@ -277,6 +277,10 @@
     <Compile Include="Migrations\201404281346473_dayEnd.Designer.cs">
       <DependentUpon>201404281346473_dayEnd.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201404301040158_historylength.cs" />
+    <Compile Include="Migrations\201404301040158_historylength.Designer.cs">
+      <DependentUpon>201404301040158_historylength.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -590,6 +594,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201404281346473_dayEnd.resx">
       <DependentUpon>201404281346473_dayEnd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201404301040158_historylength.resx">
+      <DependentUpon>201404301040158_historylength.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
