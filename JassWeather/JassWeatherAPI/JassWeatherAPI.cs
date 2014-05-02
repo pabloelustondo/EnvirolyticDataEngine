@@ -3103,18 +3103,38 @@ v(np)  =   ---------------------------------------------------------------------
                                      //NOTE: This version cannot handle multiple presure.. generalize!
                                      if (deriver.X3Level == null)
                                      {
-                                         x4Values[h] = x4DataSet.GetData<Int16[, ,]>(deriver.X4,
+                                         try
+                                         {
+                                             x4Values[h] = x4DataSet.GetData<Int16[, ,]>(deriver.X4,
                                                DataSet.FromToEnd(0),
                                                DataSet.FromToEnd(0),
                                                DataSet.FromToEnd(0));
+                                         }
+                                         catch (Exception) {
+                                             x4Values[h] = x4DataSet.GetData<Single[, ,]>(deriver.X4,
+                                              DataSet.FromToEnd(0),
+                                              DataSet.FromToEnd(0),
+                                              DataSet.FromToEnd(0));
+                                         }
                                      }
                                      else
                                      {
-                                         x4Values[h] = x4DataSet.GetData<Int16[, ,]>(deriver.X4,
-                                         DataSet.FromToEnd(0),
-                                         DataSet.ReduceDim((int)deriver.X3Level),
-                                         DataSet.FromToEnd(0),
-                                         DataSet.FromToEnd(0));
+                                         try
+                                         {
+                                             x4Values[h] = x4DataSet.GetData<Int16[, ,]>(deriver.X4,
+                                             DataSet.FromToEnd(0),
+                                             DataSet.ReduceDim((int)deriver.X3Level),
+                                             DataSet.FromToEnd(0),
+                                             DataSet.FromToEnd(0));
+                                         }
+                                         catch (Exception) {
+                                             x4Values[h] = x4DataSet.GetData<Int16[, ,]>(deriver.X4,
+                                            DataSet.FromToEnd(0),
+                                            DataSet.ReduceDim((int)deriver.X3Level),
+                                            DataSet.FromToEnd(0),
+                                            DataSet.FromToEnd(0));
+                                         
+                                         }
                                      }
                                  }
                              }
