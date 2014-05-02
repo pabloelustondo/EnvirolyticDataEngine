@@ -256,6 +256,7 @@
     <Compile Include="Controllers\LatLonGroupController.cs" />
     <Compile Include="Controllers\MeasureController.cs" />
     <Compile Include="Controllers\PartitionController.cs" />
+    <Compile Include="Controllers\TaskController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Controllers\VariableController.cs" />
     <Compile Include="Filters\Class1.cs" />
@@ -281,6 +282,10 @@
     <Compile Include="Migrations\201404301040158_historylength.Designer.cs">
       <DependentUpon>201404301040158_historylength.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201405020056421_tasks.cs" />
+    <Compile Include="Migrations\201405020056421_tasks.Designer.cs">
+      <DependentUpon>201405020056421_tasks.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -294,6 +299,7 @@
     <Compile Include="Models\JassGrid.cs" />
     <Compile Include="Models\JassLatLon.cs" />
     <Compile Include="Models\JassLatLonGroup.cs" />
+    <Compile Include="Models\JassTask.cs" />
     <Compile Include="Models\JassVariable.cs" />
     <Compile Include="Models\JassWeatherContext.cs" />
     <Compile Include="Models\JassWeatherContextInitializer.cs" />
@@ -582,6 +588,14 @@
     <Content Include="Views\Grid\PlotGridPointsAroundLocation - Copy.cshtml" />
     <Content Include="Views\Grid\PlotGridPointsAroundLocationFirst.cshtml" />
     <Content Include="Views\Blob\ShowDashBoard4DayFromInspectVariable.cshtml" />
+    <Content Include="Views\Builder\QueryBuilderStatus.cshtml" />
+    <Content Include="Views\Builder\ProcessBuilderAndUploadAllCleanAsync.cshtml" />
+    <Content Include="Views\Task\Index.cshtml" />
+    <Content Include="Views\Task\Details.cshtml" />
+    <Content Include="Views\Task\Create.cshtml" />
+    <Content Include="Views\Task\Edit.cshtml" />
+    <Content Include="Views\Task\Delete.cshtml" />
+    <Content Include="Views\Task\QueryTaskStatus.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -597,6 +611,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201404301040158_historylength.resx">
       <DependentUpon>201404301040158_historylength.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201405020056421_tasks.resx">
+      <DependentUpon>201405020056421_tasks.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -1,0 +1,22 @@
+﻿@model JassWeather.Models.JassTask
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>JassTask</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.taskName)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.taskName)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.JassTaskID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

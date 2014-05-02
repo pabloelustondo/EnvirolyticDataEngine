@@ -42,5 +42,7 @@ namespace JassWeather.Models
 
         public DbSet<JassColorCode> JassColorCodes { get; set; }
 
+        public DbSet<JassTask> JassTasks { get; set; }
+
     }
 }

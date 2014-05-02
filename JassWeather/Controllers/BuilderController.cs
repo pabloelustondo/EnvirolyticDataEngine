@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using JassWeather.Models;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace JassWeather.Controllers
 {
@@ -16,6 +17,46 @@ namespace JassWeather.Controllers
         private JassWeatherContext db = new JassWeatherContext();
         //
         // GET: /Builder/
+
+
+        public ActionResult ProcessBuilderAndUploadAllCleanAsync(int id = 0)
+        {
+            string result = "Task has been schedule";
+
+            JassBuilder jassbuilder = db.JassBuilders.Find(id);
+            jassbuilder.JassGrid = db.JassGrids.Find(jassbuilder.JassGridID);
+            jassbuilder.JassVariable = db.JassVariables.Find(jassbuilder.JassVariableID);
+            jassbuilder.APIRequest= db.APIRequests.Find(jassbuilder.APIRequestId);
+   
+            Task task = Task.Run(() =>
+            {
+                 result = apiCaller.processBuilderAll(jassbuilder, true, true);
+            });
+            JassController.task = task;
+            return View(jassbuilder);
+        }
+
+        public ActionResult QueryBuilderStatus(int id = 0)
+        {
+            string result = "QueryBuilderStatus";
+            if (JassController.task == null)
+            {
+                result = "No Active Tasks Found";
+            }
+            else
+            {
+
+                Task task = JassController.task;
+                result = task.Status.ToString();
+
+            }
+
+            ViewBag.Message = result;
+            return View();
+        }
+
+
+
 
         public ActionResult Index()
         {

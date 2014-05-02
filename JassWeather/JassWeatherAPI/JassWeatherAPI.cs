@@ -3309,7 +3309,6 @@ v(np)  =   ---------------------------------------------------------------------
                 startTotalTime = DateTime.Now;
 
                 string timestamp = JassWeatherAPI.fileTimeStamp();
-
                 int entriesInDay = builder.JassGrid.Timesize;
 
                 DateTime startTimeProcessSource = DateTime.Now;

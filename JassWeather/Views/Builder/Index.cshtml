@@ -137,8 +137,8 @@
         
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.JassBuilderID }) |
-            @Html.ActionLink("Logs4Builder", "Index4Builder", "BuilderLog",new { id=item.JassBuilderID }) |
-            @Html.ActionLink("ProcessOnDisk", "ProcessBuilder", new { id=item.JassBuilderID }) |
+            @Html.ActionLink("ProcessBuilderAndUploadAllCleanAsync", "ProcessBuilderAndUploadAllCleanAsync", new { id = item.JassBuilderID }) |
+            @Html.ActionLink("QueryBuilderStatus", "QueryBuilderStatus", new { id = item.JassBuilderID }) |
             @Html.ActionLink("TestOnDisk", "TestBuilder", new { id=item.JassBuilderID }) |
             @Html.ActionLink("ProcessAndUpload", "ProcessBuilderAndUpload", new { id=item.JassBuilderID }) |
             @Html.ActionLink("ProcessAndUploadAll", "ProcessBuilderAndUploadAll", new { id=item.JassBuilderID }) |

@@ -1,0 +1,34 @@
+﻿@model IEnumerable<JassWeather.Models.JassTask>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+<li>@Html.ActionLink("Task Status", "QueryTaskStatus")</li>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.taskName)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.taskName)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.JassTaskID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.JassTaskID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.JassTaskID })
+        </td>
+    </tr>
+}
+
+</table>
