@@ -3309,7 +3309,7 @@ v(np)  =   ---------------------------------------------------------------------
                Class 5:
                All other cases…
                 */
-                int classNumber = 5
+                int classNumber = 5;
                 var V850 = x1;
                 var V500 = x2;
                 var DV = x3;
