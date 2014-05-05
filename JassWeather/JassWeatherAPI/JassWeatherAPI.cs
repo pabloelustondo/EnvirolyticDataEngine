@@ -3386,39 +3386,33 @@ v(np)  =   ---------------------------------------------------------------------
                 var DTD2M = x5[1];
                 var D12V = x5[2];
 
+                //POW(10,-6) = 0.000001       500 10-6s-1 = 0.0005
+
                 // Class1 if (V850 < -500 10-6s-1) AND (V500 < -300 10-6s-1) AND (DV < 0 10-6s-1)
-                if ((V850 < -0.0005) && (V500 < 0.0003) && (DV < 0)) classNumber = 1;
+                if ((V850 < -0.0005) && (V500 < -0.0003) && (DV < 0)) classNumber = 1;
 
                 // Class2 if  (DV < -250 10-6s-1) AND (DTD2M > 0 °C) AND (DT2M > 0°C)
-
                 if ((DV < -0.00025) && (DTD2M > 0) && (DT2M > 0 )) classNumber = 2;
 
                 // Class2 if (D12V < -250 10-6s-1) AND (DTD2M > 0°C) AND (DT2M > 3°C)
-
                 if ((D12V < -0.00025) && (DTD2M > 0) && (DT2M > 3)) classNumber = 2;
 
-                //  Class2 if (DV > 200 10-6s-1) AND (DTD2M > 0°C) AND (DT2M > 4°C)
-                
+                //  Class2 if (DV > 200 10-6s-1) AND (DTD2M > 0°C) AND (DT2M > 4°C)                
                 if ((DV >  0.00020) && (DTD2M > 0) && (DT2M > 4)) classNumber = 2;
 
                 // Class3 if (V850 > 250 10-6s-1) AND (V500 > 200 10-6s-1) AND (DV > -250 10-6s-1) AND (D12V < 250 10-6s-1) AND (-2°C < DT2M < 2°C)
                 if ((V850 > 0.00025) && (V500 > 0.0002) && (DV > -0.00025) && (D12V < 0.00025) && (-2 < DT2M && DT2M < 2)) classNumber = 3;
 
-
-                // Class4 if (DT2M < -6°C) AND (DTD2M < 0 °C)
-
+               // Class4 if (DT2M < -6°C) AND (DTD2M < 0 °C)
                 if ((DT2M < -6) && (DTD2M < 0)) classNumber = 4;
                                             
                 // Class4 (D12V > 250 10-6s-1) AND (DT2M < DTD2M)         (first half of the day)
-
                 if ((D12V > 0.00025) && (DT2M < DTD2M)) classNumber = 4;
                                              
                 // Class4  (D12V > 250 10-6s-1) AND (DT2M < 0°C)                (second half of the day)
-
                 if ((D12V > 0.00025) && (DT2M < 0)) classNumber = 4;
                                              
                 // Class4  (DV > 500 10-6s-1) AND (DTD2M < 0°C) 
-
                 if ((DV > 0.0005) && (DTD2M < 0)) classNumber = 4;
 
                 return classNumber;
