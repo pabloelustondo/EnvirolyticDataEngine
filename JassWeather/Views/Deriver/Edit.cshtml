@@ -72,6 +72,14 @@
         </div>
 
         <div class="editor-label">
+            @Html.LabelFor(model => model.X5)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.X5)
+            @Html.ValidationMessageFor(model => model.X5)
+        </div>
+
+        <div class="editor-label">
             @Html.LabelFor(model => model.X1Level)
         </div>
         <div class="editor-field">

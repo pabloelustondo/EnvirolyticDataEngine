@@ -2871,6 +2871,14 @@ v(np)  =   ---------------------------------------------------------------------
             int X4HistoryLength = 1;
             if (deriver.X4HistoryLength != null) X4HistoryLength = (int)deriver.X4HistoryLength+1;
 
+            int X5Length = 0;
+            string[] X5Variables = new string[1];
+
+            if (deriver.X5 != null) {
+
+                X5Variables = deriver.X5.Split(',');
+                X5Length = X5Variables.Length;
+            }
 
              int numberOfMissingValues = 0;
              dynamic resultValues=null;
@@ -2881,6 +2889,7 @@ v(np)  =   ---------------------------------------------------------------------
              string X2FileName = null;  string X2FilePath = null;
              string X3FileName = null; string X3FilePath = null;
              string[] X4FileName = new string[X4HistoryLength]; string X4FilePath = null;
+             string[] X5FileName = new string[X5Length]; string X5FilePath = null;
 
              Single[] yDim = null;
              Single[] xDim = null;
@@ -2905,6 +2914,7 @@ v(np)  =   ---------------------------------------------------------------------
                  Boolean X2 = (deriver.X2 != null);
                  Boolean X3 = (deriver.X3 != null);
                  Boolean X4 = (deriver.X4 != null);
+                 Boolean X5 = (deriver.X5 != null);
 
 
                          outputFileName = fileNameBuilderByDay(deriver.JassVariable.Name, year, month, day) + ".nc";
@@ -2924,6 +2934,12 @@ v(np)  =   ---------------------------------------------------------------------
                              day1 = day1.AddDays(-1);
                          }
 
+                         for (int h = 0; h < X5Length; h++)
+                         {
+                             X5FileName[h] = fileNameBuilderByDay(X5Variables[h].Trim(), year, month, day) + ".nc";
+                             day1 = day1.AddDays(-1);
+                         }
+
                          if (X1) DownloadFile2DiskIfNotThere(X1FileName, X1FilePath);
                          if (X2) DownloadFile2DiskIfNotThere(X2FileName, X2FilePath);
                          if (X3) DownloadFile2DiskIfNotThere(X3FileName, X3FilePath);
@@ -2932,6 +2948,13 @@ v(np)  =   ---------------------------------------------------------------------
                              for (int h = 0; h < X4HistoryLength; h++)
                              {
                                  DownloadFile2DiskIfNotThere(X4FileName[h], AppDataFolder + "\\" + X4FileName[h]);
+                             }
+                         }
+                         if (X5)
+                         {
+                             for (int h = 0; h < X5Length; h++)
+                             {
+                                 DownloadFile2DiskIfNotThere(X5FileName[h], AppDataFolder + "\\" + X5FileName[h]);
                              }
                          }
 
@@ -3101,7 +3124,7 @@ v(np)  =   ---------------------------------------------------------------------
 
                                      x4Meta = getKeyMetadata(x4DataSet);
                                      //NOTE: This version cannot handle multiple presure.. generalize!
-                                     if (deriver.X3Level == null)
+                                     if (deriver.X4Level == null)
                                      {
                                          try
                                          {
@@ -3140,10 +3163,50 @@ v(np)  =   ---------------------------------------------------------------------
                              }
                          }
 
+                         dynamic[] x5Values = new dynamic[X5Length];
+                         KeyMetadataModel x5Meta = null;
+                         if (X5)
+                         {
+                             for (int h = 0; h < X5Length; h++)
+                             {
+                                 string filePath = AppDataFolder + "\\" + X5FileName[h];
+                                 using (var x5DataSet = DataSet.Open(filePath + "?openMode=open"))
+                                 {
+                                     if (yDim == null)
+                                     {
+                                         yDim = x5DataSet.GetData<Single[]>("y");
+                                         xDim = x5DataSet.GetData<Single[]>("x");
+                                         timeDim = x5DataSet.GetData<double[]>("time");
+                                     }
+
+                                     x5Meta = getKeyMetadata(x5DataSet);
+
+                                         try
+                                         {
+                                             x5Values[h] = x5DataSet.GetData<Int16[, ,]>(X5Variables[h].Trim(),
+                                               DataSet.FromToEnd(0),
+                                               DataSet.FromToEnd(0),
+                                               DataSet.FromToEnd(0));
+                                         }
+                                         catch (Exception)
+                                         {
+                                             x5Values[h] = x5DataSet.GetData<Single[, ,]>(X5Variables[h].Trim(),
+                                              DataSet.FromToEnd(0),
+                                              DataSet.FromToEnd(0),
+                                              DataSet.FromToEnd(0));
+                                         }
+
+                                 }
+                             }
+                         }
+
+
+
 
                          dynamic x1Value = null, x2Value = null, x3Value = null, resultValue;
                          dynamic[] x4Value = new dynamic[X4HistoryLength];
                          dynamic[] x4Value2 = new dynamic[(X4HistoryLength-1)*8];
+                         dynamic[] x5Value = new dynamic[X5Length];
                          Single missingvalue = Single.MaxValue;
 
                              if (deriver.JassGrid.Levelsize==0){
@@ -3201,7 +3264,13 @@ v(np)  =   ---------------------------------------------------------------------
                                                      var message = e;
                                                  }
                                              }
-                                             resultValue = processFormula(deriver, x1Value, x2Value, x3Value, x4Value, x4Value2);
+                                             if (X5) {
+                                                 for (int h = 0; h < X5Length; h++) {
+                                                      x5Value[h] = x5Meta.add_offset + x5Meta.scale_factor * x5Values[h][t, y, x];
+                                                 }
+                                             }
+
+                                             resultValue = processFormula(deriver, x1Value, x2Value, x3Value, x4Value, x4Value2, x5Value);
                                          }
                                          else
                                          {
@@ -3263,7 +3332,7 @@ v(np)  =   ---------------------------------------------------------------------
              return result;        
         }
 
-        public Single processFormula(JassDeriver deriver, dynamic x1, dynamic x2, dynamic x3, dynamic[] x4, dynamic[] x42)
+        public Single processFormula(JassDeriver deriver, dynamic x1, dynamic x2, dynamic x3, dynamic[] x4, dynamic[] x42, dynamic[] x5)
         {
             if (deriver.JassFormula.Name == "12hrChange")
             { 
@@ -3313,9 +3382,19 @@ v(np)  =   ---------------------------------------------------------------------
                 var V850 = x1;
                 var V500 = x2;
                 var DV = x3;
+                var DT2M = x5[0];
+                var DTD2M = x5[1];
 
-             //  (V850 < -500 10-6s-1) AND (V500 < -300 10-6s-1) AND (DV < 0 10-6s-1)
+             // Class1 if (V850 < -500 10-6s-1) AND (V500 < -300 10-6s-1) AND (DV < 0 10-6s-1)
                 if ((V850 < -0.0005) && (V500 < 0.0003) && (DV < 0)) classNumber = 1;
+
+             // Class2 if  (DV < -250 10-6s-1) AND                (DTD2M > 0 °C) AND (DT2M > 0°C)
+             //                                               OR
+             // (D12V < -250 10-6s-1) AND (DTD2M > 0°C) AND (DT2M > 3°C)
+             //                                             OR
+             // (DV > 200 10-6s-1) AND (DTD2M > 0°C) AND (DT2M > 4°C)
+
+//                if(  ( DV < -0.00025 )  &&  )
 
                 return classNumber;
 
