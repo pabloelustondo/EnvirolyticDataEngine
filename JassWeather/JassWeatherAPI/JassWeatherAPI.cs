@@ -3384,17 +3384,22 @@ v(np)  =   ---------------------------------------------------------------------
                 var DV = x3;
                 var DT2M = x5[0];
                 var DTD2M = x5[1];
+                var D12V = x5[2];
 
-             // Class1 if (V850 < -500 10-6s-1) AND (V500 < -300 10-6s-1) AND (DV < 0 10-6s-1)
+                // Class1 if (V850 < -500 10-6s-1) AND (V500 < -300 10-6s-1) AND (DV < 0 10-6s-1)
                 if ((V850 < -0.0005) && (V500 < 0.0003) && (DV < 0)) classNumber = 1;
 
-             // Class2 if  (DV < -250 10-6s-1) AND                (DTD2M > 0 °C) AND (DT2M > 0°C)
-             //                                               OR
-             // (D12V < -250 10-6s-1) AND (DTD2M > 0°C) AND (DT2M > 3°C)
-             //                                             OR
-             // (DV > 200 10-6s-1) AND (DTD2M > 0°C) AND (DT2M > 4°C)
+                // Class2 if  (DV < -250 10-6s-1) AND (DTD2M > 0 °C) AND (DT2M > 0°C)
 
-//                if(  ( DV < -0.00025 )  &&  )
+                if ((DV < -0.00025) && (DTD2M > 0) && (DT2M > 0 )) classNumber = 2;
+
+                // OR (D12V < -250 10-6s-1) AND (DTD2M > 0°C) AND (DT2M > 3°C)
+
+                if ((D12V < -0.00025) && (DTD2M > 0) && (DT2M > 3)) classNumber = 2;
+
+                //  OR (DV > 200 10-6s-1) AND (DTD2M > 0°C) AND (DT2M > 4°C)
+                
+                if ((DV >  0.00020) && (DTD2M > 0) && (DT2M > 4)) classNumber = 2;
 
                 return classNumber;
 
