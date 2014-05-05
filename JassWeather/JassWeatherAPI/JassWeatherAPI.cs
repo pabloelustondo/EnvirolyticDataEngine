@@ -3143,6 +3143,7 @@ v(np)  =   ---------------------------------------------------------------------
 
                          dynamic x1Value = null, x2Value = null, x3Value = null, resultValue;
                          dynamic[] x4Value = new dynamic[X4HistoryLength];
+                         dynamic[] x4Value2 = new dynamic[(X4HistoryLength-1)*8];
                          Single missingvalue = Single.MaxValue;
 
                              if (deriver.JassGrid.Levelsize==0){
@@ -3177,12 +3178,30 @@ v(np)  =   ---------------------------------------------------------------------
                                              if (X3) x3Value = x3Meta.add_offset + x3Meta.scale_factor * x3Values[t, y, x];
                                              if (X4)
                                              {
-                                                 for (int h = 0; h < X4HistoryLength; h++)
+                                                 try
                                                  {
-                                                     x4Value[h] = x4Meta.add_offset + x4Meta.scale_factor * x4Values[h][t, y, x];
+                                                     for (int h = 0; h < X4HistoryLength; h++)
+                                                     {
+                                                         x4Value[h] = x4Meta.add_offset + x4Meta.scale_factor * x4Values[h][t, y, x];
+                                                     }
+                                                     int d = 0;
+                                                     int tttt;
+                                                     for (int ttt = 0; ttt < (X4HistoryLength -1)* 8; ttt++)
+                                                     {
+                                                         //x4value 2 is the history hor by hour. so we map ttt=0 to this time and day
+                                                         //for d=0 and ttt=0, tttt=t.
+                                                         //now, when ttt becomes > twe will go into negatives. so, say t is 3.. 2 1 0 7(previous day)
+                                                         if (ttt > t + d * 8) { d++; }
+                                                         tttt = t + d * 8 - ttt;
+                                                         x4Value2[ttt] = x4Values[d][tttt, y, x];
+
+                                                     }
+                                                 }
+                                                 catch (Exception e) {
+                                                     var message = e;
                                                  }
                                              }
-                                             resultValue = processFormula(deriver, x1Value, x2Value, x3Value, x4Value);
+                                             resultValue = processFormula(deriver, x1Value, x2Value, x3Value, x4Value, x4Value2);
                                          }
                                          else
                                          {
@@ -3244,8 +3263,65 @@ v(np)  =   ---------------------------------------------------------------------
              return result;        
         }
 
-        public Single processFormula(JassDeriver deriver, dynamic x1, dynamic x2, dynamic x3, dynamic[] x4)
+        public Single processFormula(JassDeriver deriver, dynamic x1, dynamic x2, dynamic x3, dynamic[] x4, dynamic[] x42)
         {
+            if (deriver.JassFormula.Name == "12hrChange")
+            { 
+            //value of varia
+                var d_result = x42[0] - x42[4];
+                return Convert.ToSingle(d_result);       
+            }
+            
+            if (deriver.JassFormula.Name == "GermanClasses")
+            {
+                /* 
+                 * Variables Needed:
+                 * V850, V500, DV, DTD2M, DT2M, D12V
+                 * 
+               The weather classes for every grid point are derived from the following conditions:
+ 
+               Class 1:
+ 
+               (V850 < -500 10-6s-1) AND (V500 < -300 10-6s-1) AND (DV < 0 10-6s-1)
+ 
+               Class 2:
+ 
+               (DV < -250 10-6s-1) AND                (DTD2M > 0 °C) AND (DT2M > 0°C)
+                                                            OR
+               (D12V < -250 10-6s-1) AND (DTD2M > 0°C) AND (DT2M > 3°C)
+                                                            OR
+               (DV > 200 10-6s-1) AND (DTD2M > 0°C) AND (DT2M > 4°C)
+ 
+               Class 3:
+ 
+               (V850 > 250 10-6s-1) AND (V500 > 200 10-6s-1) AND (DV > -250 10-6s-1) AND (D12V < 250 10-6s-1)            AND (-2°C < DT2M < 2°C)
+ 
+               Class 4:
+ 
+               (DT2M < -6°C) AND (DTD2M < 0 °C)
+                                             OR
+               (D12V > 250 10-6s-1) AND (DT2M < DTD2M)         (first half of the day)
+                                             OR
+               (D12V > 250 10-6s-1) AND (DT2M < 0°C)                (second half of the day)
+                                             OR
+               (DV > 500 10-6s-1) AND (DTD2M < 0°C) 
+
+               Class 5:
+               All other cases…
+                */
+                int classNumber = 5
+                var V850 = x1;
+                var V500 = x2;
+                var DV = x3;
+
+             //  (V850 < -500 10-6s-1) AND (V500 < -300 10-6s-1) AND (DV < 0 10-6s-1)
+                if ((V850 < -0.0005) && (V500 < 0.0003) && (DV < 0)) classNumber = 1;
+
+                return classNumber;
+
+            }
+
+
             if (deriver.JassFormula.Name == "Humidex")
             {
                 /*
