@@ -1,0 +1,65 @@
+﻿@model JassWeather.Models.JassWeatherAPI.SmartGridMap
+@{
+    ViewBag.Title = "Compare_MACC_NARR_Grids";
+}
+
+@{
+    
+    
+    int locationY = 133;
+    int locationX = 241;
+    string gridName = "could not identify grid";
+    string locationName = "Toronto";
+
+
+    locationY = (Model.JassLatLon != null && Model.JassLatLon.narrY != null) ? (int)Model.JassLatLon.narrY : 133;
+    locationX = (Model.JassLatLon != null && Model.JassLatLon.narrX != null) ? (int)Model.JassLatLon.narrX : 241;
+    locationName = (Model.JassLatLon != null && Model.JassLatLon.Name != null) ? Model.JassLatLon.Name : "Toronto";
+
+       
+    if (Model.fileMapper.Contains("MACC") ){
+    gridName = "MACC" ; 
+    locationY = (Model.JassLatLon != null && Model.JassLatLon.maccY != null) ? (int)Model.JassLatLon.maccY : 133;
+    locationX = (Model.JassLatLon != null && Model.JassLatLon.maccX != null) ? (int)Model.JassLatLon.maccX : 241;
+    locationName = (Model.JassLatLon != null && Model.JassLatLon.Name != null) ? Model.JassLatLon.Name : "Toronto";
+    }
+
+    if (Model.fileMapper.Contains("CFSR") ){
+         gridName = "CFSR" ; 
+    locationY = (Model.JassLatLon != null && Model.JassLatLon.cfsrY != null) ? (int)Model.JassLatLon.cfsrY : 133;
+    locationX = (Model.JassLatLon != null && Model.JassLatLon.cfsrX != null) ? (int)Model.JassLatLon.cfsrX : 241;
+    locationName = (Model.JassLatLon != null && Model.JassLatLon.Name != null) ? Model.JassLatLon.Name : "Toronto";
+    }
+    
+    if (Model.fileMapper.Contains("SHER") ){
+           gridName = "SHER" ; 
+    locationY = (Model.JassLatLon != null && Model.JassLatLon.sherY != null) ? (int)Model.JassLatLon.sherY : 133;
+    locationX = (Model.JassLatLon != null && Model.JassLatLon.sherX != null) ? (int)Model.JassLatLon.sherX : 241;
+    locationName = (Model.JassLatLon != null && Model.JassLatLon.Name != null) ? Model.JassLatLon.Name : "Toronto";
+    }
+    
+    }
+
+<h2>Showing Grid @gridName with highlights on location @locationName at y:@locationY  x:@locationX</h2>
+
+
+<table>
+    @for (int y = 0; y < Model.maccLat.Length; y++)
+    {
+        <tr>
+            <td>
+                @y
+            </td>
+            @for (int x = 0; x < Model.maccLon.Length; x++)
+            {
+                string borderStyle = "none";
+                if (y == @locationY || x == @locationX) { borderStyle = "solid"; }
+
+                <td style="width:200px; border-style:@borderStyle; border-color:black; border-width:medium">
+                    @y:@x
+                    @Model.maccLat[y]:@Model.maccLon[x]
+                </td>
+            }
+        </tr>
+    }
+</table>

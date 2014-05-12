@@ -73,6 +73,15 @@ namespace JassWeather.Controllers
             return View(result);
         }
 
+        public ActionResult ShowGrid(string mapperFileName, int JassLatLonID)
+        {
+            JassWeatherAPI.SmartGridMap result = apiCaller.getMapComboFromMapFile(mapperFileName);
+            result.JassLatLonID = JassLatLonID;
+            result.JassLatLon = db.JassLatLons.Find(JassLatLonID);
+            result.fileMapper = mapperFileName;
+            return View(result);
+        }
+
         #endregion
 
 

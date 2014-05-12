@@ -600,6 +600,7 @@
     <Content Include="Views\Task\Edit.cshtml" />
     <Content Include="Views\Task\Delete.cshtml" />
     <Content Include="Views\Task\QueryTaskStatus.cshtml" />
+    <Content Include="Views\Grid\ShowGrid.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

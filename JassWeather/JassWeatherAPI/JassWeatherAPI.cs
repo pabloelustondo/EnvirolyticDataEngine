@@ -865,14 +865,14 @@ namespace JassWeather.Models
             string outputFileName = null;
             string outputFilePath = null;
 
-            Int16 missingValue = -32767;
-            Int16 fillValue = -32767;
+            Single fillValue=Single.MaxValue;
 
                Dictionary<string, MetadataDictionary> vars =
                         new Dictionary<string, MetadataDictionary>();
 
                string VariableName=null;
-
+    
+            
             using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
             {
                 Dictionary<string, MetadataDictionary> narrVars = new Dictionary<string, MetadataDictionary>();
@@ -882,6 +882,8 @@ namespace JassWeather.Models
                 Single[] narrX = narrDataSet.GetData<Single[]>("x");
                 Single[, , ,] maccVariable;
                 Single[, , ,] outputVariable;
+                Single[, , ,] outputVariable1;
+                Single[, , ,] outputVariable2;
 
                 using (var maccDataSet = DataSet.Open(maccFile + "?openMode=open"))
                 {
@@ -895,8 +897,7 @@ namespace JassWeather.Models
                             VariableName = v.Name;
                             try
                             {
-                                missingValue = (Int16)v.Metadata["missing_value"];
-                                fillValue = (Int16)v.Metadata["_FillValue"];
+                                fillValue = (Single)v.Metadata["_FillValue"];
                             }
                             catch (Exception) { };
                         };
@@ -1053,6 +1054,9 @@ namespace JassWeather.Models
 
                         ////filling up the array
                         outputVariable = new Single[8, maccLevel.Length, narrY.Length, narrX.Length];
+                        outputVariable1 = new Single[8, maccLevel.Length, narrY.Length, narrX.Length];
+                        outputVariable2 = new Single[8, maccLevel.Length, narrY.Length, narrX.Length];
+
 
                         int tt;
                         //  outputVariable[t, l, y, x] = (Int16)interpolateValueCSFR(t, l, y, x, maccVariable, gc, missingValue, fillValue);
@@ -1102,25 +1106,26 @@ namespace JassWeather.Models
                                            {
                                                v_mp1 = maccVariable[tt, l, gc.map[y, x].lat, gc.map[y, x].lon];
                                                d_np_mp1 = (Single)gc.map[y, x].distance;
-                                               go1 = (v_mp1 == missingValue || v_mp1 == missingValue) ? false : true;
+                                               go1 = (v_mp1 == fillValue) ? false : true;
 
                                                v_mp2 = maccVariable[tt, l, gc.map2[y, x].lat, gc.map2[y, x].lon];
                                                d_np_mp2 = (Single)gc.map2[y, x].distance;
-                                               go2 = (v_mp2 == missingValue || v_mp2 == missingValue) ? false : true;
+                                               go2 = (v_mp2 == fillValue) ? false : true;
 
                                                v_mp3 = maccVariable[tt, l, gc.map3[y, x].lat, gc.map3[y, x].lon];
                                                d_np_mp3 = (Single)gc.map3[y, x].distance;
-                                               go3 = (v_mp3 == missingValue || v_mp3 == missingValue) ? false : true;
+                                               go3 = (v_mp3 == fillValue) ? false : true;
 
                                                v_mp4 = maccVariable[tt, l, gc.map4[y, x].lat, gc.map4[y, x].lon];
                                                d_np_mp4 = (Single)gc.map4[y, x].distance;
-                                               go4 = (v_mp4 == missingValue || v_mp4 == missingValue) ? false : true;
+                                               go4 = (v_mp4 == fillValue) ? false : true;
 
                                              
 
-                                               if (d_np_mp1 < 10)
+                                               if ( EnvyVariableName.Contains("2") || d_np_mp1 < 10 )
 
-                                               { value = v_mp1; }
+                                               { 
+                                                   value = v_mp1; }
                                                else
                                                {
                                                    value = ((go1?v_mp1 / d_np_mp1:0) +
@@ -1135,6 +1140,8 @@ namespace JassWeather.Models
                                                };
 
                                                outputVariable[t, l, y, x] = value;
+                                               outputVariable1[t, l, y, x] = v_mp1;
+                                               outputVariable2[t, l, y, x] = v_mp2;
                                                if (value > valueMax) valueMax = value;
                                                if (value < valueMin) valueMin = value;
                                            }
@@ -1211,7 +1218,7 @@ namespace JassWeather.Models
                     }
                 }
             }
-
+            result.fillValue = fillValue;
             result.outputFilePath = outputFilePath;
             return result;
         }
@@ -1232,22 +1239,10 @@ namespace JassWeather.Models
                     //      foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("x", attr.Key, attr.Value); }
                    
                     outputDataSet.Add<Single[, , ,]>(model.variableName,model.Variable,"time", "level", "y", "x");
-                    /*
-                                                    foreach (var attr in maccVars[VariableName])
-                                                    {
-                                                        if (attr.Key != "Name")
-                                                        {
-                                                            if (attr.Key != "_FillValue")
-                                                            {
-                                                                outputDataSet.PutAttr(VariableName, attr.Key, attr.Value);
-                                                            }
-                                                            else
-                                                            {
-                                                                outputDataSet.PutAttr(VariableName, "FillValue", attr.Value);
-                                                            }
-                                                        }
-                                                    }
-                     * */               
+                    outputDataSet.Add<Single[, , ,]>(model.variableName, model.Variable + "1", "time", "level", "y", "x");
+                    outputDataSet.Add<Single[, , ,]>(model.variableName, model.Variable + "2", "time", "level", "y", "x");
+
+                    outputDataSet.PutAttr(model.variableName, "FillValue", model.fillValue);              
                 
                 
                 
@@ -1284,13 +1279,315 @@ namespace JassWeather.Models
             public string outputFilePath { get; set; }
             public string outputFileName { get; set; }
             public string variableName { get; set; }
+            public Single fillValue { get; set; }
             public double[] time { get; set; }
             public Single[] level { get; set; }
             public Single[] y { get; set; }
             public Single[] x { get; set; }
             public Single[,,,] Variable { get; set; }
+            public Single[, , ,] Variable1 { get; set; }
+            public Single[, , ,] Variable2 { get; set; }
     
         }
+
+        public string processGridMappingNAPSToNarr(int year, int month, int weeky, string fileNameMaccTemp)
+        {
+            string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month, weeky, 0);
+            string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month, weeky, 0);
+
+            JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
+            string sherFile = AppDataFolder + "/" + fileNameMacc;
+            string narrFile = AppFilesFolder + "/" + fileNameNarr;
+            string mapFile = AppFilesFolder + "/Narr_2_SHER_Grid_Mapper.nc";
+
+            string smonth = (month < 10) ? "0" + month : "" + month;
+            string outputFileName = null;
+            string outputFilePath = null;
+
+            Int16 missingValue = -32767;
+            Int16 fillValue = -32767;
+
+            string VariableName = "sher";
+            Dictionary<string, MetadataDictionary> vars =
+                        new Dictionary<string, MetadataDictionary>();
+
+
+            Single[] narrY = null;
+            Single[] narrX = null;
+            double[] narrTime = null;
+            Dictionary<string, MetadataDictionary> narrVars = new Dictionary<string, MetadataDictionary>();
+
+            //getting stuff from narr dataset
+            using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
+            {
+                foreach (var v in narrDataSet.Variables) { narrVars.Add(v.Name, v.Metadata); }
+
+                narrY = narrDataSet.GetData<Single[]>("y");
+                narrX = narrDataSet.GetData<Single[]>("x");
+                //   narrTime = narrDataSet.GetData<double[]>("time");
+
+                var narrSchema = narrDataSet.GetSchema();
+                gc.narrLon = narrDataSet.GetData<Single[,]>("lon");
+                gc.narrLat = narrDataSet.GetData<Single[,]>("lat");
+
+                gc.narrSchema = schema2string(narrSchema);
+            }
+            //getting stuff from input info in inpout grids
+
+            double[] sherTime = null;
+            Int16[,] sherVariable = null;
+
+            int yearDiff = year - 2002;
+            DateTime startRelevantHistoryDay = DateTime.Parse("2002-01-01");
+
+            DateTime startingDay = new DateTime(year, month, 1);
+            DateTime endingDay = startingDay.AddMonths(1);
+
+            int startingDayIndex = (int)(startingDay - startRelevantHistoryDay).TotalDays;
+            int endingDayIndex = (int)(endingDay - startRelevantHistoryDay).TotalDays;
+
+            Dictionary<string, MetadataDictionary> sherVars = new Dictionary<string, MetadataDictionary>();
+            using (var sherDataSet = DataSet.Open(sherFile + "?openMode=open"))
+            {
+                foreach (var v in sherDataSet.Variables)
+                {
+                    sherVars.Add(v.Name, v.Metadata);
+                    if (v.Dimensions.Count > 2 && VariableName == null)
+                    {
+                        VariableName = v.Name;
+                        try
+                        {
+                            missingValue = (Int16)v.Metadata["missing_value"];
+                            fillValue = (Int16)v.Metadata["_FillValue"];
+                        }
+                        catch (Exception) { };
+                    };
+                }
+
+
+
+                sherTime = sherDataSet.GetData<double[]>("time", DataSet.Range(startingDayIndex, endingDayIndex - 1));
+                var sherSchema = sherDataSet.GetSchema();
+
+                gc.maccSchema = schema2string(sherSchema);
+
+                gc.maccLat = sherDataSet.GetData<Single[]>("lat");
+                gc.maccLon = sherDataSet.GetData<Single[]>("lon");
+
+                //so here is where we will calculate exactly how manby days I need.
+                //I need a day starting index 2002-01-01 is 0   and a day ending index.
+
+
+
+                sherVariable = sherDataSet.GetData<Int16[,]>(VariableName,
+                    DataSet.Range(startingDayIndex, endingDayIndex - 1),
+                    DataSet.FromToEnd(0));
+            }
+
+            outputFileName = VariableName + "_sher2narr_" + year + "_" + smonth + ".nc";
+            outputFilePath = AppDataFolder + "\\" + outputFileName;
+
+
+            double[] sherNarrTime = new double[sherTime.Length * 8];
+
+            DateTime day1800 = DateTime.Parse("1800-01-01 00:00:00");
+
+            DateTime sherDay;
+            DateTime narrDay;
+            double narrNumber;
+
+            DateTime sherDayStart = startRelevantHistoryDay;
+            DateTime narrDayStart = new DateTime(sherDayStart.Year, sherDayStart.Month, sherDayStart.Day);
+
+
+
+            double narrDayStartHours = (narrDayStart - day1800).TotalHours;
+
+            double narrDayHours = narrDayStartHours;
+            for (int t = 0; t < sherNarrTime.Length; t++)
+            {
+                sherNarrTime[t] = narrDayHours;
+                narrDayHours += 3;
+            }
+
+            //At this point we have the time dimension in the variable sherNarrTime
+            //we do not need the time dimension from narr anymore.
+
+            using (var mapDataSet = DataSet.Open(mapFile + "?openMode=open"))
+            {
+
+                var mapDistance = mapDataSet.GetData<double[,]>("mapDistance");
+                var mapLatY = mapDataSet.GetData<int[,]>("mapLatY");
+                var mapLonX = mapDataSet.GetData<int[,]>("mapLonX");
+
+
+                var map2Distance = mapDataSet.GetData<double[,]>("map2Distance");
+                var map2LatY = mapDataSet.GetData<int[,]>("map2LatY");
+                var map2LonX = mapDataSet.GetData<int[,]>("map2LonX");
+
+
+                var map3Distance = mapDataSet.GetData<double[,]>("map3Distance");
+                var map3LatY = mapDataSet.GetData<int[,]>("map3LatY");
+                var map3LonX = mapDataSet.GetData<int[,]>("map3LonX");
+
+
+                var map4Distance = mapDataSet.GetData<double[,]>("map4Distance");
+                var map4LatY = mapDataSet.GetData<int[,]>("map4LatY");
+                var map4LonX = mapDataSet.GetData<int[,]>("map4LonX");
+
+                //mapp the grids
+
+                // gc = JassWeather.Models.JassWeatherAPI.MapGridNarr2Macc(gc);
+
+
+                for (int y = 0; y < gc.narrYMax; y++)
+                {
+                    for (int x = 0; x < gc.narrXMax; x++)
+                    {
+                        try
+                        {
+                            if (mapLatY[y, x] < 469)  //quick hack due to problem
+                            {
+                                gc.map[y, x] = new JassGridLocation();
+                                gc.map[y, x].distance = mapDistance[y, x];
+                                gc.map[y, x].lat = mapLatY[y, x];
+                                gc.map[y, x].lon = mapLonX[y, x];
+                                gc.map[y, x].latitud = gc.maccLat[gc.map[y, x].lat];
+                                gc.map[y, x].longitud = gc.maccLon[gc.map[y, x].lon];
+                            }
+
+                            if (map2LatY[y, x] < 469)  //quick hack due to problem
+                            {
+                                gc.map2[y, x] = new JassGridLocation();
+                                gc.map2[y, x].distance = map2Distance[y, x];
+                                gc.map2[y, x].lat = map2LatY[y, x];
+                                gc.map2[y, x].lon = map2LonX[y, x];
+                                gc.map2[y, x].latitud = gc.maccLat[gc.map2[y, x].lat];
+                                gc.map2[y, x].longitud = gc.maccLon[gc.map2[y, x].lon];
+                            }
+
+                            if (map3LatY[y, x] < 469)  //quick hack due to problem
+                            {
+                                gc.map3[y, x] = new JassGridLocation();
+                                gc.map3[y, x].distance = map3Distance[y, x];
+                                gc.map3[y, x].lat = map3LatY[y, x];
+                                gc.map3[y, x].lon = map3LonX[y, x];
+                                gc.map3[y, x].latitud = gc.maccLat[gc.map3[y, x].lat];
+                                gc.map3[y, x].longitud = gc.maccLon[gc.map3[y, x].lon];
+                            }
+
+                            if (map4LatY[y, x] < 469)  //quick hack due to problem
+                            {
+                                gc.map4[y, x] = new JassGridLocation();
+                                gc.map4[y, x].distance = map4Distance[y, x];
+                                gc.map4[y, x].lat = map4LatY[y, x];
+                                gc.map4[y, x].lon = map4LonX[y, x];
+                                gc.map4[y, x].latitud = gc.maccLat[gc.map4[y, x].lat];
+                                gc.map4[y, x].longitud = gc.maccLon[gc.map4[y, x].lon];
+                            }
+                        }
+                        catch (Exception e)
+                        {
+
+                            var v = "crap";
+
+                        }
+
+                    }
+                }
+
+
+                //Ok, now let's process the file converting from Macc to Narr at the measure level.
+
+
+                ////////  getting all the dimensions from Narr
+                /* this was before
+                    Single[] narrY = narrDataSet.GetData<Single[]>("y");
+                    Single[] narrX = narrDataSet.GetData<Single[]>("x");
+                    double[] narrTime = narrDataSet.GetData<double[]>("time");
+                 */
+
+                ////filling up the array
+                Int16[, ,] outputVariable = new Int16[sherNarrTime.Length, narrY.Length, narrX.Length];
+
+                for (int t = 0; t < sherNarrTime.Length; t++)
+                {
+                    for (int y = 0; y < narrY.Length; y++)
+                    {
+                        for (int x = 0; x < narrX.Length; x++)
+                        {
+                            try
+                            {
+                                outputVariable[t, y, x] = (Int16)interpolateValueSher(t, y, x, sherVariable, gc, missingValue, fillValue);
+                            }
+                            catch (Exception e)
+                            {
+                                var dosomething = 1;
+                            }
+                        }
+                    }
+                }
+                /////// Writting results into file
+                //   dataset3.Add<Int16[, ,]>(builder.JassVariable.Name, dataset, "time", "y", "x");
+
+                //we will enter year/month as parameter
+
+                using (var outputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
+                {
+                    /*
+                     * 
+    Single[] narrY = narrDataSet.GetData<Single[]>("y");
+    Single[] narrX = narrDataSet.GetData<Single[]>("x");
+    double[] narrTime = narrDataSet.GetData<double[]>("time");
+                     */
+
+
+                    outputDataSet.Add<double[]>("time", sherNarrTime, "time");
+                    //foreach (var attr in narrVars["time"]) { if (attr.Key != "Name") outputDataSet.PutAttr("time", attr.Key, attr.Value); }
+                    outputDataSet.Add<Single[]>("y", narrY, "y");
+                    foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("y", attr.Key, attr.Value); }
+                    outputDataSet.Add<Single[]>("x", narrX, "x");
+                    foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("x", attr.Key, attr.Value); }
+                    outputDataSet.Add<Int16[, ,]>(VariableName, outputVariable, "time", "y", "x");
+                    foreach (var attr in sherVars[VariableName])
+                    {
+                        if (attr.Key != "Name")
+                        {
+                            if (attr.Key != "_FillValue")
+                            {
+                                outputDataSet.PutAttr(VariableName, attr.Key, attr.Value);
+                            }
+                            else
+                            {
+                                outputDataSet.PutAttr(VariableName, "FillValue", attr.Value);
+                            }
+                        }
+                    }
+
+                }
+
+
+                //now let's test 
+                using (var testDataSet = DataSet.Open(outputFilePath + "?openMode=open"))
+                {
+
+                    Int16[, ,] testVariable = testDataSet.GetData<Int16[, ,]>(VariableName,
+                            DataSet.FromToEnd(0),
+                            DataSet.FromToEnd(0),
+                            DataSet.FromToEnd(0));
+
+                    Single[] testY = testDataSet.GetData<Single[]>("y");
+                    Single[] testX = testDataSet.GetData<Single[]>("x");
+                    double[] testTime = testDataSet.GetData<double[]>("time");
+
+                }
+            }
+
+            //return gc;
+            return outputFilePath;
+        }
+
+
 
         public string processGridMappingSHERToNarr(int year, int month, int weeky, string fileNameMaccTemp)
         {
@@ -1614,6 +1911,13 @@ namespace JassWeather.Models
             public JassLatLon JassLatLon { get; set; }
             public int JassLatLonID { get; set; }
             public string fileMapper { get; set; }
+
+            public Single[] maccLat { get; set; }
+            public Single[] maccLon { get; set; }
+
+            public Single[,] narrLat { get; set; }
+            public Single[,] narrLon { get; set; }
+
         }
 
         public SmartGridMap getMapComboFromMapFile(string mapfile)
@@ -1623,6 +1927,15 @@ namespace JassWeather.Models
 
             using (var mapDataSet = DataSet.Open(mapFilePath + "?openMode=open"))
             {
+
+                sgm.maccLat = mapDataSet.GetData<Single[]>("maccLat");
+                sgm.maccLon = mapDataSet.GetData<Single[]>("maccLon");
+
+                sgm.narrLat = mapDataSet.GetData<Single[,]>("narrLat");
+                sgm.narrLon = mapDataSet.GetData<Single[,]>("narrLon");
+
+                sgm.mapLatY = mapDataSet.GetData<int[,]>("mapLatY");
+                sgm.mapLonX = mapDataSet.GetData<int[,]>("mapLonX");
 
                 sgm.mapDistance = mapDataSet.GetData<double[,]>("mapDistance");
                 sgm.mapLatY = mapDataSet.GetData<int[,]>("mapLatY");
@@ -2679,10 +2992,6 @@ v(np)  =   ---------------------------------------------------------------------
                     {
                         for (int weeky = (int)builder.weeky; weeky < (int)builder.weekyEnd + 1; weeky++)
                         {
-                            if (builder.dayEnd == null)
-                            {
-                                endDay = DateTime.DaysInMonth(year, month);
-                            }
                             for (int day = startDay; day < endDay + 1; day++)
                             {
                                 //here is where we start the real builder
@@ -3394,7 +3703,7 @@ v(np)  =   ---------------------------------------------------------------------
                 // Class2 if  (DV < -250 10-6s-1) AND (DTD2M > 0 °C) AND (DT2M > 0°C)
                 if ((DV < -0.00025) && (DTD2M > 0) && (DT2M > 0 )) classNumber = 2;
 
-                // Class2 if (D12V < -250 10-6s-1) AND (DTD2M > 0°C) AND (DT2M > 3°C)
+                // Class2 if (D12V < -250 10-6s-1) AND (DTD2M > 0°C) <0))AND (DT2M > 3°C)
                 if ((D12V < -0.00025) && (DTD2M > 0) && (DT2M > 3)) classNumber = 2;
 
                 //  Class2 if (DV > 200 10-6s-1) AND (DTD2M > 0°C) AND (DT2M > 4°C)                
@@ -3523,7 +3832,6 @@ v(np)  =   ---------------------------------------------------------------------
                         string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
                         inputFile1 = processGridMappingMaccToNarr(year, month,inputFileTemplateBeforeTransformation);
                         }else
-
                         if (builder.APIRequest.JassGrid.Type == "CFSR")
                         {
 
@@ -3566,6 +3874,15 @@ v(np)  =   ---------------------------------------------------------------------
                                 inputFile1 = processGridMappingSHERToNarr(year, month, weeky, inputFileTemplateBeforeTransformation);
                             }
                             else
+                                if (builder.APIRequest.JassGrid.Type == "NAPS")
+                                {
+                                    string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
+                                    inputFile1 = processGridMappingNAPSToNarr(year, month, weeky, inputFileTemplateBeforeTransformation);
+
+
+
+                                }
+                                else
                             {
                                 //if we are here the type was wrong
                                 throw new Exception("We cannot handle the supplied type of GRID: " + builder.APIRequest.JassGrid.Type);

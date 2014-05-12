@@ -120,9 +120,13 @@ Color Scale
     </tr>
 
 
-
-@for (int y = maxY; y >= minY ; y--)
+@{int y=minY;}
+@for (int yy = maxY; yy >= minY ; yy--)
 {
+    if (Model.JassGrid.Type == "NARR") { y = yy; }
+    if (Model.JassGrid.Type == "CFSR") { y = minY + maxY-yy; }
+    if (Model.JassGrid.Type == "NARR") { y = minY + maxY - yy; }
+    if (Model.JassGrid.Type == "NARR") { y = minY + maxY - yy; }
     <tr>
         <td>
             @y
