@@ -1298,8 +1298,16 @@ namespace JassWeather.Models
         public string napsCreateNETCDFfromTextFile(int year, int month, int weeky, string fileNameMaccTemp){
         
         //This method will read the NAPS file and create an equivalente netCDF that will be used as input to the next process
+            //the idea is to use a method pretty similar to sheridan.
+            //so the first part of to 'read the history' and create a model... the second part is about savoing it as netCDf
+
+            NapsInfoModel model = new NapsInfoModel();
+
+            string napsStationsFilePath = fileNameMaccTemp;
+            string[] lines = System.IO.File.ReadAllLines(napsStationsFilePath);
 
 
+            napsSaveHistory(model);
             return "ok";
         }
 
@@ -1310,7 +1318,7 @@ namespace JassWeather.Models
 
             //here we are going to read the text file and convert it to netCDF format for that 
 
-            string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month, weeky, 0);
+            string fileNameMacc = fileNameMaccTemp;
             string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month, weeky, 0);
 
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
@@ -3894,11 +3902,7 @@ v(np)  =   ---------------------------------------------------------------------
                             else
                                 if (builder.APIRequest.JassGrid.Type == "NAPS")
                                 {
-                                    string inputFileTemplateBeforeTransformation = builder.APIRequest.url;
-                                    inputFile1 = processGridMappingNAPSToNarr(year, month, weeky, inputFileTemplateBeforeTransformation);
-
-
-
+                                    inputFile1 = processGridMappingNAPSToNarr(year, month, weeky, inputFile1);
                                 }
                                 else
                             {
@@ -4291,6 +4295,23 @@ v(np)  =   ---------------------------------------------------------------------
 
         }
 
+        public class NapsInfoModel
+        {
+            public string response { get; set; }
+            public string[] lines { get; set; }
+            public bool[] success { get; set; }
+            public string[] city { get; set; }
+            public string[] code { get; set; }
+            public string[] urls { get; set; }
+            public string[] availability { get; set; }
+            public string[] measures { get; set; }
+            public int testMax { get; set; }
+            public Int16[,] data { get; set; }
+            public TimeSpan timeSpan;
+            public int totalTimePoints { get; set; }
+            public int totalCodes { get; set; }
+        }
+
         public class SheridanInfoModel
         {
             public string response { get; set; }
@@ -4543,6 +4564,50 @@ v(np)  =   ---------------------------------------------------------------------
             return vm;
 
         }
+
+        public string napsSaveHistory(NapsInfoModel vm)
+        {
+
+            //this process will save this information in a grid-friendly way.
+            //we will have data, lat, lon, time and no level
+
+            string ReturnMessage = "Ok";
+            string fileNameNarr = "Narr_Grid.nc";
+            string narrFile = AppFilesFolder + "/" + fileNameNarr;
+
+            double[] time = new double[vm.totalTimePoints];
+            string[] station = new string[vm.totalCodes];
+            Single[] lat = new Single[vm.totalCodes];
+            Single[] lon = new Single[vm.totalCodes];
+            Int16[,] sher = new Int16[vm.totalTimePoints, vm.totalCodes];
+
+            using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
+            {
+                string outputFilePath = AppDataFolder + "\\sherindan-history.nc";
+                using (var sheridanOutputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
+                {
+
+                    for (int s = 0; s < vm.totalCodes; s++)
+                    {
+                        station[s] = vm.code[s];
+                        for (int t = 0; t < vm.totalTimePoints; t++)
+                        {
+                            sher[t, s] = vm.data[s, t];
+                        }
+                    }
+
+                    sheridanOutputDataSet.Add<double[]>("time", time, "time");
+                    sheridanOutputDataSet.Add<string[]>("station", station, "station"); ;
+                    sheridanOutputDataSet.Add<Single[]>("lat", lat, "station");
+                    sheridanOutputDataSet.Add<Single[]>("lon", lon, "station");
+                    sheridanOutputDataSet.Add<Int16[,]>("sher", sher, "time", "station");
+                }
+            }
+
+
+            return ReturnMessage;
+        }
+     
 
         public string sheridanSaveHistory(SheridanInfoModel vm){
 
