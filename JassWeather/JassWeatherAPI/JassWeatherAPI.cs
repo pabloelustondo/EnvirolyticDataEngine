@@ -1120,7 +1120,12 @@ namespace JassWeather.Models
                                                d_np_mp4 = (Single)gc.map4[y, x].distance;
                                                go4 = (v_mp4 == fillValue) ? false : true;
 
-                                             
+                                               if (y == 133 && x == 241)
+                                               {
+                                                   var xxx = 1;
+                                                   var yyy = xxx + 1;
+
+                                               }
 
                                                if ( EnvyVariableName.Contains("2") || d_np_mp1 < 10 )
 
