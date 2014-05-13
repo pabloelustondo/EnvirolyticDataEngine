@@ -1290,8 +1290,21 @@ namespace JassWeather.Models
     
         }
 
+        public string napsCreateNETCDFfromTextFile(int year, int month, int weeky, string fileNameMaccTemp){
+        
+        //This method will read the NAPS file and create an equivalente netCDF that will be used as input to the next process
+
+
+            return "ok";
+        }
+
         public string processGridMappingNAPSToNarr(int year, int month, int weeky, string fileNameMaccTemp)
         {
+
+            var napsFileName = napsCreateNETCDFfromTextFile(year, month, weeky, fileNameMaccTemp);
+
+            //here we are going to read the text file and convert it to netCDF format for that 
+
             string fileNameMacc = replaceURIPlaceHolders(fileNameMaccTemp, year, month, weeky, 0);
             string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month, weeky, 0);
 
