@@ -1306,8 +1306,38 @@ namespace JassWeather.Models
             string napsStationsFilePath = fileNameMaccTemp;
             string[] lines = System.IO.File.ReadAllLines(napsStationsFilePath);
 
+            for (int l = 0; l < lines.Length; l++)
+            {
+                //process each line from the file
+                string line = lines[l];
 
-            napsSaveHistory(model);
+//pollutant code	3	1	3
+                string pollutantCode = line.Substring(0, 3);
+//station (NAPS id)	6	4	9
+                string stationNAPSId = line.Substring(3, 6);
+//Year	4	10	13
+                string Year = line.Substring(9, 4);
+//Month	2	14	15
+                string Month = line.Substring(13, 2);
+//Day	2	16	17
+                string Day = line.Substring(15, 2);
+//average for day	4	18	21
+                string AverageDay = line.Substring(17, 4);
+//minimum for day	4	22	25
+                string MinimunDay = line.Substring(21, 4);
+//maximum for day	4	26	29
+                string MaximunDay = line.Substring(26, 4);
+                string[] HourlyReading = new string[24];
+
+;//hourly reading 1	4	30	33
+for (int h = 0; h < 24; h++) {
+    HourlyReading[h] = line.Substring(29+h*4, 4);
+}
+
+            }
+
+
+                napsSaveHistory(model);
             return "ok";
         }
 
