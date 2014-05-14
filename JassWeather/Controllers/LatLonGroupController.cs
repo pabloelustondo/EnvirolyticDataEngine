@@ -56,6 +56,7 @@ namespace JassWeather.Controllers
             model.variables = db.JassVariables.ToList();
             model.variableChoices = new Boolean[model.variables.Count];
             model.variableLevels = new string[model.variables.Count];
+            model.generateFiles = true;
 
             ViewBag.LatLonGroupID = Session["LatLonGroupID"];
             int LatLonGroupID = (int)ViewBag.LatLonGroupID;
@@ -66,7 +67,7 @@ namespace JassWeather.Controllers
             model.month = 1;
             model.day = 1;
 
-            ViewBag.JassLatLonID = new SelectList(locations, "JassLatLonID", "Name");
+            ViewBag.JassLatLonID = new SelectList(locations, "JassLatLonID", "Name",1358);
 
             return View("ShowLocationBasedDashboardFirst", model);
         }

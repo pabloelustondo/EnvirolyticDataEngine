@@ -4727,6 +4727,74 @@ v(np)  =   ---------------------------------------------------------------------
             return ReturnMessage;
         }
 
+        //napsSaveLatLongFromFile
+
+        public string napsSaveLatLongFromFile()
+        {
+            string ReturnMessage = "ok";
+            //the idea here is to loop through all the codes in the file
+
+            string napsStationsFilePath = AppFilesFolder + "/naps-stations.txt";  //tab delimited
+            string[] allNapsStationsLines = System.IO.File.ReadAllLines(napsStationsFilePath);
+
+            string[] station = new string[allNapsStationsLines.Length];
+            string[] stationName = new string[allNapsStationsLines.Length];
+            string[] stationInfo = new string[allNapsStationsLines.Length];
+
+            Single[] lat = new Single[allNapsStationsLines.Length];
+            Single[] lon = new Single[allNapsStationsLines.Length];
+
+            Single[] latDB = new Single[allNapsStationsLines.Length];
+            Single[] lonDB = new Single[allNapsStationsLines.Length];
+
+            Single[] latOfficial = new Single[allNapsStationsLines.Length];
+            Single[] lonOfficial = new Single[allNapsStationsLines.Length];
+
+            double[] dist = new double[allNapsStationsLines.Length];
+            string[] lines4QAFile = new string[allNapsStationsLines.Length];
+
+            string errors = "";
+            int numberofbadlines = 0;
+
+      
+            string slat, slon;
+            for (int l = 1; l < allNapsStationsLines.Length; l++)
+            {
+
+                var line = allNapsStationsLines[l].Split('\t');     
+                JassLatLon originalLatLon = new JassLatLon();
+                try
+                {
+                    station[l] = line[0];
+                    stationName[l] = line[1];
+                    stationInfo[l] = line[6] + "--" + line[7] + "--" + line[8] + "--" + line[9] + "--" + line[11];
+                    slat = line[13];
+                    slon = line[14];
+                    lat[l] = Convert.ToSingle(line[13]);
+                    lon[l] = Convert.ToSingle(line[14]);
+                }
+                catch (Exception e)
+                {
+                    numberofbadlines++;
+                    errors += "," + l;
+
+                }
+            }
+
+            string outputFilePath = AppDataFolder + "\\naps_stations.nc";
+            using (var napsOutputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
+            {
+                napsOutputDataSet.Add<string[]>("station", station, "station");
+                napsOutputDataSet.Add<string[]>("stationName", stationName, "station");
+                napsOutputDataSet.Add<string[]>("stationInfo", stationInfo, "station");
+                napsOutputDataSet.Add<Single[]>("lat", lat, "station");
+                napsOutputDataSet.Add<Single[]>("lon", lon, "station");
+            }
+
+
+            return ReturnMessage;
+        }
+
         public string sheridanSaveLatLongFrom_DB_Or_OriginalLatLons()
         {
             string ReturnMessage = "ok";

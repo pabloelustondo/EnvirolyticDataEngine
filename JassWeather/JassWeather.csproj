@@ -384,6 +384,7 @@
     <Content Include="App_Files\Narr_2_SHER_Grid_Mapper.nc" />
     <Content Include="App_Files\Narr_Grid.nc" />
     <Content Include="App_Files\Narr_2_CFSR_Grid_Mapper.nc" />
+    <Content Include="App_Files\Narr_2_NAPS_Grid_Mapper.nc" />
     <None Include="Properties\PublishProfiles\envirolytic - FTP %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - Web Deploy %282%29.pubxml" />

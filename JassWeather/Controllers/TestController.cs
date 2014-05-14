@@ -55,6 +55,12 @@ namespace JassWeather.Controllers
             return View();
         }
 
+        public ActionResult SaveNapsLatLon()
+        {
+            ViewBag.Result = apiCaller.napsSaveLatLongFromFile();
+            return View();
+        }
+
         public ActionResult TestSheridanMapp()
         {
             ViewBag.Result = apiCaller.sheridanSaveLatLongFromDB();

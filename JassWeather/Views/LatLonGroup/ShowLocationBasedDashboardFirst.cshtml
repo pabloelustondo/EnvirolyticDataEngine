@@ -73,6 +73,7 @@
             @Html.CheckBoxFor(model => model.variableChoices[v])
 
             @if (Model.variables[v].Name == "VorticityAbsolute" ||
+                 Model.variables[v].Name == "VorticityAbsolute2" ||
                  Model.variables[v].Name == "Temperature" ||
                  Model.variables[v].Name == "SoilTemperature"                
                 ) {           

@@ -149,6 +149,27 @@ namespace JassWeather.Controllers
             return View("MapSher2NarrTest", result);
         }
 
+        public ActionResult MapNaps2NarrTest()
+        {
+            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
+                "naps_stations.nc",
+                "lat",
+                "lon",
+                "Narr_Grid.nc",
+                "Narr_2_Naps_Grid_Mapper.nc", true, true);
+            return View("MapNaps2NarrTest", result);
+        }
+        public ActionResult MapNaps2NarrReal()
+        {
+            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
+                "naps_stations.nc",
+                "lat",
+                "lon",
+                "Narr_Grid.nc",
+                "Narr_2_Naps_Grid_Mapper.nc", false, true);
+            return View("MapNaps2NarrTest", result);
+        }
+
 
         public ActionResult CreateEnvirolyticNarrGrid()
         {
