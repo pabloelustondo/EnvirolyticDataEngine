@@ -1295,7 +1295,7 @@ namespace JassWeather.Models
     
         }
 
-        public string napsCreateNETCDFfromTextFile(int year, int month, int weeky, string fileNameMaccTemp){
+        public string napsCreateNETCDFfromTextFile(int year, int month, int weeky, string napsDataFile){
         
         //This method will read the NAPS file and create an equivalente netCDF that will be used as input to the next process
             //the idea is to use a method pretty similar to sheridan.
@@ -1303,8 +1303,8 @@ namespace JassWeather.Models
 
             NapsInfoModel model = new NapsInfoModel();
 
-            string napsStationsFilePath = fileNameMaccTemp;
-            string[] lines = System.IO.File.ReadAllLines(napsStationsFilePath);
+            string napsDataFilePath = napsDataFile;
+            string[] lines = System.IO.File.ReadAllLines(napsDataFilePath);
 
             for (int l = 0; l < lines.Length; l++)
             {
