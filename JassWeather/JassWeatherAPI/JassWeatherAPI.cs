@@ -1306,38 +1306,149 @@ namespace JassWeather.Models
             string napsDataFilePath = napsDataFile;
             string[] lines = System.IO.File.ReadAllLines(napsDataFilePath);
 
-            for (int l = 0; l < lines.Length; l++)
+
+
+            double[] time = new double[(lines.Length - 1)*24];
+            string[] station = new string[710];
+            string[] stationName = new string[710];
+            string[] stationInfo = new string[710];
+            Single[] lat = new Single[710];
+            Single[] lon = new Single[710];
+            Int16[,] napsData = new Int16[(lines.Length - 1)*24/12, 710];  //one month of data
+
+            string mapFile = AppFilesFolder + "/naps_stations.nc";
+            using (var mapDataSet = DataSet.Open(mapFile + "?openMode=open"))
             {
-                //process each line from the file
-                string line = lines[l];
 
-//pollutant code	3	1	3
-                string pollutantCode = line.Substring(0, 3);
-//station (NAPS id)	6	4	9
-                string stationNAPSId = line.Substring(3, 6);
-//Year	4	10	13
-                string Year = line.Substring(9, 4);
-//Month	2	14	15
-                string Month = line.Substring(13, 2);
-//Day	2	16	17
-                string Day = line.Substring(15, 2);
-//average for day	4	18	21
-                string AverageDay = line.Substring(17, 4);
-//minimum for day	4	22	25
-                string MinimunDay = line.Substring(21, 4);
-//maximum for day	4	26	29
-                string MaximunDay = line.Substring(26, 4);
-                string[] HourlyReading = new string[24];
+               station = mapDataSet.GetData<string[]>("station");
+               stationName = mapDataSet.GetData<string[]>("stationName");
+               stationInfo = mapDataSet.GetData<string[]>("stationInfo");
 
-;//hourly reading 1	4	30	33
-for (int h = 0; h < 24; h++) {
-    HourlyReading[h] = line.Substring(29+h*4, 4);
-}
-
+               lat = mapDataSet.GetData<Single[]>("lat");
+               lon = mapDataSet.GetData<Single[]>("lon");
             }
 
+            //build a dictionary of stations
 
-                napsSaveHistory(model);
+            Dictionary<string, int> stationIndex = new Dictionary<string, int>();
+
+            for (int s = 0; s < station.Length; s++)
+            {
+                if (station[s] != null && station[s].Length > 1) {
+
+                    if (station[s].Length == 6)
+                    {
+                        stationIndex.Add(station[s], s);
+                    }
+                    else {
+                        stationIndex.Add("0"+ station[s], s);
+                    }
+                
+
+                }
+            }
+
+            Dictionary<string, int> missingStations = new Dictionary<string, int>();
+
+                for (int l = 0; l < lines.Length - 1; l++)
+                {
+                    string line = lines[l];
+                    int h, t, s = -1;
+                    try
+                    {
+                        //process each line from the file
+
+
+                        //pollutant code	3	1	3
+                        string pollutantCode = line.Substring(0, 3);
+                        //station (NAPS id)	6	4	9
+                        string stationNAPSId = line.Substring(3, 6);
+                        //Year	4	10	13
+                        string Year = line.Substring(9, 4);
+                        int yearIndex = Convert.ToInt16(Year);
+                        //Month	2	14	15
+                        string Month = line.Substring(13, 2);
+                        int monthIndex = Convert.ToInt16(Month);
+                        //Day	2	16	17
+                        string Day = line.Substring(15, 2);
+                        //average for day	4	18	21
+                        string AverageDay = line.Substring(17, 4);
+                        //minimum for day	4	22	25
+                        string MinimunDay = line.Substring(21, 4);
+                        //maximum for day	4	26	29
+                        string MaximunDay = line.Substring(26, 4);
+                        string[] HourlyReading = new string[24];
+
+                        //hourly reading 1	4	30	33
+                        for (h = 0; h < 24; h++)
+                        {
+                            HourlyReading[h] = line.Substring(29 + h * 4, 4);
+                        }
+
+                        //load data in arrays
+                        int  day = Convert.ToInt16(Day);
+                        
+
+
+                        try { s = stationIndex[stationNAPSId];
+
+                        for (h = 0; h < 24; h++)
+                        {
+                            t = day * 24 + h;
+                            napsData[t, s] = Convert.ToInt16(HourlyReading[h]);
+                        }
+                        
+                        }
+                        catch (Exception e) {
+                            if (!missingStations.ContainsKey(stationNAPSId)) {
+                                missingStations.Add(stationNAPSId, 0);
+                            }
+                        }
+
+
+                      
+                    }
+
+                    catch (Exception e)
+                    {
+
+                        var dosomething = 1;
+
+                    }
+
+                }
+
+
+            string ReturnMessage = "Ok";
+            string fileNameNarr = "Narr_Grid.nc";
+            string narrFile = AppFilesFolder + "/" + fileNameNarr;
+
+
+
+            using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
+            {
+                string outputFilePath = AppDataFolder + "\\sherindan-history.nc";
+                using (var sheridanOutputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
+                {
+
+                    for (int s = 0; s < 710; s++)
+                    {
+                        /*
+                        station[s] = vm.code[s];
+                        for (int t = 0; t < vm.totalTimePoints; t++)
+                        {
+                            sher[t, s] = vm.data[s, t];
+                        }
+                         */
+                    }
+
+                    sheridanOutputDataSet.Add<double[]>("time", time, "time");
+                    sheridanOutputDataSet.Add<string[]>("station", station, "station"); ;
+                    sheridanOutputDataSet.Add<Single[]>("lat", lat, "station");
+                    sheridanOutputDataSet.Add<Single[]>("lon", lon, "station");
+                    sheridanOutputDataSet.Add<Int16[,]>("no2", napsData, "time", "station");
+                }
+            }
             return "ok";
         }
 
@@ -1354,7 +1465,7 @@ for (int h = 0; h < 24; h++) {
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
             string sherFile = AppDataFolder + "/" + fileNameMacc;
             string narrFile = AppFilesFolder + "/" + fileNameNarr;
-            string mapFile = AppFilesFolder + "/Narr_2_SHER_Grid_Mapper.nc";
+            string mapFile = AppFilesFolder + "/Narr_2_Naps_Grid_Mapper.nc";
 
             string smonth = (month < 10) ? "0" + month : "" + month;
             string outputFileName = null;
@@ -4336,7 +4447,7 @@ v(np)  =   ---------------------------------------------------------------------
             public string[] availability { get; set; }
             public string[] measures { get; set; }
             public int testMax { get; set; }
-            public Int16[,] data { get; set; }
+            public Int16[,,] data { get; set; }   //day,time,station
             public TimeSpan timeSpan;
             public int totalTimePoints { get; set; }
             public int totalCodes { get; set; }
@@ -4595,48 +4706,8 @@ v(np)  =   ---------------------------------------------------------------------
 
         }
 
-        public string napsSaveHistory(NapsInfoModel vm)
-        {
-
-            //this process will save this information in a grid-friendly way.
-            //we will have data, lat, lon, time and no level
-
-            string ReturnMessage = "Ok";
-            string fileNameNarr = "Narr_Grid.nc";
-            string narrFile = AppFilesFolder + "/" + fileNameNarr;
-
-            double[] time = new double[vm.totalTimePoints];
-            string[] station = new string[vm.totalCodes];
-            Single[] lat = new Single[vm.totalCodes];
-            Single[] lon = new Single[vm.totalCodes];
-            Int16[,] sher = new Int16[vm.totalTimePoints, vm.totalCodes];
-
-            using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
-            {
-                string outputFilePath = AppDataFolder + "\\sherindan-history.nc";
-                using (var sheridanOutputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
-                {
-
-                    for (int s = 0; s < vm.totalCodes; s++)
-                    {
-                        station[s] = vm.code[s];
-                        for (int t = 0; t < vm.totalTimePoints; t++)
-                        {
-                            sher[t, s] = vm.data[s, t];
-                        }
-                    }
-
-                    sheridanOutputDataSet.Add<double[]>("time", time, "time");
-                    sheridanOutputDataSet.Add<string[]>("station", station, "station"); ;
-                    sheridanOutputDataSet.Add<Single[]>("lat", lat, "station");
-                    sheridanOutputDataSet.Add<Single[]>("lon", lon, "station");
-                    sheridanOutputDataSet.Add<Int16[,]>("sher", sher, "time", "station");
-                }
-            }
 
 
-            return ReturnMessage;
-        }
      
 
         public string sheridanSaveHistory(SheridanInfoModel vm){
