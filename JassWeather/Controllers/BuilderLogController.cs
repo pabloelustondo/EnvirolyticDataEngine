@@ -26,6 +26,12 @@ namespace JassWeather.Controllers
             return View(jassbuilderlogs.ToList());
         }
 
+        public ActionResult ClearLogs()
+        {
+            ViewBag.Message = apiCaller.ClearLogs();
+            return View();
+        }
+
         public ActionResult Index4Builder(int jassBuilderID)
         {
             var jassbuilderlogs = db.JassBuilderLogs.Where(jbl => jbl.ServerName == ServerName && jbl.JassBuilderID == jassBuilderID).Include(j => j.JassBuilder).OrderByDescending(log => log.ParentJassBuilderLogID).OrderByDescending(log => log.startTotalTime).Take(1000);

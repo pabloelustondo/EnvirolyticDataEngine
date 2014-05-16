@@ -561,7 +561,7 @@
     <Content Include="Views\Deriver\Edit.cshtml" />
     <Content Include="Views\Deriver\Delete.cshtml" />
     <Content Include="Views\Deriver\ProcessDeriver.cshtml" />
-    <Content Include="Views\Test\SaveSheridanLatLon.cshtml" />
+    <Content Include="Views\Test\SaveNapsLatLon.cshtml" />
     <Content Include="Views\Grid\MapSher2NarrTest.cshtml" />
     <Content Include="Views\LatLonGroup\Index.cshtml" />
     <Content Include="Views\LatLonGroup\Details.cshtml" />
@@ -602,6 +602,9 @@
     <Content Include="Views\Task\Delete.cshtml" />
     <Content Include="Views\Task\QueryTaskStatus.cshtml" />
     <Content Include="Views\Grid\ShowGrid.cshtml" />
+    <Content Include="Views\Test\SaveSheridanLatLon - Copy.cshtml" />
+    <Content Include="Views\Grid\MapNaps2Narr.cshtml" />
+    <Content Include="Views\BuilderLog\ClearLogs.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

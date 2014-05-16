@@ -157,7 +157,7 @@ namespace JassWeather.Controllers
                 "lon",
                 "Narr_Grid.nc",
                 "Narr_2_Naps_Grid_Mapper.nc", true, true);
-            return View("MapNaps2NarrTest", result);
+            return View("MapNaps2Narr", result);
         }
         public ActionResult MapNaps2NarrReal()
         {
@@ -167,7 +167,7 @@ namespace JassWeather.Controllers
                 "lon",
                 "Narr_Grid.nc",
                 "Narr_2_Naps_Grid_Mapper.nc", false, true);
-            return View("MapNaps2NarrTest", result);
+            return View("MapNaps2Narr", result);
         }
 
 

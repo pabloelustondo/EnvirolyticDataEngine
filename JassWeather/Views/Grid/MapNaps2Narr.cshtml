@@ -1,0 +1,115 @@
+﻿@model JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo
+@{
+    ViewBag.Title = "Map NAPS to Narr";
+}
+
+@{
+    double cnt_lat = 43.642599;
+    double cnt_lon = -79.387094;
+    double maxDistance = 100;
+    string cnt_name = "CN Tower";
+    Model.narrYMin = 128;
+    Model.narrYMax = 136;
+    Model.narrXMin = 230;
+    Model.narrXMax = 250;
+}
+
+<h2>Testing the Map From Narr to NAPS</h2>
+
+<p>Narr Grid Schema:  @Model.narrSchema</p>
+<p>NAPS Grid Schema:  @Model.maccSchema</p>
+
+<p>Point: CN Tower @cnt_lat,@cnt_lon</p>
+<p>Area = points where distance < @maxDistance</p>
+
+
+if you want to see these points in google maps use this: 
+<a href="http://www.darrinward.com/lat-long/">http://www.darrinward.com/lat-long/</a>
+
+@{int countNarrPointsAroundCNTower = 0; int countInputGridPointsAroundCNTower = 0; }
+
+<h1>Points in the NAPSindan grid around @cnt_name</h1>
+
+<table>
+@for (int z = Model.maccLatMin; z < Model.maccLatMax; z++)
+{
+        if (Model.maccLat[z] != null)
+        {
+        double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.maccLat[z], Model.maccLon[z]);
+        if (distanceToCNT < maxDistance)
+        {
+            countInputGridPointsAroundCNTower++;
+        <tr>
+        <td>@z (@Model.station[z])==> @Model.maccLat[z]<span>,</span>@Model.maccLon[z]</td>
+        <td>@distanceToCNT</td>
+        </tr>
+        }
+    }
+}
+</table>
+
+
+<h1>Points around Toronto in NARR grid </h1>
+<table>
+            <tr>
+        <th>Narr y,x</th>
+        <th>Narr lat,lon</th>
+                    <th>Distance to @cnt_name</th>
+        </tr>
+@for (int y = Model.narrYMin; y < Model.narrYMax; y++)
+{
+    for (int x = Model.narrXMin; x < Model.narrXMax; x++)
+    {
+        double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.narrLat[y, x], Model.narrLon[y, x]);
+         if (distanceToCNT < maxDistance)
+        {
+            countNarrPointsAroundCNTower++;
+        <tr>
+        <td>@y , @x</td>
+        <td>@Model.narrLat[y,x]<span>,</span>@Model.narrLon[y,x]</td>
+                    <td>@distanceToCNT</td>
+        </tr>}
+    }
+}
+</table>
+
+<h1>map from NARR => NAPS first two closest stations</h1>
+
+<table>
+   <tr>
+        <th>Narr y,x</th>
+        <th>Narr lat, lon</th>
+
+        
+        <th>NAPS Stations (1)</th>
+        <th>NAPS Lat, lon (1)</th>
+        <th>Distance (1)</th>
+  
+        <th>NAPS Station (2)</th>
+        <th>NAPS lat, lon (2)</th>
+        <th>Distance (2)</th>
+   </tr>
+@for (int y = Model.narrYMin; y < Model.narrYMax; y++)
+{
+    for (int x = Model.narrXMin; x < Model.narrXMax; x++)
+    {
+       double distanceToCNT = JassWeather.Models.JassWeatherAPI.HaversineDistance(cnt_lat, cnt_lon, Model.narrLat[y, x], Model.narrLon[y, x]);
+        if (distanceToCNT < maxDistance){
+        <tr>
+        <td>@y<span>,</span>@x</td>
+        <td>@Model.narrLat[y,x]<span>,</span>@Model.narrLon[y,x]</td>
+
+        
+        <td>@Model.station[Model.map[y,x].lat]</td>
+        <td>@Model.map[y,x].latitud<span>,</span>@Model.map[y,x].longitud</td>
+        <td>@Model.map[y,x].distance</td>
+
+        <td>@Model.station[Model.map2[y,x].lat]</td>
+        <td>@Model.map2[y,x].latitud<span>,</span>@Model.map2[y,x].longitud</td>       
+        <td>@Model.map2[y,x].distance</td>
+            </tr>
+
+}
+             }
+    }
+</table>
