@@ -38,6 +38,27 @@ namespace JassWeather.Models
         public double? sherLat { get; set; }
         public double? sherLon { get; set; }
 
+        //naps NO2
+        public int? napsNO2Y { get; set; }
+        public int? napsNO2X { get; set; }
+
+        public double? napsNO2Lat { get; set; }
+        public double? napsNO2Lon { get; set; }
+
+        //naps O3
+        public int? napsO3Y { get; set; }
+        public int? napsO3X { get; set; }
+
+        public double? napsO3Lat { get; set; }
+        public double? napsO3Lon { get; set; }
+
+        //naps PM 2.5
+        public int? napsPM25Y { get; set; }
+        public int? napsPM25X { get; set; }
+
+        public double? napsPM25Lat { get; set; }
+        public double? napsPM25Lon { get; set; }
+
         public int hrDifference { get; set; }
 
         public int? JassLatLonGroupID { get; set; }

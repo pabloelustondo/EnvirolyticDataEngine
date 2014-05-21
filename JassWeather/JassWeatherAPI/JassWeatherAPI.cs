@@ -1295,7 +1295,7 @@ namespace JassWeather.Models
     
         }
 
-        public string napsCreateNETCDFfromTextFile(string VariableName, int year, int month, int weeky, string napsDataFile){
+        public string napsCreateNETCDFfromTextFile(string pollutant, string VariableName, int year, int month, int weeky, string napsDataFile){
         
         //This method will read the NAPS file and create an equivalente netCDF that will be used as input to the next process
             //the idea is to use a method pretty similar to sheridan.
@@ -1312,7 +1312,7 @@ namespace JassWeather.Models
             Single[] lat;
             Single[] lon;
 
-            string mapFile = AppFilesFolder + "/naps_stations.nc";
+            string mapFile = AppFilesFolder + "/naps" + pollutant + "_stations.nc";
             using (var mapDataSet = DataSet.Open(mapFile + "?openMode=open"))
             {
 
@@ -1456,12 +1456,12 @@ namespace JassWeather.Models
                 return outputFilePath;
         }
 
-        public string processGridMappingNAPSToNarr(string VariableName, int year, int month, int weeky, string fileNameMaccTemp)
+        public string processGridMappingNAPSToNarr(string pollutant, string VariableName, int year, int month, int weeky, string fileNameMaccTemp)
         {
             LogMessage("processGridMappingNAPSToNarr", "year" + year + "month" + month + " variableName " + VariableName);
-            
-          
-            var napsFileName = napsCreateNETCDFfromTextFile(VariableName, year, month, weeky, fileNameMaccTemp);
+
+
+            var napsFileName = napsCreateNETCDFfromTextFile(pollutant, VariableName, year, month, weeky, fileNameMaccTemp);
             //napsfile name contains all the data, 24hrs for this month
 
             string narrGridFileName = replaceURIPlaceHolders("Narr_Grid.nc", year, month, weeky, 0);
@@ -1469,8 +1469,8 @@ namespace JassWeather.Models
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
 
             string narrGridFilePath = AppFilesFolder + "/" + narrGridFileName;
-            string narr2NapsGridMapperFilePath = AppFilesFolder + "/Narr_2_Naps_Grid_Mapper.nc";
-
+            string narr2NapsGridMapperFilePath = AppFilesFolder + "/Narr_2_Naps"+ pollutant +"_Grid_Mapper.nc";
+  
             string smonth = (month < 10) ? "0" + month : "" + month;
             string outputFileName = null;
             string outputFilePath = null;
@@ -2224,6 +2224,7 @@ v(np)  =   ---------------------------------------------------------------------
             if (y == 133 && x == 241) {
 
                 var toronto = 1;
+                var napclosest = gc.map[y, x].lat;
 
             }
             /*
@@ -2407,6 +2408,84 @@ v(np)  =   ---------------------------------------------------------------------
 
             #endregion 
 
+            #region napsNO2Mapper
+
+            string napsNO2File = AppFilesFolder + "\\Narr_2_napsNO2_Grid_Mapper.nc";
+
+            double[,] napsNO2MapDistance;
+            int[,] napsNO2MapLatY;
+            int[,] napsNO2MapLonX;
+            Single[] napsNO2Lat;
+            Single[] napsNO2Lon;
+
+            using (var napsNO2MapperDataSet = DataSet.Open(napsNO2File + "?openMode=open"))
+            {
+                napsNO2MapDistance = napsNO2MapperDataSet.GetData<double[,]>("mapDistance");
+                napsNO2MapLatY = napsNO2MapperDataSet.GetData<int[,]>("mapLatY");
+                napsNO2MapLonX = napsNO2MapperDataSet.GetData<int[,]>("mapLonX");
+                napsNO2Lat = napsNO2MapperDataSet.GetData<Single[]>("maccLat");
+                napsNO2Lon = napsNO2MapperDataSet.GetData<Single[]>("maccLon");
+            }
+
+            latlon.napsNO2Y = napsNO2MapLatY[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.napsNO2X = napsNO2MapLonX[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.napsNO2Lat = (napsNO2Lat[(int)latlon.napsNO2Y] < 180) ? napsNO2Lat[(int)latlon.napsNO2Y] : napsNO2Lat[(int)latlon.napsNO2Y] - 360;
+            latlon.napsNO2Lon = (napsNO2Lon[(int)latlon.napsNO2X] < 180) ? napsNO2Lon[(int)latlon.napsNO2X] : napsNO2Lon[(int)latlon.napsNO2X] - 360;
+
+            #endregion 
+/*
+            #region napsO3Mapper
+
+            string napsO3File = AppFilesFolder + "\\Narr_2_napsO3_Grid_Mapper.nc";
+
+            double[,] napsO3MapDistance;
+            int[,] napsO3MapLatY;
+            int[,] napsO3MapLonX;
+            Single[] napsO3Lat;
+            Single[] napsO3Lon;
+
+            using (var napsO3MapperDataSet = DataSet.Open(napsO3File + "?openMode=open"))
+            {
+                napsO3MapDistance = napsO3MapperDataSet.GetData<double[,]>("mapDistance");
+                napsO3MapLatY = napsO3MapperDataSet.GetData<int[,]>("mapLatY");
+                napsO3MapLonX = napsO3MapperDataSet.GetData<int[,]>("mapLonX");
+                napsO3Lat = napsO3MapperDataSet.GetData<Single[]>("maccLat");
+                napsO3Lon = napsO3MapperDataSet.GetData<Single[]>("maccLon");
+            }
+
+            latlon.napsO3Y = napsO3MapLatY[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.napsO3X = napsO3MapLonX[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.napsO3Lat = (napsO3Lat[(int)latlon.napsO3Y] < 180) ? napsO3Lat[(int)latlon.napsO3Y] : napsO3Lat[(int)latlon.napsO3Y] - 360;
+            latlon.napsO3Lon = (napsO3Lon[(int)latlon.napsO3X] < 180) ? napsO3Lon[(int)latlon.napsO3X] : napsO3Lon[(int)latlon.napsO3X] - 360;
+
+            #endregion 
+
+            #region napsPM25Mapper
+
+            string napsPM25File = AppFilesFolder + "\\Narr_2_napsPM25_Grid_Mapper.nc";
+
+            double[,] napsPM25MapDistance;
+            int[,] napsPM25MapLatY;
+            int[,] napsPM25MapLonX;
+            Single[] napsPM25Lat;
+            Single[] napsPM25Lon;
+
+            using (var napsPM25MapperDataSet = DataSet.Open(napsPM25File + "?openMode=open"))
+            {
+                napsPM25MapDistance = napsPM25MapperDataSet.GetData<double[,]>("mapDistance");
+                napsPM25MapLatY = napsPM25MapperDataSet.GetData<int[,]>("mapLatY");
+                napsPM25MapLonX = napsPM25MapperDataSet.GetData<int[,]>("mapLonX");
+                napsPM25Lat = napsPM25MapperDataSet.GetData<Single[]>("maccLat");
+                napsPM25Lon = napsPM25MapperDataSet.GetData<Single[]>("maccLon");
+            }
+
+            latlon.napsPM25Y = napsPM25MapLatY[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.napsPM25X = napsPM25MapLonX[(int)latlon.narrY, (int)latlon.narrX];
+            latlon.napsPM25Lat = (napsPM25Lat[(int)latlon.napsPM25Y] < 180) ? napsPM25Lat[(int)latlon.napsPM25Y] : napsPM25Lat[(int)latlon.napsPM25Y] - 360;
+            latlon.napsPM25Lon = (napsPM25Lon[(int)latlon.napsPM25X] < 180) ? napsPM25Lon[(int)latlon.napsPM25X] : napsPM25Lon[(int)latlon.napsPM25X] - 360;
+
+            #endregion 
+*/
             return latlon;
         }
 
@@ -4116,9 +4195,9 @@ v(np)  =   ---------------------------------------------------------------------
                                 inputFile1 = processGridMappingSHERToNarr(year, month, weeky, inputFileTemplateBeforeTransformation);
                             }
                             else
-                                if (builder.APIRequest.JassGrid.Type == "NAPS")
-                                {
-                                    inputFile1 = processGridMappingNAPSToNarr(builder.JassVariable.Name, year, month, weeky, inputFile1);
+                                if (builder.APIRequest.JassGrid.Type.Contains("NAPS")){
+                                    string pollutant = builder.APIRequest.JassGrid.Type.Substring(5);
+                                    inputFile1 = processGridMappingNAPSToNarr(pollutant, builder.JassVariable.Name, year, month, weeky, inputFile1);
                                 }
                                 else
                             {

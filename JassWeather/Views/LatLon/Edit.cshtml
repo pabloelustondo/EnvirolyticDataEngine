@@ -11,9 +11,7 @@
 
 <script>
     function initialize()
-    {
- 
-        var locationLat = "@Model.Lat"; 
+    {   var locationLat = "@Model.Lat"; 
         var locationLon = "@Model.Lon"; 
         var narrLat = "@Model.narrLat"; 
         var narrLon = "@Model.narrLon";
@@ -26,6 +24,15 @@
 
         var sherLat = "@Model.sherLat";
         var sherLon = "@Model.sherLon";
+
+        var napsNO2Lat = "@Model.napsNO2Lat";
+        var napsNO2Lon = "@Model.napsNO2Lon";
+
+        var napsO3Lat = "@Model.napsO3Lat";
+        var napsO3Lon = "@Model.napsO3Lon";
+
+        var napsPM25Lat = "@Model.napsPM25Lat";
+        var napsPM25Lon = "@Model.napsPM25Lon";
 
         var mapProp = {
             center:new google.maps.LatLng(locationLat,locationLon),
@@ -60,6 +67,21 @@
             title: "Closest Mapped Sheridan cell centerpoint"
         });
 
+        var markernapsNO2 = new google.maps.Marker({
+            position: new google.maps.LatLng(napsNO2Lat, napsNO2Lon),
+            title: "Closest Mapped napsNO2 cell centerpoint @Model.napsNO2Y"
+        });
+
+        var markernapsO3 = new google.maps.Marker({
+            position: new google.maps.LatLng(napsO3Lat, napsO3Lon),
+            title: "Closest Mapped napsO3 cell centerpoint"
+        });
+
+        var markernapsPM25 = new google.maps.Marker({
+            position: new google.maps.LatLng(napsPM25Lat, napsPM25Lon),
+            title: "Closest Mapped napsPM25 cell centerpoint"
+        });
+
         markerNarr.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png')
         marker.setMap(map);
 
@@ -74,6 +96,15 @@
 
         markersher.setIcon('http://maps.google.com/mapfiles/ms/icons/ltblue-dot.png')
         markersher.setMap(map);
+
+        markernapsNO2.setIcon('http://maps.google.com/mapfiles/ms/icons/ylw-pushpin.png')
+        markernapsNO2.setMap(map);
+
+        markernapsO3.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-pushpin-dot.png')
+        markernapsO3.setMap(map);
+
+        markernapsPM25.setIcon('http://maps.google.com/mapfiles/ms/icons/grn-pushpin-dot.png')
+        markernapsPM25.setMap(map);
     }
 
     google.maps.event.addDomListener(window, 'load', initialize);
@@ -144,7 +175,13 @@
             Closest Mapped Sheridan Grid Station:  @Model.sherY , @Model.sherX
         </div>
         <div style="font-weight:bold">
-            Closest Mapped Sherind Station Centerpoint:  @Model.sherLat , @Model.sherLon
+            Closest Mapped napsNO2ind Station Centerpoint: (@Model.napsNO2Y) , @Model.napsNO2Lat , @Model.napsNO2Lon
+        </div>
+        <div style="font-weight:bold">
+            Closest Mapped napsO3ind Station Centerpoint:  (@Model.napsO3Y), @Model.napsO3Lat , @Model.napsO3Lon
+        </div>
+        <div style="font-weight:bold">
+            Closest Mapped napsPM25ind Station Centerpoint: (@Model.napsPM25Y), @Model.napsPM25Lat , @Model.napsPM25Lon
         </div>
         <div class="editor-label">
             @Html.LabelFor(model => model.hrDifference)
