@@ -1348,6 +1348,13 @@ namespace JassWeather.Models
             double[] time = new double[daysInMonth * 24];
             Int16[,] napsData = new Int16[time.Length, station.Length];  //one month of data
 
+            for (int t = 0; t < time.Length; t++) {
+                for (int s = 0; s < station.Length; s++) {
+                    napsData[t,s] = -999;  //we fill everything with 'missing value' by default
+                }
+            }
+
+
             Dictionary<string, int> missingStations = new Dictionary<string, int>();
 
                 for (int l = 0; l < lines.Length - 1; l++)
@@ -1389,7 +1396,7 @@ namespace JassWeather.Models
                             }
 
                             //load data in arrays
-                            int day = Convert.ToInt16(Day);
+                            int dayIndex = Convert.ToInt16(Day)-1;
 
 
 
@@ -1399,7 +1406,7 @@ namespace JassWeather.Models
 
                                 for (h = 0; h < 24; h++)
                                 {
-                                    t = day * 24 + h;
+                                    t = dayIndex * 24 + h;
                                     napsData[t, s] = Convert.ToInt16(HourlyReading[h]);
                                 }
 
@@ -1451,18 +1458,18 @@ namespace JassWeather.Models
 
         public string processGridMappingNAPSToNarr(string VariableName, int year, int month, int weeky, string fileNameMaccTemp)
         {
-
+            LogMessage("processGridMappingNAPSToNarr", "year" + year + "month" + month + " variableName " + VariableName);
+            
+          
             var napsFileName = napsCreateNETCDFfromTextFile(VariableName, year, month, weeky, fileNameMaccTemp);
+            //napsfile name contains all the data, 24hrs for this month
 
-            //here we are going to read the text file and convert it to netCDF format for that 
-
-            string fileNameMacc = fileNameMaccTemp;
-            string fileNameNarr = replaceURIPlaceHolders("Narr_Grid.nc", year, month, weeky, 0);
+            string narrGridFileName = replaceURIPlaceHolders("Narr_Grid.nc", year, month, weeky, 0);
 
             JassMaccNarrGridsCombo gc = new JassMaccNarrGridsCombo();
-            string NapsFile = napsFileName;
-            string narrFile = AppFilesFolder + "/" + fileNameNarr;
-            string mapFile = AppFilesFolder + "/Narr_2_Naps_Grid_Mapper.nc";
+
+            string narrGridFilePath = AppFilesFolder + "/" + narrGridFileName;
+            string narr2NapsGridMapperFilePath = AppFilesFolder + "/Narr_2_Naps_Grid_Mapper.nc";
 
             string smonth = (month < 10) ? "0" + month : "" + month;
             string outputFileName = null;
@@ -1477,41 +1484,41 @@ namespace JassWeather.Models
 
             Single[] narrY = null;
             Single[] narrX = null;
-            double[] narrTime = null;
+
             Dictionary<string, MetadataDictionary> narrVars = new Dictionary<string, MetadataDictionary>();
 
-            //getting stuff from narr dataset
-            using (var narrDataSet = DataSet.Open(narrFile + "?openMode=open"))
+            //getting stuff from narr grid dataset
+            using (var narrGridDataSet = DataSet.Open(narrGridFilePath + "?openMode=open"))
             {
-                foreach (var v in narrDataSet.Variables) { narrVars.Add(v.Name, v.Metadata); }
+                foreach (var v in narrGridDataSet.Variables) { narrVars.Add(v.Name, v.Metadata); }
 
-                narrY = narrDataSet.GetData<Single[]>("y");
-                narrX = narrDataSet.GetData<Single[]>("x");
+                narrY = narrGridDataSet.GetData<Single[]>("y");
+                narrX = narrGridDataSet.GetData<Single[]>("x");
                 //   narrTime = narrDataSet.GetData<double[]>("time");
 
-                var narrSchema = narrDataSet.GetSchema();
-                gc.narrLon = narrDataSet.GetData<Single[,]>("lon");
-                gc.narrLat = narrDataSet.GetData<Single[,]>("lat");
+                var narrSchema = narrGridDataSet.GetSchema();
+                gc.narrLon = narrGridDataSet.GetData<Single[,]>("lon");
+                gc.narrLat = narrGridDataSet.GetData<Single[,]>("lat");
 
                 gc.narrSchema = schema2string(narrSchema);
             }
             //getting stuff from input info in inpout grids
 
             double[] NapsTime = null;
-            Int16[,] NapsVariable = null;
+            Int16[,] NapsVariableData = null;
 
             DateTime startingDay = new DateTime(year, month, 1);
             DateTime endingDay = startingDay.AddMonths(1);
-
+            string InputVariableName=null;
             Dictionary<string, MetadataDictionary> NapsVars = new Dictionary<string, MetadataDictionary>();
-            using (var NapsDataSet = DataSet.Open(NapsFile + "?openMode=open"))
+            using (var NapsDataSet = DataSet.Open(napsFileName + "?openMode=open"))
             {
                 foreach (var v in NapsDataSet.Variables)
                 {
                     NapsVars.Add(v.Name, v.Metadata);
-                    if (v.Dimensions.Count > 2 && VariableName == null)
+                    if (v.Dimensions.Count >1 && InputVariableName == null)
                     {
-                        VariableName = v.Name;
+                        InputVariableName = v.Name;
                         try
                         {
                             missingValue = (Int16)v.Metadata["missing_value"];
@@ -1536,7 +1543,7 @@ namespace JassWeather.Models
 
 
 
-                NapsVariable = NapsDataSet.GetData<Int16[,]>(VariableName,
+                NapsVariableData = NapsDataSet.GetData<Int16[,]>(InputVariableName,
                     DataSet.FromToEnd(0),
                     DataSet.FromToEnd(0));
             }
@@ -1544,9 +1551,9 @@ namespace JassWeather.Models
             outputFileName = VariableName + "_naps2narr_" + year + "_" + smonth + ".nc";
             outputFilePath = AppDataFolder + "\\" + outputFileName;
 
+            //IMPORTANT here is where we may map a different time coordinate..we decided for now to leep it
 
-            double[] NapsNarrTime = new double[NapsTime.Length * 8];
-
+            double[] NapsNarrTime = new double[NapsTime.Length];
             DateTime day1800 = DateTime.Parse("1800-01-01 00:00:00");
             DateTime narrDayStart = startingDay;
             double narrDayStartHours = (narrDayStart - day1800).TotalHours;
@@ -1555,13 +1562,13 @@ namespace JassWeather.Models
             for (int t = 0; t < NapsNarrTime.Length; t++)
             {
                 NapsNarrTime[t] = narrDayHours;
-                narrDayHours += 1;
+                narrDayHours += 1; //again this is important we are mapping time to time.. keeping the 24hrs
             }
 
             //At this point we have the time dimension in the variable NapsNarrTime
             //we do not need the time dimension from narr anymore.
 
-            using (var mapDataSet = DataSet.Open(mapFile + "?openMode=open"))
+            using (var mapDataSet = DataSet.Open(narr2NapsGridMapperFilePath + "?openMode=open"))
             {
 
                 var mapDistance = mapDataSet.GetData<double[,]>("mapDistance");
@@ -1636,15 +1643,13 @@ namespace JassWeather.Models
                         }
                         catch (Exception e)
                         {
-
-                            var dosomething = 1;
-
+                            LogError("processGridMapping building GC model", e.Message);
                         }
 
                     }
                 }
 
-
+                //NOW, finally at this point is where we got everything to do the mapping
                 Int16[, ,] outputVariable = new Int16[NapsNarrTime.Length, narrY.Length, narrX.Length];
 
                 for (int t = 0; t < NapsNarrTime.Length; t++)
@@ -1655,19 +1660,17 @@ namespace JassWeather.Models
                         {
                             try
                             {
-                                outputVariable[t, y, x] = (Int16)interpolateValueNaps(t, y, x, NapsVariable, gc, missingValue, fillValue);
+                                outputVariable[t, y, x] = (Int16)interpolateValueNaps(t, y, x, NapsVariableData, gc, missingValue, fillValue);
                             }
                             catch (Exception e)
                             {
-                                var dosomething = 1;
+                                LogError("processGridMapping error while interpolating", e.Message);
                             }
                         }
                     }
                 }
-                /////// Writting results into file
-                //   dataset3.Add<Int16[, ,]>(builder.JassVariable.Name, dataset, "time", "y", "x");
 
-                //we will enter year/month as parameter
+                //at this point everything is done. and we will just save it to netCDF
 
                 using (var outputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
                 {
@@ -1686,20 +1689,10 @@ namespace JassWeather.Models
                     outputDataSet.Add<Single[]>("x", narrX, "x");
                     foreach (var attr in narrVars["y"]) { if (attr.Key != "Name") outputDataSet.PutAttr("x", attr.Key, attr.Value); }
                     outputDataSet.Add<Int16[, ,]>(VariableName, outputVariable, "time", "y", "x");
-                    foreach (var attr in NapsVars[VariableName])
-                    {
-                        if (attr.Key != "Name")
-                        {
-                            if (attr.Key != "_FillValue")
-                            {
-                                outputDataSet.PutAttr(VariableName, attr.Key, attr.Value);
-                            }
-                            else
-                            {
-                                outputDataSet.PutAttr(VariableName, "FillValue", attr.Value);
-                            }
-                        }
-                    }
+
+                    outputDataSet.PutAttr(VariableName, "FillValue", fillValue);
+                    outputDataSet.PutAttr(VariableName, "MissingValue", missingValue);
+                    outputDataSet.PutAttr(VariableName, "StepsPerDay", 24);
 
                 }
 
@@ -1709,7 +1702,7 @@ namespace JassWeather.Models
                 {
 
                     Int16[, ,] testVariable = testDataSet.GetData<Int16[, ,]>(VariableName,
-                            DataSet.FromToEnd(0),
+                            DataSet.Range(0,23),  //let take one day of info
                             DataSet.FromToEnd(0),
                             DataSet.FromToEnd(0));
 
@@ -2228,15 +2221,69 @@ v(np)  =   ---------------------------------------------------------------------
         public double interpolateValueNaps(int t, int y, int x, Int16[,] napsValues, JassMaccNarrGridsCombo gc, Int16 missValue, Int16 fillValue)
         {
 
-            //minor hack due to 0s. 
-            if (gc.map[y, x].distance > 200)
-            {   //we do not want to interpolate is distance is larger than 200Kkm
-                return missValue;
+            if (y == 133 && x == 241) {
+
+                var toronto = 1;
+
+            }
+            /*
+             *  
+              v(mp1) / d(np, mp1)  + v(mp2) / d(np, mp2) + v(mp3) / d(np, mp3)        
+v(np)  =   ------------------------------------------------------------------------------------
+               1 / d(np, mp1)  + 1 / d(np, mp2) + 1 / d(np, mp3)
+             */
+            Int16 v_mp1 = missValue, v_mp2 = missValue, v_mp3 = missValue, v_mp4 = missValue;
+            double d_np_mp1 = 10000, d_np_mp2 = 10000, d_np_mp3 = 10000, d_np_mp4 = 10000;
+            int go1 = 0, go2 = 0, go3 = 0, go4 = 0;
+            Int16 napsMissvalue = -999;
+
+            if (gc.map[y, x] != null ){
+                v_mp1 = napsValues[t, gc.map[y, x].lat];
+                d_np_mp1 = gc.map[y, x].distance;
+                go1 = (v_mp1 == missValue || v_mp1 == fillValue || v_mp1 == napsMissvalue) ? 0 : 1;
             }
 
-            int day = Convert.ToInt32(t / 8);
-            Int16 v_mp1 = napsValues[day, gc.map[y, x].lat];
-            return v_mp1;
+            if (gc.map2[y, x] != null )
+            {
+                v_mp2 = napsValues[t, gc.map2[y, x].lat];
+                d_np_mp2 = gc.map2[y, x].distance;
+                go2 = (v_mp2 == missValue || v_mp2 == fillValue || v_mp2 == napsMissvalue) ? 0 : 1;
+            }
+
+            if (gc.map3[y, x] != null )
+            {
+                v_mp3 = napsValues[t, gc.map3[y, x].lat];
+                d_np_mp3 = gc.map3[y, x].distance;
+                go3 = (v_mp3 == missValue || v_mp3 == fillValue || v_mp3 == napsMissvalue) ? 0 : 1;
+            }
+
+            if (gc.map4[y, x] != null )
+            {
+                v_mp4 = napsValues[t, gc.map4[y, x].lat];
+                d_np_mp4 = gc.map4[y, x].distance;
+                go4 = (v_mp4 == missValue || v_mp4 == fillValue || v_mp4 == napsMissvalue) ? 0 : 1;
+            }
+            double value = missValue;
+            if ((go1 + go2 + go3 + go4) > 0)
+            {
+                if (d_np_mp1 < 1)
+
+                { value = v_mp1; }
+                else
+                {
+                    value = (go1 * v_mp1 / d_np_mp1 +
+                             go2 * v_mp2 / d_np_mp2 +
+                             go3 * v_mp3 / d_np_mp3 +
+                             go4 * v_mp4 / d_np_mp4) /
+
+                            (go1 / d_np_mp1 +
+                             go2 / d_np_mp2 +
+                             go3 / d_np_mp3 +
+                             go4 / d_np_mp4);
+                };
+            }
+
+            return value;
         }
 
         public  JassLatLon MapLatLonToNarr(JassLatLon latlon)
@@ -4007,7 +4054,7 @@ v(np)  =   ---------------------------------------------------------------------
                 startTotalTime = DateTime.Now;
 
                 string timestamp = JassWeatherAPI.fileTimeStamp();
-                int entriesInDay = builder.JassGrid.Timesize;
+                int outputStepsPerDay = builder.JassGrid.Timesize;
 
                 DateTime startTimeProcessSource = DateTime.Now;
                 JassBuilderLog childBuilderLog0 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_BeforeProcessSource", builder.JassVariable.Name, "", startTimeProcessSource - startTimeProcessSource, true);
@@ -4082,7 +4129,7 @@ v(np)  =   ---------------------------------------------------------------------
                        catch (Exception e)
                     {
 
-                    JassBuilderLog childBuilderLog122 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterTransformingGridERROR", builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, false);
+                    JassBuilderLog childBuilderLog122 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterTransformingGridERROR", builder.JassVariable.Name, e.Message, DateTime.Now - startTimeProcessSource, false);
                     return "error";
                     }
 
@@ -4130,7 +4177,13 @@ v(np)  =   ---------------------------------------------------------------------
 
                     MetadataDictionary metaVariable; vars.TryGetValue(builder.Source1VariableName, out metaVariable);
 
-
+                    dynamic sourceMissingvalue;
+                    dynamic sourceStepsPerDay;
+                   
+                    if (metaVariable.ContainsKey("MissingValue")){ sourceMissingvalue = metaVariable["MissingValue"];
+                    }else { sourceMissingvalue = -32767;}
+                    if (metaVariable.ContainsKey("StepsPerDay")) {sourceStepsPerDay = metaVariable["StepsPerDay"];}
+                    else { sourceStepsPerDay = 8; }
 
                     string dayString;
                     int in_year = (year != 0) ? (int)year : DateTime.Now.Year;
@@ -4143,15 +4196,20 @@ v(np)  =   ---------------------------------------------------------------------
 
                     jassbuilder.Status = JassBuilderStatus.Processing;
                     jassbuilder.ServerName = ServerNameJass;
-                    jassbuilder.setTotalSize = time.Length / 8;
+                    jassbuilder.setTotalSize = time.Length / sourceStepsPerDay;
                     jassbuilder.setCurrentSize = 0;
                     jassbuilder.Message = "";
                     db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
                     db.SaveChanges();
 
-                    double[] timeday = new double[8];
+                    double[] timeday = new double[sourceStepsPerDay];
 
-                    for (var df = 0; df < time.Length; df += 8)
+                    if (sourceStepsPerDay != outputStepsPerDay)
+                    {
+                        LogError("Builder", "sourceStepsPerDay != outputStepsPerDay");
+                        throw new Exception("we still cannot process two different time dimensions sourceStepsPerDay != outputStepsPerDay");
+                    }
+                    for (var df = 0; df < time.Length; df += sourceStepsPerDay)
                     {
                         in_year = currentDay.Year;
                         in_month = currentDay.Month;
@@ -4185,7 +4243,7 @@ v(np)  =   ---------------------------------------------------------------------
                             AfterOpenMemory = GC.GetTotalMemory(true);
                             var schema3 = dataset3.GetSchema();
 
-                            for (var t = 0; t < 8; t++)
+                            for (var t = 0; t < sourceStepsPerDay; t++)
                             {
                                 timeday[t] = time[df + t];
                             }
@@ -4195,7 +4253,7 @@ v(np)  =   ---------------------------------------------------------------------
                             if (builder.JassGrid.Levelsize != 0)
                             {
                                 Int16[, , ,] dataset = dataset1.GetData<Int16[, , ,]>(builder.Source1VariableName,
-                                     DataSet.Range(df, 1, df + entriesInDay - 1), /* removing first dimension from data*/
+                                     DataSet.Range(df, 1, df + outputStepsPerDay - 1), /* removing first dimension from data*/
                                      DataSet.FromToEnd(0), /* removing first dimension from data*/
                                      DataSet.FromToEnd(0),
                                      DataSet.FromToEnd(0));
@@ -4214,7 +4272,7 @@ v(np)  =   ---------------------------------------------------------------------
                             else
                             {
                                 Int16[, ,] dataset = dataset1.GetData<Int16[, ,]>(builder.Source1VariableName,
-                                DataSet.Range(df, 1, df + entriesInDay - 1), /* removing first dimension from data*/
+                                DataSet.Range(df, 1, df + outputStepsPerDay - 1), /* removing first dimension from data*/
                                 DataSet.FromToEnd(0),
                                 DataSet.FromToEnd(0));
 
@@ -4262,7 +4320,7 @@ v(np)  =   ---------------------------------------------------------------------
                                 uploadBlob(builder.JassVariable.Name, outputFileName, outputFilePath);
                             }
 
-                            jassbuilder.setCurrentSize = df / 8 + 1;
+                            jassbuilder.setCurrentSize = df / sourceStepsPerDay + 1;
                             db.Entry<JassBuilder>(jassbuilder).State = System.Data.EntityState.Modified;
                             db.SaveChanges();
 
@@ -4828,7 +4886,7 @@ v(np)  =   ---------------------------------------------------------------------
 
         //napsSaveLatLongFromFile
 
-        public string napsSaveLatLongFromFile()
+        public string napsSaveLatLongFromFile(string pollutant)
         {
             string ReturnMessage = "ok";
             //the idea here is to loop through all the codes in the file
@@ -4836,31 +4894,60 @@ v(np)  =   ---------------------------------------------------------------------
             string napsStationsFilePath = AppFilesFolder + "/naps-stations.txt";  //tab delimited
             string[] allNapsStationsLines = System.IO.File.ReadAllLines(napsStationsFilePath);
 
-            string[] station = new string[allNapsStationsLines.Length];
-            string[] stationName = new string[allNapsStationsLines.Length];
-            string[] stationInfo = new string[allNapsStationsLines.Length];
+            Dictionary<string, string[]> validLinesForPollutant = new Dictionary<string, string[]>();
 
-            Single[] lat = new Single[allNapsStationsLines.Length];
-            Single[] lon = new Single[allNapsStationsLines.Length];
-
-            Single[] latDB = new Single[allNapsStationsLines.Length];
-            Single[] lonDB = new Single[allNapsStationsLines.Length];
-
-            Single[] latOfficial = new Single[allNapsStationsLines.Length];
-            Single[] lonOfficial = new Single[allNapsStationsLines.Length];
-
-            double[] dist = new double[allNapsStationsLines.Length];
-            string[] lines4QAFile = new string[allNapsStationsLines.Length];
+            Boolean validStation = false;
 
             string errors = "";
             int numberofbadlines = 0;
 
+            for (int l = 0; l < allNapsStationsLines.Length - 1; l++)
+            {
+                string[] line = allNapsStationsLines[l + 1].Split('\t');
+                try
+                {
+                    var thisStationID = line[0];
+                    if (pollutant == "NO2")
+                    {
+                        validStation = (line[18].Trim() == "X");
+                    }
+                    if (validStation)
+                    {
+                        validLinesForPollutant.Add(thisStationID, line);
+                    }
+                }
+                catch (Exception e)
+                {
+                    errors += "," + l;
+                }
+            }
+
+
+            string[] station = new string[validLinesForPollutant.Count];
+            string[] stationName = new string[validLinesForPollutant.Count];
+            string[] stationInfo = new string[validLinesForPollutant.Count];
+
+            Single[] lat = new Single[validLinesForPollutant.Count];
+            Single[] lon = new Single[validLinesForPollutant.Count];
+
+            Single[] latDB = new Single[validLinesForPollutant.Count];
+            Single[] lonDB = new Single[validLinesForPollutant.Count];
+
+            Single[] latOfficial = new Single[validLinesForPollutant.Count];
+            Single[] lonOfficial = new Single[validLinesForPollutant.Count];
+
+            double[] dist = new double[validLinesForPollutant.Count];
+            string[] lines4QAFile = new string[validLinesForPollutant.Count];
+
+
+
+            var firstLine = allNapsStationsLines[0].Split('\t');
       
             string slat, slon;
-            for (int l = 0; l < allNapsStationsLines.Length-1; l++)
+            for (int l = 0; l < validLinesForPollutant.Count; l++)
             {
 
-                var line = allNapsStationsLines[l+1].Split('\t');     
+                string[] line = validLinesForPollutant.ElementAt(l).Value;     
                 JassLatLon originalLatLon = new JassLatLon();
                 try
                 {
@@ -4880,7 +4967,7 @@ v(np)  =   ---------------------------------------------------------------------
                 }
             }
 
-            string outputFilePath = AppDataFolder + "\\naps_stations.nc";
+            string outputFilePath = AppDataFolder + "\\naps"+ pollutant+"_stations.nc";
             using (var napsOutputDataSet = DataSet.Open(outputFilePath + "?openMode=create"))
             {
                 napsOutputDataSet.Add<string[]>("station", station, "station");

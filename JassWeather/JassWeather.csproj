@@ -318,6 +318,7 @@
     <Compile Include="ViewModels\JassErrorPageModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Files\naps-stations.txt" />
     <Content Include="App_Readme\Elmah.txt" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
@@ -385,6 +386,8 @@
     <Content Include="App_Files\Narr_Grid.nc" />
     <Content Include="App_Files\Narr_2_CFSR_Grid_Mapper.nc" />
     <Content Include="App_Files\Narr_2_NAPS_Grid_Mapper.nc" />
+    <Content Include="App_Files\naps-stations.csv" />
+    <Content Include="App_Files\naps_stations.nc" />
     <None Include="Properties\PublishProfiles\envirolytic - FTP %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - Web Deploy %282%29.pubxml" />
@@ -605,6 +608,7 @@
     <Content Include="Views\Test\SaveSheridanLatLon - Copy.cshtml" />
     <Content Include="Views\Grid\MapNaps2Narr.cshtml" />
     <Content Include="Views\BuilderLog\ClearLogs.cshtml" />
+    <Content Include="Views\Grid\SaveNapsNO2LatLon.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

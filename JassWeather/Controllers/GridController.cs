@@ -169,6 +169,31 @@ namespace JassWeather.Controllers
                 "Narr_2_Naps_Grid_Mapper.nc", false, true);
             return View("MapNaps2Narr", result);
         }
+        public ActionResult SaveNapsNO2LatLon()
+        {
+            ViewBag.Result = apiCaller.napsSaveLatLongFromFile("NO2");
+            return View();
+        }
+        public ActionResult MapNapsNO22NarrTest()
+        {
+            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
+                "napsno2_stations.nc",
+                "lat",
+                "lon",
+                "Narr_Grid.nc",
+                "Narr_2_NapsNO2_Grid_Mapper.nc", true, true);
+            return View("MapNaps2Narr", result);
+        }
+        public ActionResult MapNapsNO22NarrReal()
+        {
+            JassWeather.Models.JassWeatherAPI.JassMaccNarrGridsCombo result = apiCaller.MapGridNarr2GridFromFile(
+                "napsno2_stations.nc",
+                "lat",
+                "lon",
+                "Narr_Grid.nc",
+                "Narr_2_NapsNO2_Grid_Mapper.nc", false, true);
+            return View("MapNaps2Narr", result);
+        }
 
 
         public ActionResult CreateEnvirolyticNarrGrid()

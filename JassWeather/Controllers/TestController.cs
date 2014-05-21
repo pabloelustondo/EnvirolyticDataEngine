@@ -57,7 +57,7 @@ namespace JassWeather.Controllers
 
         public ActionResult SaveNapsLatLon()
         {
-            ViewBag.Result = apiCaller.napsSaveLatLongFromFile();
+            ViewBag.Result = apiCaller.napsSaveLatLongFromFile("NO2");
             return View();
         }
 
