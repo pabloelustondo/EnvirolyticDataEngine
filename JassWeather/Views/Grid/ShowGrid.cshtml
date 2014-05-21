@@ -10,6 +10,7 @@
     int locationX = 241;
     string gridName = "could not identify grid";
     string locationName = "Toronto";
+    Boolean oneDimensionalGrid = false;
 
 
     locationY = (Model.JassLatLon != null && Model.JassLatLon.narrY != null) ? (int)Model.JassLatLon.narrY : 133;
@@ -36,12 +37,27 @@
     locationY = (Model.JassLatLon != null && Model.JassLatLon.sherY != null) ? (int)Model.JassLatLon.sherY : 133;
     locationX = (Model.JassLatLon != null && Model.JassLatLon.sherX != null) ? (int)Model.JassLatLon.sherX : 241;
     locationName = (Model.JassLatLon != null && Model.JassLatLon.Name != null) ? Model.JassLatLon.Name : "Toronto";
+        oneDimensionalGrid = true;
+    }
+
+    if (Model.fileMapper.Contains("NAPS"))
+    {
+        gridName = "NAPS";
+        locationY = (Model.JassLatLon != null && Model.JassLatLon.sherY != null) ? (int)Model.JassLatLon.sherY : 133;
+        locationX = (Model.JassLatLon != null && Model.JassLatLon.sherX != null) ? (int)Model.JassLatLon.sherX : 241;
+        locationName = (Model.JassLatLon != null && Model.JassLatLon.Name != null) ? Model.JassLatLon.Name : "Toronto";
+        oneDimensionalGrid = true;
     }
     
     }
 
 <h2>Showing Grid @gridName with highlights on location @locationName at y:@locationY  x:@locationX</h2>
 
+@{
+    
+    int MaxX = Model.maccLon.Length;
+    if (oneDimensionalGrid) { MaxX = 1; };
+}
 
 <table>
     @for (int y = 0; y < Model.maccLat.Length; y++)
@@ -50,14 +66,15 @@
             <td>
                 @y
             </td>
-            @for (int x = 0; x < Model.maccLon.Length; x++)
+            @for (int x = 0; x < MaxX;  x++)
             {
                 string borderStyle = "none";
                 if (y == @locationY || x == @locationX) { borderStyle = "solid"; }
 
                 <td style="width:200px; border-style:@borderStyle; border-color:black; border-width:medium">
                     @y:@x
-                    @Model.maccLat[y]:@Model.maccLon[x]
+                    @Model.maccLat[y]:
+                    @if(oneDimensionalGrid){@Model.maccLon[y]} else {@Model.maccLon[x]}
                 </td>
             }
         </tr>

@@ -388,6 +388,8 @@
     <Content Include="App_Files\Narr_2_NAPS_Grid_Mapper.nc" />
     <Content Include="App_Files\naps-stations.csv" />
     <Content Include="App_Files\naps_stations.nc" />
+    <Content Include="App_Files\napsNO2_stations.nc" />
+    <Content Include="App_Files\Narr_2_NapsNO2_Grid_Mapper.nc" />
     <None Include="Properties\PublishProfiles\envirolytic - FTP %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic - Web Deploy %282%29.pubxml" />
