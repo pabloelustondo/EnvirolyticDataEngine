@@ -267,6 +267,7 @@ namespace JassWeather.Models
                 DateTime processSourceStartime = DateTime.Now;
                 JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderAllLog, builder, year, month, "processSource_AfterCheck", "Test", LogMessage, new TimeSpan(), true);
 
+                string message="";
 
                 if (!fileOnDisk)
                 {
@@ -283,17 +284,18 @@ namespace JassWeather.Models
 
                         if (builder.APIRequest.type == "FTP-netCDF")
                         {
-                            get_big_NetCDF_by_ftp2(url, AppDataFolder);
-                        }
+                            message = get_big_NetCDF_by_ftp2(url, AppDataFolder);
+                        } 
+                        else 
                         if (builder.APIRequest.type == "HTTP-netCDF")
                         {
-                            get_big_NetCDF_by_http2(url, AppDataFolder);
+                            message =get_big_NetCDF_by_http2(url, AppDataFolder);
                         }
                         else
                         {
                             //we have a problem here we could not find the file
                            createBuilderLogChild(builderAllLog, builder, year, month, "processSource_FILE NOT FOUND CANNOT DOWNLOAD", "Test", LogMessage, new TimeSpan(), true);
-                           throw new Exception("FILE NOT FOUND CANNOT DOWNLOAD: " + fileName);
+                           throw new Exception("FILE NOT FOUND CANNOT DOWNLOAD: " + fileName + "  " + message);
                         }
 
                     }
@@ -6367,6 +6369,7 @@ v(np)  =   ---------------------------------------------------------------------
         }
 
         #region Dashboard operations
+        int yearsBackInHistory = 12;
 
         public List<JassVariableStatus> listVariableStatus()
         {
@@ -6385,7 +6388,7 @@ v(np)  =   ---------------------------------------------------------------------
             {
                 if (container.Name != "ftp" && container.Name != "trash")
                 {
-                    variableStatus = new JassVariableStatus(DateTime.Now.Year - 9, DateTime.Now.Year);
+                    variableStatus = new JassVariableStatus(DateTime.Now.Year - yearsBackInHistory, DateTime.Now.Year);
                     variableStatus.ContainerName = container.Name;
 
                     variableStatus.JassVariable = (from v in db.JassVariables where v.Name.ToLower() == container.Name select v).First();

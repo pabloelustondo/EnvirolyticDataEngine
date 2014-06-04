@@ -4,6 +4,7 @@
 @{
     ViewBag.Title = "Index";
     long grandTotal = 0;
+    int yearsBackInHistory = 12; 
 }
 
 <style>
@@ -13,7 +14,7 @@
     th { text-decoration:underline}
 </style>
 
-<h2>Available Data by Year from @(DateTime.Now.Year-9) to @(DateTime.Now.Year)</h2>
+<h2>Available Data by Year from @(DateTime.Now.Year - yearsBackInHistory) to @(DateTime.Now.Year)</h2>
 
 <table>
     <tr>
@@ -27,7 +28,7 @@
             Size(GB)
         </th>
         @for(int y=0; y<10; y++){
-            string yearString=(DateTime.Now.Year - 9 + y).ToString();
+            string yearString = (DateTime.Now.Year - yearsBackInHistory + y).ToString();
             <th>
             @Html.ActionLink(yearString, "ShowDashBoard4Year", new { yearIndex=y })              
             </th>
