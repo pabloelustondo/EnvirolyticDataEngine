@@ -13,7 +13,7 @@ namespace JassWeather.Controllers
     public class BlobController : JassController
     {
         private JassWeatherContext db = new JassWeatherContext();
-
+        static int yearsBackInHistory = JassWeatherAPI.yearsBackInHistory; 
 
         #region download
 
@@ -168,7 +168,7 @@ namespace JassWeather.Controllers
         public ActionResult ShowDashBoard4Year(int yearIndex)  //list container
         {
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
-            ViewBag.year = yearIndex + (DateTime.Now.Year - 9);
+            ViewBag.year = yearIndex + (DateTime.Now.Year - yearsBackInHistory);
             ViewBag.yearIndex = yearIndex;
             return View(variableStatusModel);
         }
@@ -176,7 +176,7 @@ namespace JassWeather.Controllers
         public ActionResult ShowDashBoard4Month(int yearIndex, int monthIndex)  //list container
         {
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
-            ViewBag.year = yearIndex + (DateTime.Now.Year - 9);
+            ViewBag.year = yearIndex + (DateTime.Now.Year - yearsBackInHistory);
             ViewBag.yearIndex = yearIndex;
             ViewBag.monthIndex = monthIndex;
             ViewBag.numberOfDays = variableStatusModel[0].StatusDayLevel[yearIndex][monthIndex].Count;
@@ -187,7 +187,7 @@ namespace JassWeather.Controllers
         {
             List<JassVariableStatus> variableStatusModel = apiCaller.listVariableStatus();
 
-             int year = yearIndex + (DateTime.Now.Year - 9);
+            int year = yearIndex + (DateTime.Now.Year - yearsBackInHistory);
              int month = monthIndex + 1;
              int day = dayIndex + 1;
 

@@ -1,10 +1,11 @@
 ﻿@using JassWeather.Models;
+@using JassWeather.Controllers;
 @model List<JassVariableStatus>
 
 @{
     ViewBag.Title = "Index";
     long grandTotal = 0;
-    int yearsBackInHistory = 12; 
+    int yearsBackInHistory = JassWeatherAPI.yearsBackInHistory; 
 }
 
 <style>
@@ -27,7 +28,8 @@
         <th>
             Size(GB)
         </th>
-        @for(int y=0; y<10; y++){
+        @for (int y = 0; y <= yearsBackInHistory; y++)
+        {
             string yearString = (DateTime.Now.Year - yearsBackInHistory + y).ToString();
             <th>
             @Html.ActionLink(yearString, "ShowDashBoard4Year", new { yearIndex=y })              
@@ -49,7 +51,8 @@
         <td class="@classForVariable"> 
            @(System.Math.Round((decimal)item.SizeVariableLevel/1000000000,2) )
         </td>
-        @for(int y=0; y<10; y++){
+        @for (int y = 0; y <= yearsBackInHistory; y++)
+        {
             string color="white";
             if (item.StatusYearLevel[y] == 100) { color = "green"; }
             if (item.StatusYearLevel[y] > 0 && item.StatusYearLevel[y] < 100) { color = "yellow"; }

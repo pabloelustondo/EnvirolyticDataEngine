@@ -396,12 +396,15 @@
     <Content Include="App_Files\Narr_2_NapsNO2_Grid_Mapper.nc" />
     <Content Include="App_TempFiles\PROCESS_INFO_Builder Temperature2m2014_6_4_11_12" />
     <Content Include="App_Data\Temperature2m_2003_01_01.nc" />
+    <None Include="Properties\PublishProfiles\envirolytic.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic1 %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic1.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic2.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic3.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic4.pubxml" />
     <None Include="Properties\PublishProfiles\envirolytic5.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolytic6.pubxml" />
+    <None Include="Properties\PublishProfiles\envirolytic7.pubxml" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
     <Content Include="Images\POC Explanation.png" />
     <Content Include="Scripts\jquery-1.8.2.js" />

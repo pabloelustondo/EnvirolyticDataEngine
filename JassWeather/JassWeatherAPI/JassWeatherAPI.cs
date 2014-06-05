@@ -6369,7 +6369,7 @@ v(np)  =   ---------------------------------------------------------------------
         }
 
         #region Dashboard operations
-        int yearsBackInHistory = 12;
+        public static int yearsBackInHistory = 12;
 
         public List<JassVariableStatus> listVariableStatus()
         {
