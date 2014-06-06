@@ -3573,7 +3573,7 @@ v(np)  =   ---------------------------------------------------------------------
                  year = dayLooper.Year;
                  month = dayLooper.Month;
                  day = dayLooper.Day;
-                 string dayString = "year: " + year + " month: " + " day: " + day;
+                 string dayString = "year: " + year + " month: " + month + " day: " + day;
                  markProcessUpdate("inside deriver cycle", dayString);
                         //first open the necessary file with something like process source.
 
