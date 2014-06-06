@@ -275,29 +275,13 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201404281346473_dayEnd.cs" />
-    <Compile Include="Migrations\201404281346473_dayEnd.Designer.cs">
-      <DependentUpon>201404281346473_dayEnd.cs</DependentUpon>
+    <Compile Include="Migrations\201406061426172_fix_processor.cs" />
+    <Compile Include="Migrations\201406061426172_fix_processor.Designer.cs">
+      <DependentUpon>201406061426172_fix_processor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201404301040158_historylength.cs" />
-    <Compile Include="Migrations\201404301040158_historylength.Designer.cs">
-      <DependentUpon>201404301040158_historylength.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201405020056421_tasks.cs" />
-    <Compile Include="Migrations\201405020056421_tasks.Designer.cs">
-      <DependentUpon>201405020056421_tasks.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201405051617288_x5.cs" />
-    <Compile Include="Migrations\201405051617288_x5.Designer.cs">
-      <DependentUpon>201405051617288_x5.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201405211728112_aaa.cs" />
-    <Compile Include="Migrations\201405211728112_aaa.Designer.cs">
-      <DependentUpon>201405211728112_aaa.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201406060340181_processors.cs" />
-    <Compile Include="Migrations\201406060340181_processors.Designer.cs">
-      <DependentUpon>201406060340181_processors.cs</DependentUpon>
+    <Compile Include="Migrations\201406061500159_processors-fix-2.cs" />
+    <Compile Include="Migrations\201406061500159_processors-fix-2.Designer.cs">
+      <DependentUpon>201406061500159_processors-fix-2.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
@@ -633,23 +617,11 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201404281346473_dayEnd.resx">
-      <DependentUpon>201404281346473_dayEnd.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201406061426172_fix_processor.resx">
+      <DependentUpon>201406061426172_fix_processor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201404301040158_historylength.resx">
-      <DependentUpon>201404301040158_historylength.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201405020056421_tasks.resx">
-      <DependentUpon>201405020056421_tasks.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201405051617288_x5.resx">
-      <DependentUpon>201405051617288_x5.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201405211728112_aaa.resx">
-      <DependentUpon>201405211728112_aaa.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201406060340181_processors.resx">
-      <DependentUpon>201406060340181_processors.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201406061500159_processors-fix-2.resx">
+      <DependentUpon>201406061500159_processors-fix-2.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -48,7 +48,8 @@
                             <li>@Html.ActionLink("Dashboard(Dev)", "ShowDashBoard", "Blob")</li>  
 
                                }
-                               @if(User.IsInRole("Admin")){                  
+                               @if(User.IsInRole("Admin")){     
+                            <li>@Html.ActionLink("Processors", "Index", "Processor")</li>              
                             <li>@Html.ActionLink("Sources", "Index", "RequestSet")</li>
                             <li>@Html.ActionLink("Builders", "Index", "Builder")</li>
                             <li>@Html.ActionLink("Derivers", "Index", "Deriver")</li>

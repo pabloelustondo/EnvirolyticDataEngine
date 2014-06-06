@@ -19,6 +19,7 @@ using Microsoft.Research.Science.Data.Imperative;
 using Microsoft.WindowsAzure;
 using System.Web.Helpers;
 
+
 namespace JassWeather.Models
 {    
     public class JassBlob {
@@ -3327,7 +3328,7 @@ v(np)  =   ---------------------------------------------------------------------
                                 {
                                     MessageBuilder = processBuilder(builder, year, month, weeky, day, upload, builderLog);
 
-
+                                    markProcessUpdate("builder", "year: " + year + "month: " + month + "weeky:" + weeky + " day: " + day);
                                     JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderLog, builder, year, month, "processBuilder_End", builder.JassVariable.Name, "", new TimeSpan(), true);
 
                                     Message += "  processBuilder(" + year + ",  " + month + ") =>" + MessageBuilder;
@@ -3386,6 +3387,8 @@ v(np)  =   ---------------------------------------------------------------------
             }
 
             return Message; 
+            markProcessEnd("builder", Message);
+   
         }
 
         public class ProcessDeriverModel
@@ -3402,7 +3405,7 @@ v(np)  =   ---------------------------------------------------------------------
             public double FillValue { get; set; }
         }
 
-        public KeyMetadataModel getKeyMetadata(DataSet dataset)
+        public KeyMetadataModel getKeyMetadata(Microsoft.Research.Science.Data.DataSet dataset)
         {
             var schema1 = dataset.GetSchema();
             VariableSchema keyVariable=null;
@@ -3460,15 +3463,15 @@ v(np)  =   ---------------------------------------------------------------------
         private JassProcessor myProcessor()
         {
             JassProcessor processor = new JassProcessor();
-            var myprocessors = db.JassProcessors.Where(p => p.url == this.JassServerName);
+            var myprocessors = db.JassProcessors.Where(p => p.name == this.JassServerName);
 
             if (myprocessors.Count() > 0)
             {
                 processor = myprocessors.FirstOrDefault();
             } else {
-                processor.url = this.JassServerName;
+                processor.name = this.JassServerName;
                 processor.lastUpdate = DateTime.Now;
-                processor.status = "just created";
+                processor.status = JassProcessor.statusNew;
                 db.JassProcessors.Add(processor);
                 db.SaveChanges();
             }
@@ -3478,26 +3481,36 @@ v(np)  =   ---------------------------------------------------------------------
         public Boolean markProcessStarts(string info, string processInfo)
         {
 
-            string path = AppTempFilesFolder + "/PROCESS_RUNNING";
-            if (File.Exists(path)) { return false; }
-            string path2 = AppTempFilesFolder + "/PROCESS_INFO_" + info + createTimestamp();
-
-            File.WriteAllText(path, "");
-            File.WriteAllText(path2, processInfo);
-
+            JassProcessor processor = myProcessor();
+            processor.status = JassProcessor.statusRunning;
+            processor.info = processInfo;
+            processor.startTime = DateTime.Now;
+            db.Entry(processor).State = System.Data.EntityState.Modified;
+            db.SaveChanges();
             return true;
         }
 
         public Boolean markProcessEnd(string info, string processInfo)
         {
 
-            string path = AppTempFilesFolder + "/PROCESS_RUNNING";
-            if (!File.Exists(path)) { return false; }
-            string path2 = AppTempFilesFolder + "/PROCESS_RESULT_" + info + createTimestamp();
+            JassProcessor processor = myProcessor();
+            processor.status = JassProcessor.statusIdleOk;
+            processor.update = processInfo;
+            processor.endTime = DateTime.Now;
+            processor.lastUpdate = DateTime.Now;
+            db.Entry(processor).State = System.Data.EntityState.Modified;
+            db.SaveChanges();
+            return true;
+        }
 
-            File.Delete(path);
-            File.WriteAllText(path2, processInfo);
+        public Boolean markProcessUpdate(string info, string processInfo)
+        {
 
+            JassProcessor processor = myProcessor();
+            processor.update = processInfo;
+            processor.lastUpdate = DateTime.Now;
+            db.Entry(processor).State = System.Data.EntityState.Modified;
+            db.SaveChanges();
             return true;
         }
             
@@ -4165,7 +4178,7 @@ v(np)  =   ---------------------------------------------------------------------
                 #region logs
                 JassBuilderLog childBuilderLog1 = createBuilderLogChild(builderAllLog, builder, year, month, "processBuilder_AfterProcessSource", builder.JassVariable.Name, "", DateTime.Now - startTimeProcessSource, true);
                 #endregion logs
-
+                markProcessUpdate("inside buidler", inputFile1);
                 Boolean input_Grid_Is_Different = (builder.APIRequest.JassGrid.Type != "NARR" );
 
                 if (input_Grid_Is_Different)
@@ -4318,6 +4331,8 @@ v(np)  =   ---------------------------------------------------------------------
                         in_day = currentDay.Day;
 
                         dayString = "" + in_year + "_" + in_month + "_" + in_day;
+
+                        markProcessUpdate("inside buidler cycle", dayString);
 
                         string outputFileName = fileNameBuilderByDay(variableName, in_year, in_month, in_day) + ".nc";
 

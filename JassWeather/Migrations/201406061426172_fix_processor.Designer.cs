@@ -5,13 +5,13 @@ namespace JassWeather.Migrations
     using System.Data.Entity.Migrations.Infrastructure;
     using System.Resources;
     
-    public sealed partial class aaa : IMigrationMetadata
+    public sealed partial class fix_processor : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(aaa));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(fix_processor));
         
         string IMigrationMetadata.Id
         {
-            get { return "201405211728112_aaa"; }
+            get { return "201406061426172_fix_processor"; }
         }
         
         string IMigrationMetadata.Source
