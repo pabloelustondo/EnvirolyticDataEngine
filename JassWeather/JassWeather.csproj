@@ -275,14 +275,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201406061426172_fix_processor.cs" />
-    <Compile Include="Migrations\201406061426172_fix_processor.Designer.cs">
-      <DependentUpon>201406061426172_fix_processor.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201406061500159_processors-fix-2.cs" />
-    <Compile Include="Migrations\201406061500159_processors-fix-2.Designer.cs">
-      <DependentUpon>201406061500159_processors-fix-2.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\APIRequest.cs" />
@@ -313,7 +305,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Files\naps-stations.txt" />
-    <Content Include="App_Readme\Elmah.txt" />
     <Content Include="App_TempFiles\dummy.txt" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
@@ -617,12 +608,6 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201406061426172_fix_processor.resx">
-      <DependentUpon>201406061426172_fix_processor.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201406061500159_processors-fix-2.resx">
-      <DependentUpon>201406061500159_processors-fix-2.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
