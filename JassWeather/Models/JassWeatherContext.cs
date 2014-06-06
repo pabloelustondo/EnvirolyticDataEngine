@@ -44,5 +44,7 @@ namespace JassWeather.Models
 
         public DbSet<JassTask> JassTasks { get; set; }
 
+        public DbSet<JassProcessor> JassProcessors { get; set; }
+
     }
 }

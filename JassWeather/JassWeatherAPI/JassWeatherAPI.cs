@@ -118,7 +118,8 @@ namespace JassWeather.Models
         public string AppDataFolder;
         public string AppTempFilesFolder;
         public string AppFilesFolder;
-        public string ServerNameJass;
+        public string JassServerName;
+        public JassProcessor myJassProcessor;
         public string storageConnectionString;
         DateTime startTotalTime = DateTime.UtcNow;
         DateTime endTotalTime = DateTime.UtcNow;
@@ -192,7 +193,8 @@ namespace JassWeather.Models
             this.AppDataFolder = appDataFolder;
             this.AppFilesFolder = appDataFolder + "\\..\\App_Files";
             this.AppTempFilesFolder = appDataFolder + "\\..\\App_TempFiles";
-            this.ServerNameJass = ServerNameIn;
+            this.JassServerName = ServerNameIn;
+            this.myJassProcessor = myProcessor();
           }
 
         public static JassRGB[] getColors()
@@ -3081,7 +3083,7 @@ v(np)  =   ---------------------------------------------------------------------
 
             jassBuilderLog.JassBuilderID = (builder.JassBuilderID > 0) ? builder.JassBuilderID : (int?)null;
             jassBuilderLog.EventType = eventType;
-            jassBuilderLog.ServerName = ServerNameJass;
+            jassBuilderLog.ServerName = JassServerName;
             jassBuilderLog.Label = eventType;
             jassBuilderLog.startTotalTime = DateTime.Now;
             jassBuilderLog.Message = Message;
@@ -3130,7 +3132,7 @@ v(np)  =   ---------------------------------------------------------------------
 
             jassBuilderLog.JassBuilderID = null;
             jassBuilderLog.EventType = eventType;
-            jassBuilderLog.ServerName = ServerNameJass;
+            jassBuilderLog.ServerName = JassServerName;
             jassBuilderLog.Label = eventType;
             jassBuilderLog.startTotalTime = DateTime.Now;
             jassBuilderLog.Message = Message;
@@ -3148,7 +3150,7 @@ v(np)  =   ---------------------------------------------------------------------
 
             jassBuilderLog.JassBuilderID = null;
             jassBuilderLog.EventType = eventType;
-            jassBuilderLog.ServerName = ServerNameJass;
+            jassBuilderLog.ServerName = JassServerName;
             jassBuilderLog.Label = eventType;
             jassBuilderLog.startTotalTime = DateTime.Now;
             jassBuilderLog.Message = Message;
@@ -3167,7 +3169,7 @@ v(np)  =   ---------------------------------------------------------------------
 
             jassBuilderLog.JassBuilderID = null;
             jassBuilderLog.EventType = Place;
-            jassBuilderLog.ServerName = ServerNameJass;
+            jassBuilderLog.ServerName = JassServerName;
             jassBuilderLog.Label = Place;
             jassBuilderLog.startTotalTime = DateTime.Now;
             jassBuilderLog.Message = Message;
@@ -3192,7 +3194,7 @@ v(np)  =   ---------------------------------------------------------------------
 
             jassBuilderLog.JassBuilderID = null;
             jassBuilderLog.EventType = Place;
-            jassBuilderLog.ServerName = ServerNameJass;
+            jassBuilderLog.ServerName = JassServerName;
             jassBuilderLog.Label = Place;
             jassBuilderLog.startTotalTime = DateTime.Now;
             jassBuilderLog.Message = Message;
@@ -3212,7 +3214,7 @@ v(np)  =   ---------------------------------------------------------------------
             jassBuilderLog.JassBuilderID = (builder.JassBuilderID > 0) ? builder.JassBuilderID : (int?)null;
             jassBuilderLog.ParentJassBuilderLogID = (int)parentLog.JassBuilderLogID;
             jassBuilderLog.year = year;
-            jassBuilderLog.ServerName = ServerNameJass;
+            jassBuilderLog.ServerName = JassServerName;
             jassBuilderLog.month = month;
             jassBuilderLog.EventType = eventType;
             jassBuilderLog.Label = eventType;
@@ -3454,6 +3456,25 @@ v(np)  =   ---------------------------------------------------------------------
             return result;
 
         }
+
+        private JassProcessor myProcessor()
+        {
+            JassProcessor processor = new JassProcessor();
+            var myprocessors = db.JassProcessors.Where(p => p.url == this.JassServerName);
+
+            if (myprocessors.Count() > 0)
+            {
+                processor = myprocessors.FirstOrDefault();
+            } else {
+                processor.url = this.JassServerName;
+                processor.lastUpdate = DateTime.Now;
+                processor.status = "just created";
+                db.JassProcessors.Add(processor);
+                db.SaveChanges();
+            }
+            return processor;
+        }
+
         public Boolean markProcessStarts(string info, string processInfo)
         {
 
@@ -4276,7 +4297,7 @@ v(np)  =   ---------------------------------------------------------------------
 
 
                     jassbuilder.Status = JassBuilderStatus.Processing;
-                    jassbuilder.ServerName = ServerNameJass;
+                    jassbuilder.ServerName = JassServerName;
                     jassbuilder.setTotalSize = time.Length / sourceStepsPerDay;
                     jassbuilder.setCurrentSize = 0;
                     jassbuilder.Message = "";
